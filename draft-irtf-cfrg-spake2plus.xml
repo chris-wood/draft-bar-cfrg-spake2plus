@@ -15,32 +15,25 @@
 ]>
 <?rfc toc="yes"?>
 <?rfc tocdepth="1"?>
-<rfc category="info" ipr="trust200902" docName="draft-irtf-cfrg-spake2-08" submissionType="IETF">
+<rfc category="info" ipr="trust200902" docName="draft-bar-cfrg-spake2plus-00" submissionType="IETF">
   <front>
     <title>SPAKE2, a PAKE</title>
-    <author fullname="Watson Ladd" initials="W." surname="Ladd">
-      <organization>UC Berkeley</organization>
+    <author role="editor" initials="F." surname="Bar" fullname="Foo Bar">
+      <organization abbrev="Apple, Inc.">Apple, Inc.</organization>
       <address>
-        <email>watsonbladd@gmail.com</email>
+        <email>foobar@apple.com</email>
       </address>
     </author>
-    <author role="editor" initials="B." surname="Kaduk" fullname="Benjamin Kaduk">
-      <organization abbrev="Akamai">Akamai Technologies</organization>
-      <address>
-        <email>kaduk@mit.edu</email>
-      </address>
-    </author>
-    <date month="March" year="2019"/>
+    <date month="January" year="2020"/>
     <abstract>
-      <t>This document describes SPAKE2 and its augmented variant SPAKE2+, which are protocols for
-          two parties that share a password to derive a strong shared key with no risk of disclosing
-          the password. This method is compatible with any prime order group, is computationally
-          efficient, and SPAKE2 (but not SPAKE2+) has a security proof.</t>
+      <t>This document describes SPAKE2+, a protocol for two parties that share a password to derive 
+        a strong shared key with no risk of disclosing the password. This method is compatible with 
+        any prime order group and is computationally efficient.</t>
     </abstract>
   </front>
   <middle>
     <section anchor="intro" title="Introduction">
-      <t>This document describes SPAKE2, a means for two parties that share a password
+      <t>This document describes SPAKE2+, a means for two parties that share a password
         to derive a strong shared key with no risk of disclosing the password.
         This password-based key exchange protocol is compatible with any group
         (requiring only a scheme to map a random input of fixed length per group
@@ -95,7 +88,7 @@
           or other names (hostnames, usernames, etc). A and B may share Additional
           Authenticated Data (AAD) of length at most 2^16 - 1 bits that is separate
           from their identities which they may want to include in the protocol execution.
-          One example of AAD is a list of supported protocol versions if SPAKE2(+) were
+          One example of AAD is a list of supported protocol versions if SPAKE2+ were
           used in a higher-level protocol which negotiates use of a particular PAKE. Including
           this list would ensure that both parties agree upon the same set of supported protocols
           and therefore prevent downgrade attacks. We also assume A and B share an integer w;
@@ -107,14 +100,10 @@
           forms of normalization of the password before hashing <xref target="RFC8265" />.
           The hashing algorithm SHOULD be a MHF so as to slow down brute-force
           attackers. </t>
-
-        <t>We present two protocols below. Note that it is insecure to use the
-          same password with both protocols; passwords MUST NOT be used for
-          both SPAKE2 and SPAKE2+.</t>
       </section>
 
       <section title="Protocol Flow" anchor="flow">
-        <t>Both SPAKE2 and SPAKE2+ are one round protocols to establish a shared secret with an 
+        <t>SPAKE2+ is a one round protocol that establishes a shared secret with an 
           additional round for key confirmation. Prior to invocation, A and B are provisioned with
           information such as the input password needed to run the protocol. 
           During the first round, A sends a public share pA 
@@ -122,7 +111,7 @@
           used to produce encryption and authentication keys. The latter are used during the second
           round for key confirmation. (<xref target="keys"/> details the key derivation and 
           confirmation steps.) In particular, A sends a key confirmation message cA to B, and B responds
-          with its own key confirmation messgage cB. Both parties MUST NOT consider the protocol complete
+          with its own key confirmation message cB. Both parties MUST NOT consider the protocol complete
           prior to receipt and validation of these key confirmation messages.</t>
 
         <t>This sample trace is shown below.</t>
@@ -140,46 +129,6 @@
                 |        cB        | (compute cB)
                 |<-----------------|
         ]]></artwork></figure>
-      </section>
-
-      <section title="SPAKE2" anchor="spake2">
-        <t>To begin, A picks x randomly and uniformly from the integers in [0,p),
-            and calculates X=x*P and T=w*M+X, then transmits pA=T to B.</t>
-
-        <t>B selects y randomly and uniformly from the integers in [0,p), and calculates
-            Y=y*P, S=w*N+Y, then transmits pB=S to A.</t>
-
-        <t>Both A and B calculate a group element K. A calculates it
-        as h*x*(S-wN), while B calculates it as h*y*(T-w*M). A knows S
-        because it has received it, and likewise B knows T. The
-        multiplication by h prevents small subgroup confinement
-        attacks by computing a unique value in the quotient
-        group. (Any text on abstract algebra explains this notion.)</t>
-
-        <t>K is a shared value, though it MUST NOT be used as a shared secret.
-          Both A and B must derive two shared secrets from K and the protocol transcript.
-          This prevents man-in-the-middle attackers from inserting themselves into
-          the exchange. The transcript TT is encoded as follows:</t>
-
-        <figure><artwork><![CDATA[
-	TT = len(A) || A || len(B) || B || len(S) || S 
-          || len(T) || T || len(K) || K || len(w) || w
-        ]]></artwork></figure>
-
-        <t>If an identity is absent, it is omitted from the transcript entirely. For example,
-          if both A and B are absent, then TT = len(S) || S || len(T) || T || len(K) || K || len(w) || w.
-          Likewise, if only A is absent, TT = len(B) || B || len(S) || S || len(T) || T || len(K) || K || len(w) || w.
-          This must only be done for applications in which identities are implicit. Otherwise,
-          the protocol risks Unknown Key Share attacks (discussion of Unknown Key Share attacks
-          in a specific protocol is given in <xref target="I-D.ietf-mmusic-sdp-uks"/>.</t>
-
-        <t>Upon completion of this protocol, A and B compute shared secrets Ke, KcA, and KcB as
-            specified in <xref target="keys"/>. A MUST send B a key confirmation message
-            so both parties agree upon these shared secrets. This confirmation message F
-            is computed as a MAC over the protocol transcript TT using KcA, as follows:
-            F = MAC(KcA, TT). Similarly, B MUST send A a confirmation message using a MAC
-            computed equivalently except with the use of KcB. Key confirmation verification
-            requires computing F and checking for equality against that which was received.</t>
       </section>
 
       <section title="SPAKE2+" anchor="spake2plus">
@@ -216,16 +165,26 @@
               || len(w0) || w0
         ]]></artwork></figure>
 
-        <t>As in <xref target="spake2"/>, inclusion of A and B in the transcript is optional depending
-        on whether or not the identities are implicit.</t>
+        <t>If an identity is absent, it is omitted from the transcript entirely. For example,
+          if both A and B are absent, then TT = len(S) || S || len(T) || T || len(K) || K || len(w) || w.
+          Likewise, if only A is absent, TT = len(B) || B || len(S) || S || len(T) || T || len(K) || K || len(w) || w.
+          This must only be done for applications in which identities are implicit. Otherwise,
+          the protocol risks Unknown Key Share attacks (discussion of Unknown Key Share attacks
+          in a specific protocol is given in <xref target="I-D.ietf-mmusic-sdp-uks"/>.</t>
 
-        <t>Upon completion of this protocol, A and B follow the same key derivation and confirmation
-            steps as outlined in <xref target="spake2"/>.</t>
+        <t>Upon completion of this protocol, A and B compute shared secrets Ke, KcA, and KcB as
+            specified in <xref target="keys"/>. A MUST send B a key confirmation message
+            so both parties agree upon these shared secrets. This confirmation message F
+            is computed as a MAC over the protocol transcript TT using KcA, as follows:
+            F = MAC(KcA, TT). Similarly, B MUST send A a confirmation message using a MAC
+            computed equivalently except with the use of KcB. Key confirmation verification
+            requires computing F and checking for equality against that which was received.</t>
       </section>
     </section>
+
     <section title="Key Schedule and Key Confirmation" anchor="keys">
-        <t>The protocol transcript TT, as defined in Sections <xref target="spake2plus"/> and
-            <xref target="spake2"/>, is unique and secret to A and B. Both parties use TT to
+        <t>The protocol transcript TT, as defined in Section <xref target="spake2plus"/>, 
+        is unique and secret to A and B. Both parties use TT to
             derive shared symmetric secrets Ke and Ka as Ke || Ka = Hash(TT). The length of each
             key is equal to half of the digest output, e.g., |Ke| = |Ka| = 128 bits for SHA-256.</t>
 
@@ -249,13 +208,13 @@
     </section>
     <section title="Ciphersuites" anchor="Ciphersuites">
         <t>
-            This section documents SPAKE2 and SPAKE2+ ciphersuite configurations. A ciphersuite
+            This section documents SPAKE2+ ciphersuite configurations. A ciphersuite
             indicates a group, cryptographic hash algorithm, and pair of KDF and MAC functions, e.g.,
-            SPAKE2-P256-SHA256-HKDF-HMAC. This ciphersuite indicates a SPAKE2 protocol instance over
+            SPAKE2-P256-SHA256-HKDF-HMAC. This ciphersuite indicates a SPAKE2+ protocol instance over
             P-256 that uses SHA256 along with HKDF <xref target="RFC5869"/> and HMAC <xref target="RFC2104"/>
             for G, Hash, KDF, and MAC functions, respectively.</t>
 
-            <texttable anchor="spake2_ciphersuites" title="SPAKE2(+) Ciphersuites">
+            <texttable anchor="spake2_ciphersuites" title="SPAKE2+ Ciphersuites">
                 <ttcol align='center'>G</ttcol>
                 <ttcol align='center'>Hash</ttcol>
                 <ttcol align='center'>KDF</ttcol>
@@ -388,15 +347,9 @@ seed: edwards448 point generation seed (N)
 
     </section>
     <section title="Security Considerations">
-      <t>A security proof of SPAKE2 for prime order groups is found in <xref
-          target="REF" />.  Note that the choice of M and N is critical for the
-        security proof.  The generation method specified in this document is
-        designed to eliminate concerns related to knowing discrete logs of M
-        and N.</t>
-
       <t>SPAKE2+ appears in <xref target="TDH" /> along with a path to a proof that
         server compromise does not lead to password compromise under the DH assumption
-        (though the corresponding model excludes precomputation attacks).</t>
+        (though the corresponding model excludes pre-computation attacks).</t>
 
       <t>Elements received from a peer MUST be checked for group membership:
         failure to properly validate group elements can lead to attacks. Beyond the cofactor
@@ -406,23 +359,12 @@ seed: edwards448 point generation seed (N)
       <t>The choices of random numbers MUST BE uniform. Randomly generated values (e.g., x and y)
           MUST NOT be reused; such reuse may permit dictionary attacks on the password.</t>
 
-      <t>SPAKE2 does not support augmentation. As a result, the server has to
-        store a password equivalent. This is considered a significant drawback,
-        and so SPAKE2+ also appears in this document.</t>
-
     </section>
     <section title="IANA Considerations">
       <t>No IANA action is required.</t>
     </section>
     <section title="Acknowledgments">
-      <t>Special thanks to Nathaniel McCallum and Greg Hudson
-        for generation of test vectors.
-        Thanks to Mike Hamburg for advice on how to deal with cofactors. Greg
-        Hudson also suggested the addition of warnings on the reuse of x and y. Thanks
-        to Fedor Brunner, Adam Langley, and the members of the CFRG for
-        comments and advice. Chris Wood contributed substantial text and reformatting
-        to address the excellent review comments from Kenny Paterson.
-        Trevor Perrin informed me of SPAKE2+.</t>
+      <t>Thanks to Ben Kaduk and Watson Ladd, from which this specification originally emanates.</t>
     </section>
   </middle>
   <back>
@@ -558,133 +500,13 @@ def gen_point(seed, ecname, ec):
     </section>
 
     <section anchor="testvectors" title="Test Vectors">
-      <t>This section contains test vectors for SPAKE2 and SPAKE2+ using 
+      <t>This section contains test vectors for SPAKE2+ using 
         the P256-SHA256-HKDF-HMAC ciphersuite. (Choice of MHF is omitted
         and values for w and w0,w1 are provided directly.) All points are 
         encoded using the uncompressed format, i.e., with a 0x04 octet
         prefix, specified in <xref target="SEC1"/> A and B identity strings
         are provided in the protocol invocation.
       </t>
-
-      <section title="SPAKE2 Test Vectors">
-        <figure><artwork><![CDATA[
-SPAKE2(A='client', B='server') 
-w = 0x7741cf8c80b9bee583abac3d38daa6b807fed38b06580cb75ee85319d25fed
-e6 
-X = 0x04ac6827b3a9110d1e663bcd4f5de668da34a9f45e464e99067bbea53f1ed4
-d8abbdd234c05b3a3a8a778ee47f244cca1a79acb7052d5e58530311a9af077ba179
-T = 0x04e02acfbbfb081fc38b5bab999b5e25a5ffd0b1ac48eae24fcc8e49ac5e0d
-8a790914419a100e205605f9862daa848e99cea455263f0c6e06bc5a911f3e10a16b
-Y = 0x0413c45ab093a75c4b2a6e71f957eec3859807858325258b0fa43df5a6efd2
-63c59b9c1fbfd55bc5e75fd3e7ba8af6799a99b225fe6c30e6c2a2e0ab4962136ba8
-S = 0x047aad50ba7bd6a5eacbead7689f7146f1a4219fa071cce1755f80280cc6c3
-a5a73cf469f2a294a0b74a5c07054585ccd447f3f633d8631f3bf43442449e9efeba
-TT = 0x0600000000000000636c69656e74060000000000000073657276657241000
-00000000000047aad50ba7bd6a5eacbead7689f7146f1a4219fa071cce1755f80280
-cc6c3a5a73cf469f2a294a0b74a5c07054585ccd447f3f633d8631f3bf43442449e9
-efeba410000000000000004e02acfbbfb081fc38b5bab999b5e25a5ffd0b1ac48eae
-24fcc8e49ac5e0d8a790914419a100e205605f9862daa848e99cea455263f0c6e06b
-c5a911f3e10a16b410000000000000004d01fc08bbae9b6abe2f4d6893cc9f810433
-2e19be5f5881c6b9f077e1feff55023da74db65fae320fad8f0dd38e1323f5336f3f
-53c9c9dec06710f18f556bd2020000000000000007741cf8c80b9bee583abac3d38d
-aa6b807fed38b06580cb75ee85319d25fede6 
-Ka = 0x2b5e350c58d530c3586f75bf2a155c4b 
-Ke = 0x238509f7adf0dc72500b2d1315737a27 
-KcA = 0xc33d2ef8e37a7e545c14c7fcfdc9db94 
-KcB = 0x18a81cec7eb83416db6615cb3bc03fcb 
-MAC(A) = 0x29e9a63d243f2f0db5532d2eb0dbaa617803b85feb31566d0cb9457e3
-03bcfa6 
-MAC(B) = 0x487e4cbe98b6287272d043e169a19b6c4682d0481c92f53f1ee03d4b8
-6c3f43e 
-
-SPAKE2(A='client', B='') 
-w = 0x7741cf8c80b9bee583abac3d38daa6b807fed38b06580cb75ee85319d25fed
-e6 
-X = 0x048b5d7b44b02c4c868f4486ec55bd2380ec34cd5fa5dbff1079a79097e305
-0b34fa91272331729357c86cbb30d371e252dc915aeaa314921b1f09f74816f96a12
-T = 0x04839f44931b88d12769e601d0ec480b6c9ea95e70ba361ba14bf513e5186a
-6c302e6f409bd01f1030ad3cdac1e08965217e430ca7f9bce698111ae8a4d0530efd
-Y = 0x0446419d63037d0bbaca224f89987c776bfea2e0913ccda0790079212f476d
-6fd1ec997a02821a804f885e4f29b172b27c92251d883efe201cae106c239108c0c7
-S = 0x042926b2dbcc5d0cb23ca123cc4133242f2998439af5380434a4bd5fd76fbb
-c030b5563218d0184fa3fd303482a679c9555ccea41098b26b6ee16fe35c792b1fda
-TT = 0x0600000000000000636c69656e744100000000000000042926b2dbcc5d0cb
-23ca123cc4133242f2998439af5380434a4bd5fd76fbbc030b5563218d0184fa3fd3
-03482a679c9555ccea41098b26b6ee16fe35c792b1fda410000000000000004839f4
-4931b88d12769e601d0ec480b6c9ea95e70ba361ba14bf513e5186a6c302e6f409bd
-01f1030ad3cdac1e08965217e430ca7f9bce698111ae8a4d0530efd4100000000000
-000041d9e3c88db68247ab50264a6090e2e524bda3049dbc53c4df708e37bd76913b
-8cf5954c4d0f835331f185fef4ff1c6115cf0eb8ce27e8224bf5f76c75b182308200
-00000000000007741cf8c80b9bee583abac3d38daa6b807fed38b06580cb75ee8531
-9d25fede6 
-Ka = 0xfc8482d5d7623a75ad09721d631d1392 
-Ke = 0x93f618fe24d0d5a54b320f498dbd3ecb 
-KcA = 0x75b20fc4205d6217a22156f918dd03b1 
-KcB = 0x3bf3a5d3876d9d12dc54cab927acd5f7 
-MAC(A) = 0xd4994b751eb832b2836ad674cd615c643053278864a63e263bc2f324b
-9a04ddd 
-MAC(B) = 0x23cf761999b7603adf5507b50c9bda4eaabe8fa7a9ad0280729dfcd00
-8b2bf05 
-
-SPAKE2(A='', B='server') 
-w = 0x7741cf8c80b9bee583abac3d38daa6b807fed38b06580cb75ee85319d25fed
-e6 
-X = 0x0465e8b4709ba622bc97af5dde3b41757c2114bfc5abb10141245cb01d62ca
-0d7360e1169cd518f9351bbfa44a66cc5f3bcb60661a04f39b04a3d504046db67884
-T = 0x0482f64286419ff46362faf781776edf908740b8ff612e0bfe3c90cdc553ba
-db7f882a4110ee71fa13a693b5ce96ceba5798636555d074648d4521e3b63dc14872
-Y = 0x041aa11299692627a7cac122d4c14606ff700a8be6a0fb1c42f3762d629893
-ab3ca51e4a48c798fc8c6b9dcfda1ad33099ed2f73abe6b3500ce383f54011430c26
-S = 0x04adba3c3b9a74d9769651d09aedb37d22b9471b9e408e2b98fdd4188c12fa
-c731e9dc87e029f7dee0213660ddf0791f50dd8fd32f7152015be0489125b3831b4b
-TT = 0x0600000000000000736572766572410000000000000004adba3c3b9a74d97
-69651d09aedb37d22b9471b9e408e2b98fdd4188c12fac731e9dc87e029f7dee0213
-660ddf0791f50dd8fd32f7152015be0489125b3831b4b41000000000000000482f64
-286419ff46362faf781776edf908740b8ff612e0bfe3c90cdc553badb7f882a4110e
-e71fa13a693b5ce96ceba5798636555d074648d4521e3b63dc148724100000000000
-00004a406929024a5275372531c85c54fd222f35bfdb1cdf1bd1abe82d5c837744d9
-3ea2979962eb374d4feda37b178e91711c52edd453178cf69748e0a3d9ef073c2200
-00000000000007741cf8c80b9bee583abac3d38daa6b807fed38b06580cb75ee8531
-9d25fede6 
-Ka = 0xcd9c33c6329761919486d0041faccb56 
-Ke = 0xa08125eeed51c61ad93b2ff7d8ec3cd5 
-KcA = 0x60056386cbe06ba199fa6aef81dfb273 
-KcB = 0x5e5a591b4426d47190aecb2fc4527140 
-MAC(A) = 0xf0dcfb4fa874e3fcbadd44b6eb26a64d1d5c6e50034934934551f172d
-3cdc50e 
-MAC(B) = 0x52e7a505c0b73db656108554a854c3f33bfb01edcc1ee52aa27ceb1cb
-ef7f47b 
-
-SPAKE2(A='', B='') 
-w = 0x7741cf8c80b9bee583abac3d38daa6b807fed38b06580cb75ee85319d25fed
-e6 
-X = 0x04fbeb44d6b772fa390fcced51be7316107e608ddf4ab5dcc9f1b2e24bf667
-7f3232cdeeb39a61621a9e48028997d449894212eb54b6f12bdbd9baf8f1c909a740
-T = 0x04887af8439d743215f26d48314835b024b9301ea508eac3a339241672fbba
-09f63e155b1df5d31ccc63babafc00ffff6e258c692aed84a859fd4960d99fcec777
-Y = 0x04bb4727c5c5c50ae34d5148ec6797e5ebf93ae51c5c6cfd48579c41436823
-1ac8769142bf6a0109bd2b86dd901c6054629ce2c6b982326c9cd9a3685c4cf0640d
-S = 0x04665b5101132528be32f4b4762d6ae80273bbe74e151fc2320da373e146ee
-cd33038ff8099782f3781160244672cb43b4d9f2007da9b617c1890845440da0ca53
-TT = 0x410000000000000004665b5101132528be32f4b4762d6ae80273bbe74e151
-fc2320da373e146eecd33038ff8099782f3781160244672cb43b4d9f2007da9b617c
-1890845440da0ca53410000000000000004887af8439d743215f26d48314835b024b
-9301ea508eac3a339241672fbba09f63e155b1df5d31ccc63babafc00ffff6e258c6
-92aed84a859fd4960d99fcec777410000000000000004aacd2378990cecd338c7cac
-d132ce633bc424ac5d4ab32f539ccf31f15deef62463253790e139b461c5137944fc
-6a5ffd895dbe0d3960b01f6d662fc41057a7020000000000000007741cf8c80b9bee
-583abac3d38daa6b807fed38b06580cb75ee85319d25fede6 
-Ka = 0x16b10f1541c24c630f462f7e0aa57ddf 
-Ke = 0xb7ae8b61938e3dfad8b9ce1d2865533f 
-KcA = 0x3398d6c7de402a9ae89a4594d5576c21 
-KcB = 0x6894ab44d7ba7f3a40a772d1476593d9 
-MAC(A) = 0x12fce7f0aecc1dba393a7e5612e6357becc5e3d07cd41ffd35c6d652f
-29cde60 
-MAC(B) = 0xac36c6d186c3b824f4cfe099f035cf3aed4162d08886d32fa1806e5bf
-4015255 
-    ]]></artwork></figure>
-      </section>
-
       <section title="SPAKE2+ Test Vectors">
 <figure><artwork><![CDATA[
 SPAKE2+(A='client', B='server') 
