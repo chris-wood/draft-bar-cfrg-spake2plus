@@ -123,7 +123,7 @@
           round for key confirmation. (<xref target="keys"/> details the key derivation and 
           confirmation steps.) In particular, A sends a key confirmation message cA to B, and B responds
           with its own key confirmation messgage cB. Both parties MUST NOT consider the protocol complete
-          prior to receipt of these key confirmation messages.</t>
+          prior to receipt and validation of these key confirmation messages.</t>
 
         <t>This sample trace is shown below.</t>
         <figure><artwork><![CDATA[
@@ -200,7 +200,7 @@
           valid w0 and w1 are produced. B stores L=w1*P and w0.</t>
 
         <t>When executing SPAKE2+, A selects x uniformly at random from the
-          numbers in the range [0, p), and lets X=x*P+w0*M, then transmits pa=X to
+          numbers in the range [0, p), and lets X=x*P+w0*M, then transmits pA=X to
           B. Upon receipt of X, A computes h*X and aborts if the result is equal
           to I. B then selects y uniformly at random from the numbers in [0, p),
           then computes Y=y*P+w0*N, and transmits pB=Y to A. .</t>
