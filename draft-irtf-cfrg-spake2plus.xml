@@ -173,11 +173,11 @@
           in a specific protocol is given in <xref target="I-D.ietf-mmusic-sdp-uks"/>.</t>
 
         <t>Upon completion of this protocol, A and B compute shared secrets Ke, KcA, and KcB as
-            specified in <xref target="keys"/>. A MUST send B a key confirmation message
-            so both parties agree upon these shared secrets. This confirmation message F
-            is computed as a MAC over the received share (pA or pB) using KcA or KcB, as follows:
-            Fa = MAC(KcA, pB). Similarly, B MUST send A a confirmation message using a MAC
-            computed equivalently except with the use of KcB. Key confirmation verification
+            specified in <xref target="keys"/>. A MUST send B a key confirmation message Fa
+            so both parties agree upon these shared secrets. This confirmation message Fa
+            is computed as a MAC over the received share (pB) using KcA. Specifically, A 
+            computes Fa = MAC(KcA, pB). Similarly, B MUST send A a confirmation message using a MAC
+            computed equivalently except with the use of pA and KcB. Key confirmation verification
             requires computing F and checking for equality against that which was received.</t>
       </section>
     </section>
