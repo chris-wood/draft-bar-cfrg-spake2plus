@@ -152,10 +152,10 @@
           numbers in the range [0, p), and lets X=x*P+w0*M, then transmits pA=X to
           B. Upon receipt of X, A computes h*X and aborts if the result is equal
           to I. B then selects y uniformly at random from the numbers in [0, p),
-          then computes Y=y*P+w0*N, and transmits pB=Y to A. .</t>
+          then computes Y=y*P+w0*N, and transmits pB=Y to A.</t>
 
         <t>A computes Z as h*x*(Y-w0*N), and V as h*w1*(Y-w0*N). B computes Z as h*y*(X-
-          w0*M) and V as h*y*L. Both share Z and V as common keys. It is essential
+          w0*M) and V as h*y*L. Both share Z and V as common values. It is essential
           that both Z and V be used in combination with the transcript to
           derive the keying material. The protocol transcript encoding is shown below.</t>
 
@@ -166,8 +166,8 @@
         ]]></artwork></figure>
 
         <t>If an identity is absent, it is omitted from the transcript entirely. For example,
-          if both A and B are absent, then TT = len(S) || S || len(T) || T || len(K) || K || len(w) || w.
-          Likewise, if only A is absent, TT = len(B) || B || len(S) || S || len(T) || T || len(K) || K || len(w) || w.
+          if both A and B are absent, then TT = len(X) || X || len(Y) || Y || len(Z) || Z || len(w0) || w0.
+          Likewise, if only A is absent, TT = len(B) || B || len(X) || X || len(Y) || Y || len(Z) || Z || len(w0) || w0.
           This must only be done for applications in which identities are implicit. Otherwise,
           the protocol risks Unknown Key Share attacks (discussion of Unknown Key Share attacks
           in a specific protocol is given in <xref target="I-D.ietf-mmusic-sdp-uks"/>.</t>
@@ -175,8 +175,8 @@
         <t>Upon completion of this protocol, A and B compute shared secrets Ke, KcA, and KcB as
             specified in <xref target="keys"/>. A MUST send B a key confirmation message
             so both parties agree upon these shared secrets. This confirmation message F
-            is computed as a MAC over the protocol transcript TT using KcA, as follows:
-            F = MAC(KcA, TT). Similarly, B MUST send A a confirmation message using a MAC
+            is computed as a MAC over the received share (pA or pB) using KcA or KcB, as follows:
+            Fa = MAC(KcA, pB). Similarly, B MUST send A a confirmation message using a MAC
             computed equivalently except with the use of KcB. Key confirmation verification
             requires computing F and checking for equality against that which was received.</t>
       </section>
@@ -191,9 +191,9 @@
         <t>Both endpoints use Ka to derive subsequent MAC keys for key confirmation messages.
             Specifically, let KcA and KcB be the MAC keys used by A and B, respectively.
             A and B compute them as KcA || KcB = KDF(nil, Ka, "ConfirmationKeys" || AAD), where AAD
-            is the associated data each given to each endpoint, or nil if none was provided.
-            The length of each of KcA and KcB is equal to half of the KDF output, e.g.,
-            |KcA| = |KcB| = 128 bits for HKDF(SHA256).</t>
+            is the associated data each given to each endpoint, or nil (empty string) 
+            if none was provided. The length of each of KcA and KcB is equal to half of the KDF 
+            output, e.g., |KcA| = |KcB| = 128 bits for HKDF with SHA256.</t>
 
         <t>The resulting key schedule for this protocol, given transcript TT and additional associated
             data AAD, is as follows.</t>
@@ -203,14 +203,14 @@
         AAD -> KDF(nil, Ka, "ConfirmationKeys" || AAD) = KcA || KcB
         ]]></artwork></figure>
 
-        <t>A and B output Ke as the shared secret from the protocol. Ka and its derived keys are not
-            used for anything except key confirmation.</t>
+        <t>A and B output Ke as the shared secret from the protocol. Ka and its derived keys (KcA and KcB) 
+          are not used for anything except key confirmation.</t>
     </section>
     <section title="Ciphersuites" anchor="Ciphersuites">
         <t>
             This section documents SPAKE2+ ciphersuite configurations. A ciphersuite
             indicates a group, cryptographic hash algorithm, and pair of KDF and MAC functions, e.g.,
-            SPAKE2-P256-SHA256-HKDF-HMAC. This ciphersuite indicates a SPAKE2+ protocol instance over
+            SPAKE2+-P256-SHA256-HKDF-HMAC. This ciphersuite indicates a SPAKE2+ protocol instance over
             P-256 that uses SHA256 along with HKDF <xref target="RFC5869"/> and HMAC <xref target="RFC2104"/>
             for G, Hash, KDF, and MAC functions, respectively.</t>
 
