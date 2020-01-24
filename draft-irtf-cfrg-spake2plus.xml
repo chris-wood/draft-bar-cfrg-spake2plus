@@ -26,15 +26,17 @@
     </author>
     <date month="January" year="2020"/>
     <abstract>
-      <t>This document describes SPAKE2+, a protocol for two parties that share a password to derive 
-        a strong shared key with no risk of disclosing the password. This method is compatible with 
-        any prime order group and is computationally efficient.</t>
+      <t>This document describes SPAKE2+, a Password Authenticated Key Exchange (PAKE) protocol 
+        run between two parties for deriving a strong shared key with no risk of disclosing the password. 
+        SPAKE2+ is an augmented PAKE protocol, as only one party has knowledge of the password.
+        This method is compatible with any prime order group and is computationally efficient.</t>
     </abstract>
   </front>
   <middle>
     <section anchor="intro" title="Introduction">
-      <t>This document describes SPAKE2+, a means for two parties that share a password
-        to derive a strong shared key with no risk of disclosing the password.
+      <t>This document describes SPAKE2+, a Password Authenticated Key Exchange (PAKE) protocol 
+        run between two parties for deriving a strong shared key with no risk of disclosing the password. 
+        SPAKE2+ is an augmented PAKE protocol, as only one party has knowledge of the password.
         This password-based key exchange protocol is compatible with any group
         (requiring only a scheme to map a random input of fixed length per group
         to a random group element), is
@@ -51,7 +53,7 @@
         appear in all capitals, as shown here.</t>
     </section>
     <section anchor="definition" title="Definition of SPAKE2+">
-      <section title="Setup" anchor="setup">
+      <section title="Offline Initialization" anchor="setup">
         <t>Let G be a group in which the computational Diffie-Hellman (CDH)
           problem is hard. Suppose G has order p*h where p is a large prime;
           h will be called the cofactor. Let I be the unit element in
@@ -96,7 +98,7 @@
       </section>
 
       <section title="Protocol Flow" anchor="flow">
-        <t>SPAKE2+ is a one round protocol that establishes a shared secret with an 
+        <t>SPAKE2+ is a two round protocol that establishes a shared secret with an 
           additional round for key confirmation. Prior to invocation, A and B are provisioned with
           information such as the input password needed to run the protocol. 
           During the first round, A, the prover, sends a public share pA 
