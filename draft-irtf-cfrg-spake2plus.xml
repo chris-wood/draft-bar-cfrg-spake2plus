@@ -103,24 +103,25 @@
           to B, the verifier, and B responds with its own public share pB. Both A and B then derive a shared secret
           used to produce encryption and authentication keys. The latter are used during the second
           round for key confirmation. (<xref target="keys"/> details the key derivation and 
-          confirmation steps.) In particular, A sends a key confirmation message cA to B, and B responds
-          with its own key confirmation message cB. Both parties MUST NOT consider the protocol complete
-          prior to receipt and validation of these key confirmation messages.</t>
+          confirmation steps.) In particular, B sends a key confirmation message cB to A, and A responds
+          with its own key confirmation message cA. (Note that pB and cB MAY be sent in the same message.)
+          Both parties MUST NOT consider the protocol complete prior to receipt and validation of these key 
+          confirmation messages.</t>
 
         <t>This sample trace is shown below.</t>
         <figure><artwork><![CDATA[
                 A                  B
                 | (setup protocol) |
-  (compute pA)  |        pA        |
+   (compute pA) |        pA        |
                 |----------------->|
                 |        pB        | (compute pB)
                 |<-----------------|
                 |                  | 
-                | (derive secrets) |
-  (compute cA)  |        cA        |
-                |----------------->|
-                |        cB        | (compute cB)
+                | (derive secrets) | (compute cB)
+                |        cB        |
                 |<-----------------|
+   (compute cA) |        cA        | 
+                |----------------->|
         ]]></artwork></figure>
       </section>
 
@@ -173,12 +174,13 @@
           in a specific protocol is given in <xref target="I-D.ietf-mmusic-sdp-uks"/>.</t>
 
         <t>Upon completion of this protocol, A and B compute shared secrets Ke, KcA, and KcB as
-            specified in <xref target="keys"/>. A MUST send B a key confirmation message Fa
-            so both parties agree upon these shared secrets. This confirmation message Fa
-            is computed as a MAC over the received share (pB) using KcA. Specifically, A 
-            computes Fa = MAC(KcA, pB). Similarly, B MUST send A a confirmation message using a MAC
-            computed equivalently except with the use of pA and KcB. Key confirmation verification
-            requires computing F and checking for equality against that which was received.</t>
+            specified in <xref target="keys"/>. B MUST send A a key confirmation message Fb
+            so both parties agree upon these shared secrets. This confirmation message Fb
+            is computed as a MAC over the received share (pA) using KcB. Specifically, B 
+            computes Fb = MAC(KcB, pA). After receipt and verification of B's confirmation 
+            message, A MUST send B a confirmation message using a MAC computed equivalently 
+            except with the use of pB and KcA. Key confirmation verification requires computing 
+            F and checking for equality against that which was received.</t>
       </section>
     </section>
 
