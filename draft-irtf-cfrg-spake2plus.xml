@@ -29,20 +29,37 @@
       <t>This document describes SPAKE2+, a Password Authenticated Key Exchange (PAKE) protocol 
         run between two parties for deriving a strong shared key with no risk of disclosing the password. 
         SPAKE2+ is an augmented PAKE protocol, as only one party has knowledge of the password.
-        This method is compatible with any prime order group and is computationally efficient.</t>
+        This method is simple to implement, compatible with any prime order group and is computationally efficient.</t>
     </abstract>
   </front>
   <middle>
     <section anchor="intro" title="Introduction">
-      <t>This document describes SPAKE2+, a Password Authenticated Key Exchange (PAKE) protocol 
+        <t>
+        This document describes SPAKE2+, a Password Authenticated Key Exchange (PAKE) protocol 
         run between two parties for deriving a strong shared key with no risk of disclosing the password. 
-        SPAKE2+ is an augmented PAKE protocol, as only one party has knowledge of the password.
-        This password-based key exchange protocol is compatible with any group
-        (requiring only a scheme to map a random input of fixed length per group
-        to a random group element), is
-        computationally efficient, and has a security proof.
-        Predetermined parameters for a selection of commonly used groups are
-        also provided for use by other protocols.</t>
+        SPAKE2+ is an augmented PAKE protocol, as only one party makes direct use of the password during the execution of the protocol.
+        The other party only needs a verification value at the time of the protocol execution instead of the password. 
+        The verification value can be computed once, during an offline initialization phase.
+        The party using the password directly would typically be a client, and acts as a prover,
+        while the other party would be a server, and acts as verifier.
+        </t>
+        <t>
+        The protocol is augmented in the sense that it provides some resilience to the compromise or extraction of the verification value.
+        The design of the protocol forces the adversary to recover the password from the verification value to successful execute the protocol. 
+        Hence this protocol can be advantageously combined with a salted Password Hashing Function to increase the cost of the recovery and slow down attacks.
+        The verification value cannot be used directly to successfully run the protocol as a prover,
+        making this protocol more robust than balanced PAKEs which don't benefit from Password Hashing Functions to the same extend.
+        </t>
+        <t>
+        This augmented property is especially valuable in scenarios where the execution of the protocol is constrained
+        and the adversary can not query the salt of the password hash function ahead of the attack.
+        Constraints may consist in being in physical proximity through a local network or
+        when initiation of the protocol requires a first authentication factor.
+        </t>
+        <t>
+        This password-based key exchange protocol is compatible with any group. 
+        It only relies on group operations making it simple and computationally efficient. It also has a security proof.
+        Predetermined parameters for a selection of commonly used groups are also provided.</t>
     </section>
     <section anchor="notation" title="Requirements Notation">
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
@@ -74,14 +91,15 @@
 
         <t>KDF is a key-derivation function that takes as input a salt, intermediate
           keying material (IKM), info string, and derived key length L to derive a
-          cryptographic key of length L. MAC is a Message
-          Authentication Code algorithm that takes a secret key and
-          message as input to produce an output. Let Hash be a hash function from
-          arbitrary strings to bit strings of a fixed length. Common choices
-          for H are SHA256 or SHA512 <xref target="RFC6234"/>. Let MHF be a memory-hard
-          hash function designed to slow down brute-force attackers. Scrypt <xref target="RFC7914"/>
-          is a common example of this function. The output length of MHF matches that
-          of Hash. Parameter selection for MHF is out of scope for this document.
+          cryptographic key of length L. 
+          MAC is a Message Authentication Code algorithm that takes a secret key and
+          message as input to produce an output. 
+          Let Hash be a hash function from arbitrary strings to bit strings of a fixed length. Common choices
+          for H are SHA256 or SHA512 <xref target="RFC6234"/>. 
+          Let PHF be a Password-Hash Function designed to slow down brute-force attackers. 
+          Scrypt <xref target="RFC7914"/> and Argon2 are common examples of PHF functions. 
+          The output length of a PHF is typically configurable along with the memory and CPU hardness parameters.
+          Hardness parameter selection for PHF is out of scope for this document.
           <xref target="Ciphersuites"/> specifies variants of KDF, MAC, and Hash
           suitable for use with the protocols contained herein.</t>
 
@@ -91,7 +109,7 @@
           Authenticated Data (AAD) of length at most 2^16 - 1 bits that is separate
           from their identities which they may want to include in the protocol execution.
           One example of AAD is a list of supported protocol versions if SPAKE2+ were
-          used in a higher-level protocol which negotiates use of a particular PAKE. Including
+          used in a higher-level protocol which negotiates the use of a particular PAKE. Including
           this list would ensure that both parties agree upon the same set of supported protocols
           and therefore prevent downgrade attacks.
         </t>
@@ -101,6 +119,8 @@
         <t>SPAKE2+ is a two round protocol that establishes a shared secret with an 
           additional round for key confirmation. Prior to invocation, A and B are provisioned with
           information such as the input password needed to run the protocol. 
+          A preamble exchange may occur in order to communicate identities, protocol version and PHF parameters related to the verification value.
+          Details of the preamble phase is out of scope of this document.
           During the first round, A, the prover, sends a public share pA 
           to B, the verifier, and B responds with its own public share pB. Both A and B then derive a shared secret
           used to produce encryption and authentication keys. The latter are used during the second
@@ -113,6 +133,13 @@
         <t>This sample trace is shown below.</t>
         <figure><artwork><![CDATA[
                 A                  B
+                
+                |   (Preamble)     |
+                |      Hello       |
+                |- - - - - - - - ->|
+                | PHF params, salt |
+                |< - - - - - - - - |
+                |                  |
                 | (setup protocol) |
    (compute pA) |        pA        |
                 |----------------->|
@@ -131,16 +158,11 @@
         <t>This protocol appears in <xref target="TDH" />. Let w0
           and w1 be two integers derived by hashing the password pw with the identities 
           of the two participants, A and B. Specifically,
-          w0s || w1s = MHF(len(pw) || pw || len(A) || A || len(B) || B),
+          w0s || w1s = PHF(len(pw) || pw || len(A) || A || len(B) || B),
           and then computing w0 = w0s mod p and w1 = w1s mod p.
-          If both identities A and B are absent, then w0s || w1s = MHF(pw), i.e.,
+          If both identities A and B are absent, then w0s || w1s = PHF(pw), i.e.,
           the length prefix is omitted as in <xref target="setup"/>.
-          The length of each of w0s and w1s is equal to half of the MHF output, e.g.,
-          |w0s| = |w1s| = 128 bits for scrypt. w0 and w1 MUST NOT equal I. If they are,
-          they MUST be iteratively regenerated by computing
-          w0s || w1s = MHF(len(pw) || pw || len(A) || A || len(B) || B || 0x0000),
-          where 0x0000 is 16-bit increasing counter. This process must repeat until
-          valid w0 and w1 are produced. B stores L=w1*P and w0.</t>
+          The party B stores the verification value pair L=w1*P and w0.</t>
 
         <t>
           Note that standards such as NIST.SP.800-56Ar3 suggest taking mod p of a
@@ -148,7 +170,7 @@
           statistical bias introduced by the modulation. Protocols using this specification must define
           the method used to compute w0 and w1: it may be necessary to carry out various
           forms of normalization of the password before hashing <xref target="RFC8265" />.
-          The hashing algorithm SHOULD be a MHF so as to slow down brute-force
+          The hashing algorithm SHOULD be a PHF so as to slow down brute-force
           attackers.</t>
 
         <t>When executing SPAKE2+, A selects x uniformly at random from the
@@ -163,7 +185,7 @@
           derive the keying material. The protocol transcript encoding is shown below.</t>
 
         <figure><artwork><![CDATA[
-            TT = len(A) || A || len(B) || B || len(X) || X 
+            TT = version || len(A) || A || len(B) || B || len(X) || X 
               || len(Y) || Y || len(Z) || Z || len(V) || V 
               || len(w0) || w0
         ]]></artwork></figure>
@@ -174,6 +196,10 @@
           This must only be done for applications in which identities are implicit. Otherwise,
           the protocol risks Unknown Key Share attacks (discussion of Unknown Key Share attacks
           in a specific protocol is given in <xref target="I-D.ietf-mmusic-sdp-uks"/>.</t>
+          
+        <t> Version is a string which can be used to uniquely identify the protocol, ciphersuite and all its parameters, 
+        including the definition of the group, and the element M and N. It may be omitted.
+        </t>
 
         <t>Upon completion of this protocol, A and B compute shared secrets Ke, KcA, and KcB as
             specified in <xref target="keys"/>. B MUST send A a key confirmation message Fb
@@ -505,7 +531,7 @@ def gen_point(seed, ecname, ec):
 
     <section anchor="testvectors" title="Test Vectors">
       <t>This section contains test vectors for SPAKE2+ using 
-        the P256-SHA256-HKDF-HMAC ciphersuite. (Choice of MHF is omitted
+        the P256-SHA256-HKDF-HMAC ciphersuite. (Choice of PHF is omitted
         and values for w and w0,w1 are provided directly.) All points are 
         encoded using the uncompressed format, i.e., with a 0x04 octet
         prefix, specified in <xref target="SEC1"/> A and B identity strings
