@@ -132,25 +132,23 @@
 
         <t>This sample trace is shown below.</t>
         <figure><artwork><![CDATA[
-                A                  B
-                
-                |   (Preamble)     |
-                |      Hello       |
-                |- - - - - - - - ->|
-                | PHF params, salt |
-                |< - - - - - - - - |
-                |                  |
-                | (setup protocol) |
-   (compute pA) |        pA        |
-                |----------------->|
-                |        pB        | (compute pB)
-                |<-----------------|
-                |                  | 
-                | (derive secrets) | (compute cB)
-                |        cB        |
-                |<-----------------|
-   (compute cA) |        cA        | 
-                |----------------->|
+                   A                           B
+
+                   |         (Preamble)        |
+                   |<- - - - - - - - - - - - ->|
+                   |                           |
+                   |       (setup protocol)    |
+      (compute pA) |             pA            |
+                   |-------------------------->|
+                   |             pB            | (compute pB)
+                   |<--------------------------|
+                   |                           |
+                   |       (derive secrets)    | (compute cB)
+                   |             cB            |
+                   |<--------------------------|
+      (compute cA) |             cA            |
+                   |-------------------------->|
+                   
         ]]></artwork></figure>
       </section>
 
@@ -185,7 +183,7 @@
           derive the keying material. The protocol transcript encoding is shown below.</t>
 
         <figure><artwork><![CDATA[
-            TT = version || len(A) || A || len(B) || B || len(X) || X 
+            TT = len(A) || A || len(B) || B || len(X) || X 
               || len(Y) || Y || len(Z) || Z || len(V) || V 
               || len(w0) || w0
         ]]></artwork></figure>
@@ -197,10 +195,6 @@
           the protocol risks Unknown Key Share attacks (discussion of Unknown Key Share attacks
           in a specific protocol is given in <xref target="I-D.ietf-mmusic-sdp-uks"/>.</t>
           
-        <t> Version is a string which can be used to uniquely identify the protocol, ciphersuite and all its parameters, 
-        including the definition of the group, and the element M and N. It may be omitted.
-        </t>
-
         <t>Upon completion of this protocol, A and B compute shared secrets Ke, KcA, and KcB as
             specified in <xref target="keys"/>. B MUST send A a key confirmation message Fb
             so both parties agree upon these shared secrets. This confirmation message Fb
@@ -222,7 +216,11 @@
             Specifically, let KcA and KcB be the MAC keys used by A and B, respectively.
             A and B compute them as KcA || KcB = KDF(nil, Ka, "ConfirmationKeys" || AAD), where AAD
             is the associated data each given to each endpoint, or nil (empty string) 
-            if none was provided. The length of each of KcA and KcB is equal to half of the KDF 
+            if none was provided. 
+            AAD may also include a string identifying the protocol, ciphersuite and all its parameters, 
+	        including the definition of the group, and the element M and N. It may be omitted.
+
+            The length of each of KcA and KcB is equal to half of the KDF 
             output, e.g., |KcA| = |KcB| = 128 bits for HKDF with SHA256.</t>
 
         <t>The resulting key schedule for this protocol, given transcript TT and additional associated
