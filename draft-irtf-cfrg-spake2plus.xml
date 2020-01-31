@@ -95,11 +95,12 @@
           MAC is a Message Authentication Code algorithm that takes a secret key and
           message as input to produce an output. 
           Let Hash be a hash function from arbitrary strings to bit strings of a fixed length. Common choices
-          for H are SHA256 or SHA512 <xref target="RFC6234"/>. 
-          Let PHF be a Password-Hash Function designed to slow down brute-force attackers. 
-          Scrypt <xref target="RFC7914"/> and Argon2 are common examples of PHF functions. 
-          The output length of a PHF is typically configurable along with the memory and CPU hardness parameters.
-          Hardness parameter selection for PHF is out of scope for this document.
+          for Hash are SHA256 or SHA512 <xref target="RFC6234"/>. 
+          Let PBKDF be a Password-Based Key Derivation Function designed to slow down brute-force attackers. 
+          Brute-force resistance may be obtained through various computation hardness parameters such as memory or CPU cycles,
+           and are typically configurable.           
+          Scrypt <xref target="RFC7914"/> and Argon2 are common examples of PBKDF functions. 
+          PBKDF and hardness parameters selection for the PBKDF are out of scope of this document.
           <xref target="Ciphersuites"/> specifies variants of KDF, MAC, and Hash
           suitable for use with the protocols contained herein.</t>
 
@@ -119,7 +120,7 @@
         <t>SPAKE2+ is a two round protocol that establishes a shared secret with an 
           additional round for key confirmation. Prior to invocation, A and B are provisioned with
           information such as the input password needed to run the protocol. 
-          A preamble exchange may occur in order to communicate identities, protocol version and PHF parameters related to the verification value.
+          A preamble exchange may occur in order to communicate identities, protocol version and PBKDF parameters related to the verification value.
           Details of the preamble phase is out of scope of this document.
           During the first round, A, the prover, sends a public share pA 
           to B, the verifier, and B responds with its own public share pB. Both A and B then derive a shared secret
@@ -156,9 +157,9 @@
         <t>This protocol appears in <xref target="TDH" />. Let w0
           and w1 be two integers derived by hashing the password pw with the identities 
           of the two participants, A and B. Specifically,
-          w0s || w1s = PHF(len(pw) || pw || len(A) || A || len(B) || B),
+          w0s || w1s = PBKDF(len(pw) || pw || len(A) || A || len(B) || B),
           and then computing w0 = w0s mod p and w1 = w1s mod p.
-          If both identities A and B are absent, then w0s || w1s = PHF(pw), i.e.,
+          If both identities A and B are absent, then w0s || w1s = PBKDF(pw), i.e.,
           the length prefix is omitted as in <xref target="setup"/>.
           The party B stores the verification value pair L=w1*P and w0.</t>
 
@@ -168,7 +169,7 @@
           statistical bias introduced by the modulation. Protocols using this specification must define
           the method used to compute w0 and w1: it may be necessary to carry out various
           forms of normalization of the password before hashing <xref target="RFC8265" />.
-          The hashing algorithm SHOULD be a PHF so as to slow down brute-force
+          The hashing algorithm SHOULD be a PBKDF so as to slow down brute-force
           attackers.</t>
 
         <t>When executing SPAKE2+, A selects x uniformly at random from the
@@ -529,7 +530,7 @@ def gen_point(seed, ecname, ec):
 
     <section anchor="testvectors" title="Test Vectors">
       <t>This section contains test vectors for SPAKE2+ using 
-        the P256-SHA256-HKDF-HMAC ciphersuite. (Choice of PHF is omitted
+        the P256-SHA256-HKDF-HMAC ciphersuite. (Choice of PBKDF is omitted
         and values for w and w0,w1 are provided directly.) All points are 
         encoded using the uncompressed format, i.e., with a 0x04 octet
         prefix, specified in <xref target="SEC1"/> A and B identity strings
