@@ -18,10 +18,16 @@
 <rfc category="info" ipr="trust200902" docName="draft-bar-cfrg-spake2plus-00" submissionType="IETF">
   <front>
     <title>SPAKE2+, an Augmented PAKE</title>
-    <author role="editor" initials="F." surname="Bar" fullname="Foo Bar">
+    <author initials="T." surname="Taubert" fullname="Tim Taubert">
       <organization abbrev="Apple, Inc.">Apple, Inc.</organization>
       <address>
-        <email>foobar@apple.com</email>
+        <email>ttaubert@apple.com</email>
+      </address>
+    </author>
+    <author initials="C. A." surname="Wood" fullname="Christopher A. Wood">
+      <organization abbrev="Apple, Inc.">Apple, Inc.</organization>
+      <address>
+        <email>cawood@apple.com</email>
       </address>
     </author>
     <date month="January" year="2020"/>
