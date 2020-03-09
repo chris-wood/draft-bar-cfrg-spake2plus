@@ -30,7 +30,7 @@
         <email>cawood@apple.com</email>
       </address>
     </author>
-    <date month="January" year="2020"/>
+    <date month="March" year="2020"/>
     <abstract>
       <t>This document describes SPAKE2+, a Password Authenticated Key Exchange (PAKE) protocol 
         run between two parties for deriving a strong shared key with no risk of disclosing the password. 
@@ -66,6 +66,8 @@
         This password-based key exchange protocol is compatible with any group. 
         It only relies on group operations making it simple and computationally efficient. It also has a security proof.
         Predetermined parameters for a selection of commonly used groups are also provided.</t>
+
+	<t>This document has content split out from a related document specifying SPAKE2 <xref target="SPAKE2"/>.</t>
     </section>
     <section anchor="notation" title="Requirements Notation">
       <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
@@ -427,6 +429,16 @@ seed: edwards448 point generation seed (N)
       &RFC8174;
     </references>
     <references title="Informative References">
+      <reference anchor="SPAKE2">
+        <front>
+          <title>SPAKE2, a PAKE.</title>
+          <author initials="W." surname="Ladd" />
+          <author initials="B." surname="Kaduk" />
+          <date month="Feb" year="2020" />
+        </front>
+        <annotation>SPAKE2, a PAKE
+        </annotation>
+      </reference>
       <reference anchor="REF">
         <front>
           <title>Simple Password-Based Encrypted Key Exchange Protocols.</title>
