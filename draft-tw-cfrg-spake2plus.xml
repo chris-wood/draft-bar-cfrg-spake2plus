@@ -32,8 +32,8 @@
     </author>
     <date month="March" year="2020"/>
     <abstract>
-      <t>This document describes SPAKE2+, a Password Authenticated Key Exchange (PAKE) protocol 
-        run between two parties for deriving a strong shared key with no risk of disclosing the password. 
+      <t>This document describes SPAKE2+, a Password Authenticated Key Exchange (PAKE) protocol
+        run between two parties for deriving a strong shared key with no risk of disclosing the password.
         SPAKE2+ is an augmented PAKE protocol, as only one party has knowledge of the password.
         This method is simple to implement, compatible with any prime order group and is computationally efficient.</t>
     </abstract>
@@ -41,17 +41,17 @@
   <middle>
     <section anchor="intro" title="Introduction">
         <t>
-        This document describes SPAKE2+, a Password Authenticated Key Exchange (PAKE) protocol 
-        run between two parties for deriving a strong shared key with no risk of disclosing the password. 
+        This document describes SPAKE2+, a Password Authenticated Key Exchange (PAKE) protocol
+        run between two parties for deriving a strong shared key with no risk of disclosing the password.
         SPAKE2+ is an augmented PAKE protocol, as only one party makes direct use of the password during the execution of the protocol.
-        The other party only needs a verification value at the time of the protocol execution instead of the password. 
+        The other party only needs a verification value at the time of the protocol execution instead of the password.
         The verification value can be computed once, during an offline initialization phase.
         The party using the password directly would typically be a client, and acts as a prover,
         while the other party would be a server, and acts as verifier.
         </t>
         <t>
         The protocol is augmented in the sense that it provides some resilience to the compromise or extraction of the verification value.
-        The design of the protocol forces the adversary to recover the password from the verification value to successful execute the protocol. 
+        The design of the protocol forces the adversary to recover the password from the verification value to successful execute the protocol.
         Hence this protocol can be advantageously combined with a salted Password Hashing Function to increase the cost of the recovery and slow down attacks.
         The verification value cannot be used directly to successfully run the protocol as a prover,
         making this protocol more robust than balanced PAKEs which don't benefit from Password Hashing Functions to the same extend.
@@ -63,7 +63,7 @@
         when initiation of the protocol requires a first authentication factor.
         </t>
         <t>
-        This password-based key exchange protocol is compatible with any group. 
+        This password-based key exchange protocol is compatible with any group.
         It only relies on group operations making it simple and computationally efficient. It also has a security proof.
         Predetermined parameters for a selection of commonly used groups are also provided.</t>
 
@@ -99,15 +99,15 @@
 
         <t>KDF is a key-derivation function that takes as input a salt, intermediate
           keying material (IKM), info string, and derived key length L to derive a
-          cryptographic key of length L. 
+          cryptographic key of length L.
           MAC is a Message Authentication Code algorithm that takes a secret key and
-          message as input to produce an output. 
+          message as input to produce an output.
           Let Hash be a hash function from arbitrary strings to bit strings of a fixed length. Common choices
-          for Hash are SHA256 or SHA512 <xref target="RFC6234"/>. 
-          Let PBKDF be a Password-Based Key Derivation Function designed to slow down brute-force attackers. 
+          for Hash are SHA256 or SHA512 <xref target="RFC6234"/>.
+          Let PBKDF be a Password-Based Key Derivation Function designed to slow down brute-force attackers.
           Brute-force resistance may be obtained through various computation hardness parameters such as memory or CPU cycles,
-           and are typically configurable.           
-          Scrypt <xref target="RFC7914"/> and Argon2 are common examples of PBKDF functions. 
+           and are typically configurable.
+          Scrypt <xref target="RFC7914"/> and Argon2 are common examples of PBKDF functions.
           PBKDF and hardness parameters selection for the PBKDF are out of scope of this document.
           <xref target="Ciphersuites"/> specifies variants of KDF, MAC, and Hash
           suitable for use with the protocols contained herein.</t>
@@ -125,18 +125,18 @@
       </section>
 
       <section title="Protocol Flow" anchor="flow">
-        <t>SPAKE2+ is a two round protocol that establishes a shared secret with an 
+        <t>SPAKE2+ is a two round protocol that establishes a shared secret with an
           additional round for key confirmation. Prior to invocation, A and B are provisioned with
-          information such as the input password needed to run the protocol. 
+          information such as the input password needed to run the protocol.
           A preamble exchange may occur in order to communicate identities, protocol version and PBKDF parameters related to the verification value.
           Details of the preamble phase is out of scope of this document.
-          During the first round, A, the prover, sends a public share pA 
+          During the first round, A, the prover, sends a public share pA
           to B, the verifier, and B responds with its own public share pB. Both A and B then derive a shared secret
           used to produce encryption and authentication keys. The latter are used during the second
-          round for key confirmation. (<xref target="keys"/> details the key derivation and 
+          round for key confirmation. (<xref target="keys"/> details the key derivation and
           confirmation steps.) In particular, B sends a key confirmation message cB to A, and A responds
           with its own key confirmation message cA. (Note that pB and cB MAY be sent in the same message.)
-          Both parties MUST NOT consider the protocol complete prior to receipt and validation of these key 
+          Both parties MUST NOT consider the protocol complete prior to receipt and validation of these key
           confirmation messages.</t>
 
         <t>This sample trace is shown below.</t>
@@ -157,13 +157,13 @@
                    |<--------------------------|
       (compute cA) |             cA            |
                    |-------------------------->|
-                   
+
         ]]></artwork></figure>
       </section>
 
       <section title="SPAKE2+" anchor="spake2plus">
         <t>This protocol appears in <xref target="TDH" />. Let w0
-          and w1 be two integers derived by hashing the password pw with the identities 
+          and w1 be two integers derived by hashing the password pw with the identities
           of the two participants, A and B. Specifically,
           w0s || w1s = PBKDF(len(pw) || pw || len(A) || A || len(B) || B),
           and then computing w0 = w0s mod p and w1 = w1s mod p.
@@ -192,8 +192,8 @@
           derive the keying material. The protocol transcript encoding is shown below.</t>
 
         <figure><artwork><![CDATA[
-            TT = len(A) || A || len(B) || B || len(X) || X 
-              || len(Y) || Y || len(Z) || Z || len(V) || V 
+            TT = len(A) || A || len(B) || B || len(X) || X
+              || len(Y) || Y || len(Z) || Z || len(V) || V
               || len(w0) || w0
         ]]></artwork></figure>
 
@@ -203,20 +203,20 @@
           This must only be done for applications in which identities are implicit. Otherwise,
           the protocol risks Unknown Key Share attacks (discussion of Unknown Key Share attacks
           in a specific protocol is given in <xref target="I-D.ietf-mmusic-sdp-uks"/>.</t>
-          
+
         <t>Upon completion of this protocol, A and B compute shared secrets Ke, KcA, and KcB as
             specified in <xref target="keys"/>. B MUST send A a key confirmation message Fb
             so both parties agree upon these shared secrets. This confirmation message Fb
-            is computed as a MAC over the received share (pA) using KcB. Specifically, B 
-            computes Fb = MAC(KcB, pA). After receipt and verification of B's confirmation 
-            message, A MUST send B a confirmation message using a MAC computed equivalently 
-            except with the use of pB and KcA. Key confirmation verification requires computing 
+            is computed as a MAC over the received share (pA) using KcB. Specifically, B
+            computes Fb = MAC(KcB, pA). After receipt and verification of B's confirmation
+            message, A MUST send B a confirmation message using a MAC computed equivalently
+            except with the use of pB and KcA. Key confirmation verification requires computing
             F and checking for equality against that which was received.</t>
       </section>
     </section>
 
     <section title="Key Schedule and Key Confirmation" anchor="keys">
-        <t>The protocol transcript TT, as defined in Section <xref target="spake2plus"/>, 
+        <t>The protocol transcript TT, as defined in Section <xref target="spake2plus"/>,
         is unique and secret to A and B. Both parties use TT to
             derive shared symmetric secrets Ke and Ka as Ke || Ka = Hash(TT). The length of each
             key is equal to half of the digest output, e.g., |Ke| = |Ka| = 128 bits for SHA-256.</t>
@@ -224,12 +224,12 @@
         <t>Both endpoints use Ka to derive subsequent MAC keys for key confirmation messages.
             Specifically, let KcA and KcB be the MAC keys used by A and B, respectively.
             A and B compute them as KcA || KcB = KDF(nil, Ka, "ConfirmationKeys" || AAD), where AAD
-            is the associated data each given to each endpoint, or nil (empty string) 
-            if none was provided. 
-            AAD may also include a string identifying the protocol, ciphersuite and all its parameters, 
+            is the associated data each given to each endpoint, or nil (empty string)
+            if none was provided.
+            AAD may also include a string identifying the protocol, ciphersuite and all its parameters,
 	        including the definition of the group, and the element M and N. It may be omitted.
 
-            The length of each of KcA and KcB is equal to half of the KDF 
+            The length of each of KcA and KcB is equal to half of the KDF
             output, e.g., |KcA| = |KcB| = 128 bits for HKDF with SHA256.</t>
 
         <t>The resulting key schedule for this protocol, given transcript TT and additional associated
@@ -240,7 +240,7 @@
         AAD -> KDF(nil, Ka, "ConfirmationKeys" || AAD) = KcA || KcB
         ]]></artwork></figure>
 
-        <t>A and B output Ke as the shared secret from the protocol. Ka and its derived keys (KcA and KcB) 
+        <t>A and B output Ke as the shared secret from the protocol. Ka and its derived keys (KcA and KcB)
           are not used for anything except key confirmation.</t>
     </section>
     <section title="Ciphersuites" anchor="Ciphersuites">
@@ -547,20 +547,20 @@ def gen_point(seed, ecname, ec):
     </section>
 
     <section anchor="testvectors" title="Test Vectors">
-      <t>This section contains test vectors for SPAKE2+ using 
+      <t>This section contains test vectors for SPAKE2+ using
         the P256-SHA256-HKDF-HMAC ciphersuite. (Choice of PBKDF is omitted
-        and values for w and w0,w1 are provided directly.) All points are 
+        and values for w and w0,w1 are provided directly.) All points are
         encoded using the uncompressed format, i.e., with a 0x04 octet
         prefix, specified in <xref target="SEC1"/> A and B identity strings
         are provided in the protocol invocation.
       </t>
       <section title="SPAKE2+ Test Vectors">
 <figure><artwork><![CDATA[
-SPAKE2+(A='client', B='server') 
+SPAKE2+(A='client', B='server')
 w0 = 0x4f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516
-cf8 
+cf8
 w1 = 0x8d73e4ca273859c873d809431d15f30e2b722007964e32699160b54fda3ee
-855 
+855
 L = 0x0491bb1e6672e71ad80b17d13f7a72ca2fe7f882d4bd734e2d140f67ab49d2
 c3e76dbcf706954bd9ada4e3a7fc50cf9294729f93b130ada3d3a4ae98cc7e7b6971
 X = 0x04879567d09560c02be565429036ed1d2fc3ca53f2eb6fadda4dba09eff3a0
@@ -581,21 +581,21 @@ fd6fb03acf41aff4100000000000000047bb4661db7085d019cffa8495aba73d22f8
 0ca47a48eea273375a0c72ca141000000000000000417658e1e9707a29d429a4733d
 3bee703574aec222e781a6e7e5f5e50490811aabf28e112fee32a37c228df9b53e62
 20468a2f6f07427604d8917870ac965eec720000000000000004f9e28322a64f9dc7
-a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516cf8 
-Ka = 0xbf800062847c5182bf5c549b05ea6cce 
-Ke = 0xce9acf88ff9440777bda3e34fa4993cd 
-KcA = 0x73c6a5597096e99b8025172bb45b4a2f 
-KcB = 0x96a801673bd07b51d61fbaea03ef17cf 
+a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516cf8
+Ka = 0xbf800062847c5182bf5c549b05ea6cce
+Ke = 0xce9acf88ff9440777bda3e34fa4993cd
+KcA = 0x73c6a5597096e99b8025172bb45b4a2f
+KcB = 0x96a801673bd07b51d61fbaea03ef17cf
 MAC(A) = 0xcab37c89192f9ad90ca5e6b8eadb130d313b51d24b7889e2536f7c800
-26e076a 
+26e076a
 MAC(B) = 0xf7076a78a3d16f0c62cb9e40bd1a91b68dee144b87016e2dae81c36e9
-73f3b2e 
+73f3b2e
 
-SPAKE2+(A='client', B='') 
+SPAKE2+(A='client', B='')
 w0 = 0x4f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516
-cf8 
+cf8
 w1 = 0x8d73e4ca273859c873d809431d15f30e2b722007964e32699160b54fda3ee
-855 
+855
 L = 0x0491bb1e6672e71ad80b17d13f7a72ca2fe7f882d4bd734e2d140f67ab49d2
 c3e76dbcf706954bd9ada4e3a7fc50cf9294729f93b130ada3d3a4ae98cc7e7b6971
 X = 0x0426fbedb3b9ccea93d609838dcc1d4baebdbb9c287763ed4cdb2d3cc76f78
@@ -616,21 +616,21 @@ bb3c4aae2ae4217951aa82144cb8b677be8061f28893f70216c1e11ba2bacd50d410
 000000000000004729f7c6c5bd68310345b1a10b84ea7db64c70441da2255992208b
 7a8e0b39d4f0e634acf7d440b4552a41df291ac6a409f8cf5a47cec9fed5f85fea12
 41379a420000000000000004f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805c
-a84f4ed3ef806516cf8 
-Ka = 0xfd19104b836b0ba9dfaaeab88610be57 
-Ke = 0x90337374f974f673707de5ba1b98e5b8 
-KcA = 0x2e10249c566677c8826b48ad10b19bb5 
-KcB = 0x4fcaf8fd0bfcaeeabb9d6f48e264e4a3 
+a84f4ed3ef806516cf8
+Ka = 0xfd19104b836b0ba9dfaaeab88610be57
+Ke = 0x90337374f974f673707de5ba1b98e5b8
+KcA = 0x2e10249c566677c8826b48ad10b19bb5
+KcB = 0x4fcaf8fd0bfcaeeabb9d6f48e264e4a3
 MAC(A) = 0xaaef200ea5f5c41e1fdb9b3455dde715cd8aa96f8afd3274f7159c3c5
-4887f2c 
+4887f2c
 MAC(B) = 0x926eadbf4b720b46ea622d7100e0013eb24d1591496846a604cf90c14
-46fe0e4 
+46fe0e4
 
-SPAKE2+(A='', B='server') 
+SPAKE2+(A='', B='server')
 w0 = 0x4f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516
-cf8 
+cf8
 w1 = 0x8d73e4ca273859c873d809431d15f30e2b722007964e32699160b54fda3ee
-855 
+855
 L = 0x0491bb1e6672e71ad80b17d13f7a72ca2fe7f882d4bd734e2d140f67ab49d2
 c3e76dbcf706954bd9ada4e3a7fc50cf9294729f93b130ada3d3a4ae98cc7e7b6971
 X = 0x0463a7531acd204e7d83ac6562278d7ced01a715eff937a25520bd2220c626
@@ -651,21 +651,21 @@ cd4d42f4f817caa3360c918d2538d7c96de5db47a72949ca2888d02c18ea6f92b410
 00000000000000408a70fc9dca87b70a7d4a074bdcca0222806f0caa0542d8d62aec
 f535ea8ffbc5e48419c5127a0f7f03685013c09d22f797523d26e7db159fecaccebc
 54ed2a720000000000000004f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805c
-a84f4ed3ef806516cf8 
-Ka = 0x5c85900898b2079c9de09ebef63cebd1 
-Ke = 0x13c812476859e909682c3be7436bfef0 
-KcA = 0x77bd636ab9bf153339c5724ee04f87a7 
-KcB = 0x194325b27d7c291c94a689ddafeaaa3c 
+a84f4ed3ef806516cf8
+Ka = 0x5c85900898b2079c9de09ebef63cebd1
+Ke = 0x13c812476859e909682c3be7436bfef0
+KcA = 0x77bd636ab9bf153339c5724ee04f87a7
+KcB = 0x194325b27d7c291c94a689ddafeaaa3c
 MAC(A) = 0x3bb61248a1fd2946743314848fc501eb3455eb113bd8966e200de14d5
-e412688 
+e412688
 MAC(B) = 0x3e7912bd2a85a1f56d36fbb16de29834b000d49e50d4c17f992942ee5
-9255f1e 
+9255f1e
 
-SPAKE2+(A='', B='') 
+SPAKE2+(A='', B='')
 w0 = 0x4f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516
-cf8 
+cf8
 w1 = 0x8d73e4ca273859c873d809431d15f30e2b722007964e32699160b54fda3ee
-855 
+855
 L = 0x0491bb1e6672e71ad80b17d13f7a72ca2fe7f882d4bd734e2d140f67ab49d2
 c3e76dbcf706954bd9ada4e3a7fc50cf9294729f93b130ada3d3a4ae98cc7e7b6971
 X = 0x04f60f506cfa07506d4bfd2b3f56038b1c001fe6826374122c30e914747eab
@@ -685,15 +685,15 @@ cf87da9fb07dc3745c0630b03bb4100000000000000042adeeea1417cc6c592fef77
 8e9a314f1deb75f77bde276d3cc8b45ffd70c410000000000000004845c130c8c208
 65828e21ed3400abea726b07fdeb7533fa6017accc37e0be4922241dad44846112e4
 2bee999501fdb4d09fc798e4677d403d10bfa862928584e20000000000000004f9e2
-8322a64f9dc7a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516cf8 
-Ka = 0x850a18a77b14ef5e71b4a239413630a8 
-Ke = 0x4454819282b3e886a7e65b7b0de7cc62 
-KcA = 0x05df6196c12d6203768c73d875e2bfc5 
-KcB = 0xb58e61c322f685add02c125767e4fbb7 
+8322a64f9dc7a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516cf8
+Ka = 0x850a18a77b14ef5e71b4a239413630a8
+Ke = 0x4454819282b3e886a7e65b7b0de7cc62
+KcA = 0x05df6196c12d6203768c73d875e2bfc5
+KcB = 0xb58e61c322f685add02c125767e4fbb7
 MAC(A) = 0x33e50d29f8eacc67bfdab4a6c46c88d75ac3308416c64dfbb0d7fb1c0
-feda5b0 
+feda5b0
 MAC(B) = 0x55434e5e501ad2d476aa1ae334ef27ba437a5dea87683defac575a63b
-548ca64 
+548ca64
 ]]></artwork></figure>
       </section>
     </section>
