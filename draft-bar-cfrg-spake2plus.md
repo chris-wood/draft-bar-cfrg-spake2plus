@@ -91,12 +91,12 @@ document are to be interpreted as described in {{RFC2119}}.
 ## Offline Initialization {#setup}
 
 Let G be a group in which the computational Diffie-Hellman (CDH)
-problem is hard. Suppose G has order p*h where p is a large prime;
+problem is hard. Suppose G has order p\*h where p is a large prime;
 h will be called the cofactor. Let I be the unit element in
 G, e.g., the point at infinity if G is an elliptic curve group. We denote the
 operations in the group additively. We assume there is a representation of
 elements of G as byte strings: common choices would be SEC1
-uncompressed or compressed {{!SEC1}} for elliptic curve groups or big
+uncompressed or compressed {{SEC1}} for elliptic curve groups or big
 endian integers of a fixed (per-group) length for prime field DH.
 We fix two elements M and N in the prime-order subgroup of G as defined
 in the table in this document for common groups, as well as a generator P
@@ -173,7 +173,7 @@ This sample trace is shown below.
 
 ## SPAKE2+ {#spake2plus}
 
-This protocol appears in {{?TDH}}. Let w0
+This protocol appears in {{TDH}}. Let w0
 and w1 be two integers derived by hashing the password pw with the identities
 of the two participants, A and B. Specifically,
 w0s || w1s = PBKDF(len(pw) || pw || len(A) || A || len(B) || B),
@@ -259,11 +259,23 @@ SPAKE2+-P256-SHA256-HKDF-HMAC. This ciphersuite indicates a SPAKE2+ protocol ins
 P-256 that uses SHA256 along with HKDF {{!RFC5869}} and HMAC {{!RFC2104}}
 for G, Hash, KDF, and MAC functions, respectively.
 
+| G              | Hash   | KDF    | MAC    |
+|:---------------|:------:|:------:|:------:|
+| P-256 | SHA256 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC {{!RFC2104}} |
+| P-256 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC {{!RFC2104}} |
+| P-384 | SHA256 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC {{!RFC2104}} |
+| P-384 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC {{!RFC2104}} |
+| P-521 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC {{!RFC2104}} |
+| edwards25519 | SHA256 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC {{!RFC2104}} |
+| edwards448 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC {{!RFC2104}} |
+| P-256 | SHA256 {{!RFC6234}} | HKDF {{!RFC5869}} | CMAC-AES-128 {{!RFC4493}} |
+| P-256 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | CMAC-AES-128 {{!RFC4493}} |
+
 The following points represent permissible point generation seeds
-for the groups listed in the Table <xref target="spake2_ciphersuites"/>,
+for the groups listed in the Table above,
 using the algorithm presented in {{pointgen}}.
-These bytestrings are compressed points as in {{!SEC1}}
-for curves from {{!SEC1}}.
+These bytestrings are compressed points as in {{SEC1}}
+for curves from {{SEC1}}.
 
 For P256:
 ~~~
@@ -332,7 +344,7 @@ No IANA action is required.
 
 # Security Considerations
 
-SPAKE2+ appears in {{?TDH}} along with a path to a proof that
+SPAKE2+ appears in {{TDH}} along with a path to a proof that
 server compromise does not lead to password compromise under the DH assumption
 (though the corresponding model excludes pre-computation attacks).
 
@@ -369,7 +381,7 @@ required, starting from the first block, and truncating to the
 desired length.  The byte string is then formatted as required
 for the group.  In the case of Weierstrass curves, we take the
 desired length as the length for representing a compressed point
-(section 2.3.4 of {{!SEC1}}),
+(section 2.3.4 of {{SEC1}}),
 and use the low-order bit of the first byte as the sign bit.
 In order to obtain the correct format, the value of the first
 byte is set to 0x02 or 0x03 (clearing the first six bits
@@ -433,8 +445,149 @@ This section contains test vectors for SPAKE2+ using
 the P256-SHA256-HKDF-HMAC ciphersuite. (Choice of PBKDF is omitted
 and values for w and w0,w1 are provided directly.) All points are
 encoded using the uncompressed format, i.e., with a 0x04 octet
-prefix, specified in <xref target="SEC1"/> A and B identity strings
+prefix, specified in {{SEC1}} A and B identity strings
 are provided in the protocol invocation.
+
+~~~
+SPAKE2+(A='client', B='server')
+w0 = 0x4f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516
+cf8
+w1 = 0x8d73e4ca273859c873d809431d15f30e2b722007964e32699160b54fda3ee
+855
+L = 0x0491bb1e6672e71ad80b17d13f7a72ca2fe7f882d4bd734e2d140f67ab49d2
+c3e76dbcf706954bd9ada4e3a7fc50cf9294729f93b130ada3d3a4ae98cc7e7b6971
+X = 0x04879567d09560c02be565429036ed1d2fc3ca53f2eb6fadda4dba09eff3a0
+096f032f0e227207ebebe05e1e95de325dfffe579c8aae76054030e5435fd5298c75
+Y = 0x04b595a25588a2fba757195a756d289c191240296699f61fee8f15a7a741a4
+23d48bd44cf544b409bbe4262a8045051e734567548ba43b3117efd6fb03acf41aff
+Z = 0x047bb4661db7085d019cffa8495aba73d22f87ab8ba22e789477ef933b916f
+412863aeb2dbc8003e4f1c2193290338ea0c7d786d30ca47a48eea273375a0c72ca1
+V = 0x0417658e1e9707a29d429a4733d3bee703574aec222e781a6e7e5f5e504908
+11aabf28e112fee32a37c228df9b53e6220468a2f6f07427604d8917870ac965eec7
+TT = 0x0600000000000000636c69656e74060000000000000073657276657241000
+0000000000004879567d09560c02be565429036ed1d2fc3ca53f2eb6fadda4dba09e
+ff3a0096f032f0e227207ebebe05e1e95de325dfffe579c8aae76054030e5435fd52
+98c75410000000000000004b595a25588a2fba757195a756d289c191240296699f61
+fee8f15a7a741a423d48bd44cf544b409bbe4262a8045051e734567548ba43b3117e
+fd6fb03acf41aff4100000000000000047bb4661db7085d019cffa8495aba73d22f8
+7ab8ba22e789477ef933b916f412863aeb2dbc8003e4f1c2193290338ea0c7d786d3
+0ca47a48eea273375a0c72ca141000000000000000417658e1e9707a29d429a4733d
+3bee703574aec222e781a6e7e5f5e50490811aabf28e112fee32a37c228df9b53e62
+20468a2f6f07427604d8917870ac965eec720000000000000004f9e28322a64f9dc7
+a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516cf8
+Ka = 0xbf800062847c5182bf5c549b05ea6cce
+Ke = 0xce9acf88ff9440777bda3e34fa4993cd
+KcA = 0x73c6a5597096e99b8025172bb45b4a2f
+KcB = 0x96a801673bd07b51d61fbaea03ef17cf
+MAC(A) = 0xcab37c89192f9ad90ca5e6b8eadb130d313b51d24b7889e2536f7c800
+26e076a
+MAC(B) = 0xf7076a78a3d16f0c62cb9e40bd1a91b68dee144b87016e2dae81c36e9
+73f3b2e
+
+SPAKE2+(A='client', B='')
+w0 = 0x4f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516
+cf8
+w1 = 0x8d73e4ca273859c873d809431d15f30e2b722007964e32699160b54fda3ee
+855
+L = 0x0491bb1e6672e71ad80b17d13f7a72ca2fe7f882d4bd734e2d140f67ab49d2
+c3e76dbcf706954bd9ada4e3a7fc50cf9294729f93b130ada3d3a4ae98cc7e7b6971
+X = 0x0426fbedb3b9ccea93d609838dcc1d4baebdbb9c287763ed4cdb2d3cc76f78
+8d3388db3da1f63e945f3f1ba17f7b986ab9ed3170359ee406cbb40f3e3719453b15
+Y = 0x04d4960922990acb87809e734fed2c2ccb72fd26ed173e8207cdc6220073ac
+5017660788e96db275f6edf2ba400d4e090273c24dc907d80ff9cad7f42fd9f79c3f
+Z = 0x0421996ff4d9c05b2389ae05118c519679df5d6de258b31f2a17da7604c8e3
+c17bb3c4aae2ae4217951aa82144cb8b677be8061f28893f70216c1e11ba2bacd50d
+V = 0x04729f7c6c5bd68310345b1a10b84ea7db64c70441da2255992208b7a8e0b3
+9d4f0e634acf7d440b4552a41df291ac6a409f8cf5a47cec9fed5f85fea1241379a4
+TT = 0x0600000000000000636c69656e7441000000000000000426fbedb3b9ccea9
+3d609838dcc1d4baebdbb9c287763ed4cdb2d3cc76f788d3388db3da1f63e945f3f1
+ba17f7b986ab9ed3170359ee406cbb40f3e3719453b15410000000000000004d4960
+922990acb87809e734fed2c2ccb72fd26ed173e8207cdc6220073ac5017660788e96
+db275f6edf2ba400d4e090273c24dc907d80ff9cad7f42fd9f79c3f4100000000000
+0000421996ff4d9c05b2389ae05118c519679df5d6de258b31f2a17da7604c8e3c17
+bb3c4aae2ae4217951aa82144cb8b677be8061f28893f70216c1e11ba2bacd50d410
+000000000000004729f7c6c5bd68310345b1a10b84ea7db64c70441da2255992208b
+7a8e0b39d4f0e634acf7d440b4552a41df291ac6a409f8cf5a47cec9fed5f85fea12
+41379a420000000000000004f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805c
+a84f4ed3ef806516cf8
+Ka = 0xfd19104b836b0ba9dfaaeab88610be57
+Ke = 0x90337374f974f673707de5ba1b98e5b8
+KcA = 0x2e10249c566677c8826b48ad10b19bb5
+KcB = 0x4fcaf8fd0bfcaeeabb9d6f48e264e4a3
+MAC(A) = 0xaaef200ea5f5c41e1fdb9b3455dde715cd8aa96f8afd3274f7159c3c5
+4887f2c
+MAC(B) = 0x926eadbf4b720b46ea622d7100e0013eb24d1591496846a604cf90c14
+46fe0e4
+
+SPAKE2+(A='', B='server')
+w0 = 0x4f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516
+cf8
+w1 = 0x8d73e4ca273859c873d809431d15f30e2b722007964e32699160b54fda3ee
+855
+L = 0x0491bb1e6672e71ad80b17d13f7a72ca2fe7f882d4bd734e2d140f67ab49d2
+c3e76dbcf706954bd9ada4e3a7fc50cf9294729f93b130ada3d3a4ae98cc7e7b6971
+X = 0x0463a7531acd204e7d83ac6562278d7ced01a715eff937a25520bd2220c626
+33db0ea510591c5cd23159a7a97181ec24433aac6e628f16d42c455fcae668411e34
+Y = 0x0433625217e2ccc0c545126f756d999c16df68b14b73b3fe473593c1d3a0d7
+287b43b353177806c641588ec969852b56b17190d6ebe80313de74e5eee0c1403025
+Z = 0x049ef5ea46e8ca42f3e822c598858ca347bf19cc74a8a1fbfd836ec4d77bee
+7f0cd4d42f4f817caa3360c918d2538d7c96de5db47a72949ca2888d02c18ea6f92b
+V = 0x0408a70fc9dca87b70a7d4a074bdcca0222806f0caa0542d8d62aecf535ea8
+ffbc5e48419c5127a0f7f03685013c09d22f797523d26e7db159fecaccebc54ed2a7
+TT = 0x060000000000000073657276657241000000000000000463a7531acd204e7
+d83ac6562278d7ced01a715eff937a25520bd2220c62633db0ea510591c5cd23159a
+7a97181ec24433aac6e628f16d42c455fcae668411e3441000000000000000433625
+217e2ccc0c545126f756d999c16df68b14b73b3fe473593c1d3a0d7287b43b353177
+806c641588ec969852b56b17190d6ebe80313de74e5eee0c14030254100000000000
+000049ef5ea46e8ca42f3e822c598858ca347bf19cc74a8a1fbfd836ec4d77bee7f0
+cd4d42f4f817caa3360c918d2538d7c96de5db47a72949ca2888d02c18ea6f92b410
+00000000000000408a70fc9dca87b70a7d4a074bdcca0222806f0caa0542d8d62aec
+f535ea8ffbc5e48419c5127a0f7f03685013c09d22f797523d26e7db159fecaccebc
+54ed2a720000000000000004f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805c
+a84f4ed3ef806516cf8
+Ka = 0x5c85900898b2079c9de09ebef63cebd1
+Ke = 0x13c812476859e909682c3be7436bfef0
+KcA = 0x77bd636ab9bf153339c5724ee04f87a7
+KcB = 0x194325b27d7c291c94a689ddafeaaa3c
+MAC(A) = 0x3bb61248a1fd2946743314848fc501eb3455eb113bd8966e200de14d5
+e412688
+MAC(B) = 0x3e7912bd2a85a1f56d36fbb16de29834b000d49e50d4c17f992942ee5
+9255f1e
+
+SPAKE2+(A='', B='')
+w0 = 0x4f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516
+cf8
+w1 = 0x8d73e4ca273859c873d809431d15f30e2b722007964e32699160b54fda3ee
+855
+L = 0x0491bb1e6672e71ad80b17d13f7a72ca2fe7f882d4bd734e2d140f67ab49d2
+c3e76dbcf706954bd9ada4e3a7fc50cf9294729f93b130ada3d3a4ae98cc7e7b6971
+X = 0x04f60f506cfa07506d4bfd2b3f56038b1c001fe6826374122c30e914747eab
+647988702cc70210eb2aa625e603d56961af16ec543ee3d4d2cb90d6fe2f3c1d1180
+Y = 0x046898fafef34fff9936217608151af08313305cf8e6f9add10d721c04a018
+607f5b5aca327e150cd5d588de83e46491ec766e2cf87da9fb07dc3745c0630b03bb
+Z = 0x042adeeea1417cc6c592fef772da8ba0f3aea69a5fb15923d0e9ae7c3301c7
+ff87e9ff9fba292ad410e4af71770858e9a314f1deb75f77bde276d3cc8b45ffd70c
+V = 0x04845c130c8c20865828e21ed3400abea726b07fdeb7533fa6017accc37e0b
+e4922241dad44846112e42bee999501fdb4d09fc798e4677d403d10bfa862928584e
+TT = 0x410000000000000004f60f506cfa07506d4bfd2b3f56038b1c001fe682637
+4122c30e914747eab647988702cc70210eb2aa625e603d56961af16ec543ee3d4d2c
+b90d6fe2f3c1d11804100000000000000046898fafef34fff9936217608151af0831
+3305cf8e6f9add10d721c04a018607f5b5aca327e150cd5d588de83e46491ec766e2
+cf87da9fb07dc3745c0630b03bb4100000000000000042adeeea1417cc6c592fef77
+2da8ba0f3aea69a5fb15923d0e9ae7c3301c7ff87e9ff9fba292ad410e4af7177085
+8e9a314f1deb75f77bde276d3cc8b45ffd70c410000000000000004845c130c8c208
+65828e21ed3400abea726b07fdeb7533fa6017accc37e0be4922241dad44846112e4
+2bee999501fdb4d09fc798e4677d403d10bfa862928584e20000000000000004f9e2
+8322a64f9dc7a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516cf8
+Ka = 0x850a18a77b14ef5e71b4a239413630a8
+Ke = 0x4454819282b3e886a7e65b7b0de7cc62
+KcA = 0x05df6196c12d6203768c73d875e2bfc5
+KcB = 0xb58e61c322f685add02c125767e4fbb7
+MAC(A) = 0x33e50d29f8eacc67bfdab4a6c46c88d75ac3308416c64dfbb0d7fb1c0
+feda5b0
+MAC(B) = 0x55434e5e501ad2d476aa1ae334ef27ba437a5dea87683defac575a63b
+548ca64
+~~~
 
 --- back
 
