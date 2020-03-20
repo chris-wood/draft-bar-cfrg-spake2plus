@@ -26,7 +26,6 @@ author:
     email: caw@heapingbits.net
 
 normative:
-  RFC2119:
   TDH:
     title: "The Twin-Diffie Hellman Problem and Applications"
     seriesinfo: EUROCRYPT 2008, Volume 4965 of Lecture notes in Computer Science, pages 127-145, Springer-Verlag, Berlin, Germany
@@ -86,7 +85,7 @@ This document has content split out from a related document specifying SPAKE2 {{
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-document are to be interpreted as described in {{RFC2119}}.
+document are to be interpreted as described in {{!RFC2119}}.
 
 # Definition of SPAKE2+
 
