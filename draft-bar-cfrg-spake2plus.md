@@ -2,14 +2,14 @@
 title: SPAKE2+, an Augmented PAKE
 abbrev: spake2plus
 docname: draft-bar-cfrg-spake2plus-latest
-date:
+date: {DATE}
 category: info
 
 ipr: trust200902
 keyword: Internet-Draft
 
 stand_alone: yes
-pi: [toc, sortrefs, symrefs]
+pi: [toc, sortrefs, symrefs, docmapping]
 
 author:
  -
@@ -28,28 +28,23 @@ author:
 normative:
   RFC2119:
   TDH:
-    title: The Twin-Diffie Hellman Problem and Applications
-    seriesinfo: EUROCRYPT 2008.  Volume 4965 of Lecture notes in Computer Science, pages 127-145.  Springer-Verlag, Berlin, Germany.
+    title: "The Twin-Diffie Hellman Problem and Applications"
+    seriesinfo: EUROCRYPT 2008, Volume 4965 of Lecture notes in Computer Science, pages 127-145, Springer-Verlag, Berlin, Germany
     date: 2008
     authors:
-        -
-            ins: D. Cash
-        -
-            ins: E. Kiltz
-        -
-            ins: V. Shoup
+      - ins: D. Cash
+      - ins: E. Kiltz
+      - ins: V. Shoup
   UCAnalysis:
-    title: Security analysis of SPAKE2+
+    title: "Security analysis of SPAKE2+"
     target: https://eprint.iacr.org/2020/313.pdf
     date: 2020
     authors:
-        -
-            ins: V. Shoup
+      - ins: V. Shoup
   SEC1:
-    title: Elliptic Curve Cryptography, Standards for Efficient Cryptography Group, ver. 2
+    title: "Elliptic Curve Cryptography, Standards for Efficient Cryptography Group, ver. 2"
     target: https://secg.org/sec1-v2.pdf
     date: 2009
-
 
 --- abstract
 
