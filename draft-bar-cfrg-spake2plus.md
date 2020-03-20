@@ -38,6 +38,13 @@ normative:
             ins: E. Kiltz
         -
             ins: V. Shoup
+  UCAnalysis:
+    title: Security analysis of SPAKE2+
+    target: https://eprint.iacr.org/2020/313.pdf
+    date: 2020
+    authors:
+        -
+            ins: V. Shoup
   SEC1:
     title: Elliptic Curve Cryptography, Standards for Efficient Cryptography Group, ver. 2
     target: https://secg.org/sec1-v2.pdf
@@ -173,7 +180,7 @@ This sample trace is shown below.
 
 ## SPAKE2+ {#spake2plus}
 
-This protocol appears in {{TDH}}. Let w0
+This protocol appears in {{TDH}} and is proven secure in {{UCAnalysis}}. Let w0
 and w1 be two integers derived by hashing the password pw with the identities
 of the two participants, A and B. Specifically,
 w0s || w1s = PBKDF(len(pw) || pw || len(A) || A || len(B) || B),
@@ -359,6 +366,8 @@ MUST NOT be reused; such reuse may permit dictionary attacks on the password.
 # Acknowledgements
 
 Thanks to Ben Kaduk and Watson Ladd, from which this specification originally emanated.
+
+--- back
 
 # Algorithm used for Point Generation {#pointgen}
 
@@ -588,6 +597,4 @@ feda5b0
 MAC(B) = 0x55434e5e501ad2d476aa1ae334ef27ba437a5dea87683defac575a63b
 548ca64
 ~~~
-
---- back
 
