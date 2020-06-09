@@ -76,7 +76,7 @@ Constraints may consist in being in physical proximity through a local network o
 when initiation of the protocol requires a first authentication factor.
 
 This password-based key exchange protocol appears in {{TDH}} and is proven secure in {{UCAnalysis}}.
-It is compatible with any group and relies only on group operations, making it simple and computationally efficient.
+It is compatible with any prime-order group and relies only on group operations, making it simple and computationally efficient.
 Predetermined parameters for a selection of commonly used groups are also provided.
 
 This document has content split out from a related document specifying SPAKE2 {{!I-D.irtf-cfrg-spake2}}.
@@ -659,4 +659,3 @@ dc91efdf86b2f
 CMAC(KcA, Y) = 0x240394f3b57760367522cedb32569da2
 CMAC(KcB, X) = 0xc1396d4ade8ef4d27c2ac62465cedcb6
 ~~~
-
