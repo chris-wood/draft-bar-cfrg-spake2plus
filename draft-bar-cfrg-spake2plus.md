@@ -229,7 +229,7 @@ the empty octet string. If both A and B are absent, then both lengths are zero
 and both A and B will be empty octet strings. In applications where identities
 are not implicit, A and B SHOULD always be non-empty. Otherwise, the protocol
 risks Unknown Key Share attacks (discussion of Unknown Key Share attacks in a
-specific protocol is given in {{?I-D.ietf-mmusic-sdp-uks}}.
+specific protocol is given in {{?I-D.ietf-mmusic-sdp-uks}}).
 
 Upon completion of this protocol, A and B compute shared secrets Ka, Ke, KcA,
 and KcB as specified in {{keys}}. B MUST send A a key confirmation message cB
