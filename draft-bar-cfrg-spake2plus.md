@@ -134,7 +134,7 @@ used in a higher-level protocol which negotiates the use of a particular PAKE. A
 example is the inclusion of PBKDF parameters and the application name.
 Including those would ensure that both parties agree upon the same set of supported
 protocols and use the same PBKDF parameters and therefore prevent downgrade and
-cross-protocol attacks.
+cross-protocol attacks. Specification of precise context values is out of scope for this document.
 
 ## Protocol Flow {#flow}
 
