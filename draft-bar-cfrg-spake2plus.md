@@ -237,9 +237,10 @@ so both parties agree upon these shared secrets. This confirmation message cB
 is computed as a MAC over the received share (pA) using KcB. Specifically, B
 computes cB = MAC(KcB, pA), where MAC is also a secure PRF. After receipt and
 verification of B's confirmation message, A MUST send B a confirmation message
-using a MAC computed equivalently except with the use of pB and KcA. Key
-confirmation verification requires recomputation of the MAC and checking
-for equality against that which was received.
+using a MAC computed equivalently except with the use of pB and KcA. B MUST NOT
+send application data to A until it has received and verified the confirmation
+message. Key confirmation verification requires recomputation of the MAC and
+checking for equality against that which was received.
 
 # Key Schedule and Key Confirmation {#keys}
 
