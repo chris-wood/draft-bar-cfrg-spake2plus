@@ -257,7 +257,7 @@ A and B compute them as KcA || KcB = KDF(nil, Ka, "ConfirmationKeys")
 The length of each of KcA and KcB is equal to half of the KDF
 output, e.g., |KcA| = |KcB| = 128 bits for HKDF-SHA256. If half of the KDF
 output size exceeds the required key size for the chosen MAC, e.g. when using
-HKDF-SHA512 for CMAC-AES-128, the KDF output MAY be truncated.
+HKDF-SHA512 as the KDF and CMAC-AES-128 as the MAC, the KDF output MAY be truncated.
 
 The resulting key schedule for this protocol, given transcript TT, is as follows.
 
