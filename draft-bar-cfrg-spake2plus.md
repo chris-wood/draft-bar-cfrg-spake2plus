@@ -65,18 +65,18 @@ The party using the password directly would typically be a client, and acts as a
 while the other party would be a server, and acts as verifier.
 
 The protocol is augmented in the sense that it provides some resilience to the compromise or extraction of the verification value.
-The design of the protocol forces the adversary to recover the password from the verification value to successful execute the protocol.
+The design of the protocol forces the adversary to recover the password from the verification value to successfully execute the protocol.
 Hence this protocol can be advantageously combined with a salted Password Hashing Function to increase the cost of the recovery and slow down attacks.
 The verification value cannot be used directly to successfully run the protocol as a prover,
-making this protocol more robust than balanced PAKEs which don't benefit from Password Hashing Functions to the same extend.
+making this protocol more robust than balanced PAKEs which don't benefit from Password Hashing Functions to the same extent.
 
 This augmented property is especially valuable in scenarios where the execution of the protocol is constrained
 and the adversary can not query the salt of the password hash function ahead of the attack.
 Constraints may consist in being in physical proximity through a local network or
 when initiation of the protocol requires a first authentication factor.
 
-This password-based key exchange protocol is compatible with any group.
-It only relies on group operations making it simple and computationally efficient. It also has a security proof.
+This password-based key exchange protocol appears in {{TDH}} and is proven secure in {{UCAnalysis}}.
+It is compatible with any prime-order group and relies only on group operations, making it simple and computationally efficient.
 Predetermined parameters for a selection of commonly used groups are also provided.
 
 This document has content split out from a related document specifying SPAKE2 {{!I-D.irtf-cfrg-spake2}}.
@@ -120,19 +120,21 @@ Let PBKDF be a Password-Based Key Derivation Function designed to slow down brut
 Brute-force resistance may be obtained through various computation hardness parameters such as memory or CPU cycles,
 and are typically configurable.
 Scrypt {{!RFC7914}} and Argon2 are common examples of PBKDF functions.
-PBKDF and hardness parameters selection for the PBKDF are out of scope of this document.
+PBKDF and hardness parameter selection are out of scope of this document.
 {{Ciphersuites}} specifies variants of KDF, MAC, and Hash
 suitable for use with the protocols contained herein.
 
 Let A and B be two parties. A and B may also have digital
 representations of the parties' identities such as Media Access Control addresses
-or other names (hostnames, usernames, etc). A and B may share Additional
-Authenticated Data (AAD) of length at most 2^16 - 1 bits that is separate
-from their identities which they may want to include in the protocol execution.
-One example of AAD is a list of supported protocol versions if SPAKE2+ were
-used in a higher-level protocol which negotiates the use of a particular PAKE. Including
-this list would ensure that both parties agree upon the same set of supported protocols
-and therefore prevent downgrade attacks.
+or other names (hostnames, usernames, etc). A and B may share additional data
+(the context) separate from their identities which they may want to include in
+the protocol transcript.
+One example of additional data is a list of supported protocol versions if SPAKE2+ were
+used in a higher-level protocol which negotiates the use of a particular PAKE. Another
+example is the inclusion of PBKDF parameters and the application name.
+Including those would ensure that both parties agree upon the same set of supported
+protocols and use the same PBKDF parameters and therefore prevent downgrade and
+cross-protocol attacks. Specification of precise context values is out of scope for this document.
 
 ## Protocol Flow {#flow}
 
@@ -140,7 +142,7 @@ SPAKE2+ is a two round protocol that establishes a shared secret with an
 additional round for key confirmation. Prior to invocation, A and B are provisioned with
 information such as the input password needed to run the protocol.
 A preamble exchange may occur in order to communicate identities, protocol version and PBKDF parameters related to the verification value.
-Details of the preamble phase is out of scope of this document.
+Details of the preamble phase are out of scope of this document.
 During the first round, A, the prover, sends a public share pA
 to B, the verifier, and B responds with its own public share pB. Both A and B then derive a shared secret
 used to produce encryption and authentication keys. The latter are used during the second
@@ -150,7 +152,7 @@ with its own key confirmation message cA. (Note that pB and cB MAY be sent in th
 Both parties MUST NOT consider the protocol complete prior to receipt and validation of these key
 confirmation messages.
 
-This sample trace is shown below.
+A sample trace is shown below.
 
 ~~~
                A                           B
@@ -174,13 +176,16 @@ This sample trace is shown below.
 
 ## SPAKE2+ {#spake2plus}
 
-This protocol appears in {{TDH}} and is proven secure in {{UCAnalysis}}. Let w0
-and w1 be two integers derived by hashing the password pw with the identities
-of the two participants, A and B. Specifically,
+Let w0 and w1 be two integers derived by hashing the password pw with the
+identities of the two participants, A and B. Specifically, compute
 w0s || w1s = PBKDF(len(pw) || pw || len(A) || A || len(B) || B),
-and then computing w0 = w0s mod p and w1 = w1s mod p.
+and then w0 = w0s mod p and w1 = w1s mod p.
 If both identities A and B are absent, then w0s || w1s = PBKDF(pw), i.e.,
 the length prefix is omitted as in {{setup}}.
+If one or both identities A and B are unknown at the time of deriving w0 and w1,
+w0s and w1s are computed as if the unknown identities were absent. They however
+SHOULD be included in the transcript TT if the parties exchange those
+prior to or as part of the protocol flow.
 The party B stores the verification value pair L=w1\*P and w0.
 
 Note that standards such as NIST.SP.800-56Ar3 suggest taking mod p of a
@@ -193,36 +198,49 @@ attackers.
 
 When executing SPAKE2+, A selects x uniformly at random from the
 numbers in the range [0, p), and lets X=x\*P+w0\*M, then transmits pA=X to
-B. Upon receipt of X, A computes h\*X and aborts if the result is equal
+B. Upon receipt of X, B computes h\*X and aborts if the result is equal
 to I. B then selects y uniformly at random from the numbers in [0, p),
-then computes Y=y\*P+w0\*N, and transmits pB=Y to A.
+then computes Y=y\*P+w0\*N, and transmits pB=Y to A. Upon receipt of Y,
+A computes h\*Y and aborts if the result is equal to I.
 
-A computes Z as h\*x\*(Y-w0\*N), and V as h\*w1\*(Y-w0\*N). B computes Z as h\*y\*(X-
-w0\*M) and V as h\*y\*L. Both share Z and V as common values. It is essential
-that both Z and V be used in combination with the transcript to
+A computes Z as h\*x\*(Y-w0\*N), and V as h\*w1\*(Y-w0\*N). B computes Z as
+h\*y\*(X-w0\*M) and V as h\*y\*L. Both share Z and V as common values.
+It is essential that both Z and V be used in combination with the transcript to
 derive the keying material. The protocol transcript encoding is shown below.
 
 ~~~
-TT = len(A) || A || len(B) || B || len(X) || X
-  || len(Y) || Y || len(Z) || Z || len(V) || V
+TT = len(Context) || Context ||
+  || len(A) || A || len(B) || B
+  || len(M) || M || len(N) || N
+  || len(X) || X || len(Y) || Y
+  || len(Z) || Z || len(V) || V
   || len(w0) || w0
 ~~~
 
-If an identity is absent, it is omitted from the transcript entirely. For example,
-if both A and B are absent, then TT = len(X) || X || len(Y) || Y || len(Z) || Z || len(w0) || w0.
-Likewise, if only A is absent, TT = len(B) || B || len(X) || X || len(Y) || Y || len(Z) || Z || len(w0) || w0.
-This must only be done for applications in which identities are implicit. Otherwise,
-the protocol risks Unknown Key Share attacks (discussion of Unknown Key Share attacks
-in a specific protocol is given in {{?I-D.ietf-mmusic-sdp-uks}}.
+Context is an application-specific customization string shared between both
+parties and MUST precede the remaining transcript. It might contain the
+name and version number of the higher-level protocol, or simply the name and version
+number of the application. The context MAY include additional data such as the
+chosen ciphersuite and PBKDF parameters like the iteration count or salt.
+The context and its length prefix MAY be omitted.
 
-Upon completion of this protocol, A and B compute shared secrets Ke, KcA, and KcB as
-specified in {{keys}}. B MUST send A a key confirmation message Fb
-so both parties agree upon these shared secrets. This confirmation message Fb
+If an identity is absent, its length is given as zero and the identity itself
+the empty octet string. If both A and B are absent, then both lengths are zero
+and both A and B will be empty octet strings. In applications where identities
+are not implicit, A and B SHOULD always be non-empty. Otherwise, the protocol
+risks Unknown Key Share attacks (discussion of Unknown Key Share attacks in a
+specific protocol is given in {{?I-D.ietf-mmusic-sdp-uks}}).
+
+Upon completion of this protocol, A and B compute shared secrets Ka, Ke, KcA,
+and KcB as specified in {{keys}}. B MUST send A a key confirmation message cB
+so both parties agree upon these shared secrets. This confirmation message cB
 is computed as a MAC over the received share (pA) using KcB. Specifically, B
-computes Fb = MAC(KcB, pA). After receipt and verification of B's confirmation
-message, A MUST send B a confirmation message using a MAC computed equivalently
-except with the use of pB and KcA. Key confirmation verification requires computing
-F and checking for equality against that which was received.
+computes cB = MAC(KcB, pA), where MAC is also a secure PRF. After receipt and
+verification of B's confirmation message, A MUST send B a confirmation message
+using a MAC computed equivalently except with the use of pB and KcA. B MUST NOT
+send application data to A until it has received and verified the confirmation
+message. Key confirmation verification requires recomputation of the MAC and
+checking for equality against that which was received.
 
 # Key Schedule and Key Confirmation {#keys}
 
@@ -230,23 +248,23 @@ The protocol transcript TT, as defined in {{spake2plus}},
 is unique and secret to A and B. Both parties use TT to
 derive shared symmetric secrets Ke and Ka as Ke || Ka = Hash(TT). The length of each
 key is equal to half of the digest output, e.g., |Ke| = |Ka| = 128 bits for SHA-256.
+If the required key size is less than half the digest output, e.g. when using SHA-512
+to derive two 128-bit keys, the digest output MAY be truncated.
 
 Both endpoints use Ka to derive subsequent MAC keys for key confirmation messages.
 Specifically, let KcA and KcB be the MAC keys used by A and B, respectively.
-A and B compute them as KcA || KcB = KDF(nil, Ka, "ConfirmationKeys" || AAD), where AAD
-is the associated data each given to each endpoint, or nil (empty string)
-if none was provided.
-AAD may also include a string identifying the protocol, ciphersuite and all its parameters,
-including the definition of the group, and the element M and N. It may be omitted.
+A and B compute them as KcA || KcB = KDF(nil, Ka, "ConfirmationKeys")
 
 The length of each of KcA and KcB is equal to half of the KDF
-output, e.g., |KcA| = |KcB| = 128 bits for HKDF with SHA256.
+output, e.g., |KcA| = |KcB| = 128 bits for HKDF-SHA256. If half of the KDF
+output size exceeds the required key size for the chosen MAC, e.g. when using
+HKDF-SHA512 as the KDF and CMAC-AES-128 as the MAC, the KDF output MAY be truncated.
 
-The resulting key schedule for this protocol, given transcript TT and additional associated data AAD, is as follows.
+The resulting key schedule for this protocol, given transcript TT, is as follows.
 
 ~~~
-TT  -> Hash(TT) = Ka || Ke
-AAD -> KDF(nil, Ka, "ConfirmationKeys" || AAD) = KcA || KcB
+TT -> Hash(TT) = Ka || Ke
+Ka -> KDF(nil, Ka, "ConfirmationKeys") = KcA || KcB
 ~~~
 
 A and B output Ke as the shared secret from the protocol. Ka and its derived keys (KcA and KcB)
@@ -345,14 +363,11 @@ No IANA action is required.
 
 # Security Considerations
 
-SPAKE2+ appears in {{TDH}} along with a path to a proof that
-server compromise does not lead to password compromise under the DH assumption
-(though the corresponding model excludes pre-computation attacks).
+SPAKE2+ appears in {{TDH}} and is proven secure in {{UCAnalysis}}.
 
-Elements received from a peer MUST be checked for group membership:
-failure to properly validate group elements can lead to attacks. Beyond the cofactor
-multiplication checks to ensure that these elements are in the prime order subgroup
-of G, it is essential that endpoints verify received points are members of G.
+Beyond the cofactor multiplication checks to ensure that elements received from
+a peer are in the prime order subgroup of G, they also MUST be checked for group
+membership as failure to properly validate group elements can lead to attacks.
 
 The choices of random numbers MUST BE uniform. Randomly generated values (e.g., x and y)
 MUST NOT be reused; such reuse may permit dictionary attacks on the password.
@@ -445,150 +460,205 @@ def gen_point(seed, ecname, ec):
 # Test Vectors {#testvectors}
 
 This section contains test vectors for SPAKE2+ using
-the P256-SHA256-HKDF-HMAC ciphersuite. (Choice of PBKDF is omitted
+the P256-SHA256-HKDF-HMAC and P256-SHA256-HKDF-CMAC ciphersuites. (Choice of PBKDF is omitted
 and values for w and w0,w1 are provided directly.) All points are
 encoded using the uncompressed format, i.e., with a 0x04 octet
 prefix, specified in {{SEC1}} A and B identity strings
 are provided in the protocol invocation.
 
 ~~~
-SPAKE2+(A='client', B='server')
-w0 = 0x4f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516
-cf8
-w1 = 0x8d73e4ca273859c873d809431d15f30e2b722007964e32699160b54fda3ee
-855
-L = 0x0491bb1e6672e71ad80b17d13f7a72ca2fe7f882d4bd734e2d140f67ab49d2
-c3e76dbcf706954bd9ada4e3a7fc50cf9294729f93b130ada3d3a4ae98cc7e7b6971
-X = 0x04879567d09560c02be565429036ed1d2fc3ca53f2eb6fadda4dba09eff3a0
-096f032f0e227207ebebe05e1e95de325dfffe579c8aae76054030e5435fd5298c75
-Y = 0x04b595a25588a2fba757195a756d289c191240296699f61fee8f15a7a741a4
-23d48bd44cf544b409bbe4262a8045051e734567548ba43b3117efd6fb03acf41aff
-Z = 0x047bb4661db7085d019cffa8495aba73d22f87ab8ba22e789477ef933b916f
-412863aeb2dbc8003e4f1c2193290338ea0c7d786d30ca47a48eea273375a0c72ca1
-V = 0x0417658e1e9707a29d429a4733d3bee703574aec222e781a6e7e5f5e504908
-11aabf28e112fee32a37c228df9b53e6220468a2f6f07427604d8917870ac965eec7
-TT = 0x0600000000000000636c69656e74060000000000000073657276657241000
-0000000000004879567d09560c02be565429036ed1d2fc3ca53f2eb6fadda4dba09e
-ff3a0096f032f0e227207ebebe05e1e95de325dfffe579c8aae76054030e5435fd52
-98c75410000000000000004b595a25588a2fba757195a756d289c191240296699f61
-fee8f15a7a741a423d48bd44cf544b409bbe4262a8045051e734567548ba43b3117e
-fd6fb03acf41aff4100000000000000047bb4661db7085d019cffa8495aba73d22f8
-7ab8ba22e789477ef933b916f412863aeb2dbc8003e4f1c2193290338ea0c7d786d3
-0ca47a48eea273375a0c72ca141000000000000000417658e1e9707a29d429a4733d
-3bee703574aec222e781a6e7e5f5e50490811aabf28e112fee32a37c228df9b53e62
-20468a2f6f07427604d8917870ac965eec720000000000000004f9e28322a64f9dc7
-a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516cf8
-Ka = 0xbf800062847c5182bf5c549b05ea6cce
-Ke = 0xce9acf88ff9440777bda3e34fa4993cd
-KcA = 0x73c6a5597096e99b8025172bb45b4a2f
-KcB = 0x96a801673bd07b51d61fbaea03ef17cf
-MAC(A) = 0xcab37c89192f9ad90ca5e6b8eadb130d313b51d24b7889e2536f7c800
-26e076a
-MAC(B) = 0xf7076a78a3d16f0c62cb9e40bd1a91b68dee144b87016e2dae81c36e9
-73f3b2e
+[Context=b'SPAKE2+-P256-SHA256-HKDF draft-01']
+[A=b'client']
+[B=b'server']
+w0 = 0xe6887cf9bdfb7579c69bf47928a84514b5e355ac034863f7ffaf4390e67d7
+98c
+w1 = 0x24b5ae4abda868ec9336ffc3b78ee31c5755bef1759227ef5372ca139b94e
+512
+L = 0x0495645cfb74df6e58f9748bb83a86620bab7c82e107f57d6870da8cbcb2ff
+9f7063a14b6402c62f99afcb9706a4d1a143273259fe76f1c605a3639745a92154b9
+x = 0x8b0f3f383905cf3a3bb955ef8fb62e24849dd349a05ca79aafb18041d30cbd
+b6
+X = 0x04af09987a593d3bac8694b123839422c3cc87e37d6b41c1d630f000dd6498
+0e537ae704bcede04ea3bec9b7475b32fa2ca3b684be14d11645e38ea6609eb39e7e
+y = 0x2e0895b0e763d6d5a9564433e64ac3cac74ff897f6c3445247ba1bab40082a
+91
+Y = 0x04417592620aebf9fd203616bbb9f121b730c258b286f890c5f19fea833a9c
+900cbe9057bc549a3e19975be9927f0e7614f08d1f0a108eede5fd7eb5624584a4f4
+Z = 0x0471a35282d2026f36bf3ceb38fcf87e3112a4452f46e9f7b47fd769cfb570
+145b62589c76b7aa1eb6080a832e5332c36898426912e29c40ef9e9c742eee82bf30
+V = 0x046718981bf15bc4db538fc1f1c1d058cb0eececf1dbe1b1ea08a4e25275d3
+82e82b348c8131d8ed669d169c2e03a858db7cf6ca2853a4071251a39fbe8cfc39bc
+TT = 0x21000000000000005350414b45322b2d503235362d5348413235362d484b4
+4462064726166742d30310600000000000000636c69656e740600000000000000736
+572766572410000000000000004886e2f97ace46e55ba9dd7242579f2993b64e16ef
+3dcab95afd497333d8fa12f5ff355163e43ce224e0b0e65ff02ac8e5c7be09419c78
+5e0ca547d55a12e2d20410000000000000004d8bbd6c639c62937b04d997f38c3770
+719c629d7014d49a24b4f98baa1292b4907d60aa6bfade45008a636337f5168c64d9
+bd36034808cd564490b1e656edbe7410000000000000004af09987a593d3bac8694b
+123839422c3cc87e37d6b41c1d630f000dd64980e537ae704bcede04ea3bec9b7475
+b32fa2ca3b684be14d11645e38ea6609eb39e7e410000000000000004417592620ae
+bf9fd203616bbb9f121b730c258b286f890c5f19fea833a9c900cbe9057bc549a3e1
+9975be9927f0e7614f08d1f0a108eede5fd7eb5624584a4f44100000000000000047
+1a35282d2026f36bf3ceb38fcf87e3112a4452f46e9f7b47fd769cfb570145b62589
+c76b7aa1eb6080a832e5332c36898426912e29c40ef9e9c742eee82bf30410000000
+0000000046718981bf15bc4db538fc1f1c1d058cb0eececf1dbe1b1ea08a4e25275d
+382e82b348c8131d8ed669d169c2e03a858db7cf6ca2853a4071251a39fbe8cfc39b
+c2000000000000000e6887cf9bdfb7579c69bf47928a84514b5e355ac034863f7ffa
+f4390e67d798c
+Ka = 0xf9cab9adcc0ed8e5a4db11a8505914b2
+Ke = 0x801db297654816eb4f02868129b9dc89
+KcA = 0x0d248d7d19234f1486b2efba5179c52d
+KcB = 0x556291df26d705a2caedd6474dd0079b
+HMAC(KcA, Y) = 0xd4376f2da9c72226dd151b77c2919071155fc22a2068d90b5fa
+a6c78c11e77dd
+HMAC(KcB, X) = 0x0660a680663e8c5695956fb22dff298b1d07a526cf3cc591adf
+ecd1f6ef6e02e
+CMAC(KcA, Y) = 0xad04419077d806572fd7c8ab6d78656a
+CMAC(KcB, X) = 0xaa076038a84938018a276e673ee7583e
 
-SPAKE2+(A='client', B='')
-w0 = 0x4f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516
-cf8
-w1 = 0x8d73e4ca273859c873d809431d15f30e2b722007964e32699160b54fda3ee
-855
-L = 0x0491bb1e6672e71ad80b17d13f7a72ca2fe7f882d4bd734e2d140f67ab49d2
-c3e76dbcf706954bd9ada4e3a7fc50cf9294729f93b130ada3d3a4ae98cc7e7b6971
-X = 0x0426fbedb3b9ccea93d609838dcc1d4baebdbb9c287763ed4cdb2d3cc76f78
-8d3388db3da1f63e945f3f1ba17f7b986ab9ed3170359ee406cbb40f3e3719453b15
-Y = 0x04d4960922990acb87809e734fed2c2ccb72fd26ed173e8207cdc6220073ac
-5017660788e96db275f6edf2ba400d4e090273c24dc907d80ff9cad7f42fd9f79c3f
-Z = 0x0421996ff4d9c05b2389ae05118c519679df5d6de258b31f2a17da7604c8e3
-c17bb3c4aae2ae4217951aa82144cb8b677be8061f28893f70216c1e11ba2bacd50d
-V = 0x04729f7c6c5bd68310345b1a10b84ea7db64c70441da2255992208b7a8e0b3
-9d4f0e634acf7d440b4552a41df291ac6a409f8cf5a47cec9fed5f85fea1241379a4
-TT = 0x0600000000000000636c69656e7441000000000000000426fbedb3b9ccea9
-3d609838dcc1d4baebdbb9c287763ed4cdb2d3cc76f788d3388db3da1f63e945f3f1
-ba17f7b986ab9ed3170359ee406cbb40f3e3719453b15410000000000000004d4960
-922990acb87809e734fed2c2ccb72fd26ed173e8207cdc6220073ac5017660788e96
-db275f6edf2ba400d4e090273c24dc907d80ff9cad7f42fd9f79c3f4100000000000
-0000421996ff4d9c05b2389ae05118c519679df5d6de258b31f2a17da7604c8e3c17
-bb3c4aae2ae4217951aa82144cb8b677be8061f28893f70216c1e11ba2bacd50d410
-000000000000004729f7c6c5bd68310345b1a10b84ea7db64c70441da2255992208b
-7a8e0b39d4f0e634acf7d440b4552a41df291ac6a409f8cf5a47cec9fed5f85fea12
-41379a420000000000000004f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805c
-a84f4ed3ef806516cf8
-Ka = 0xfd19104b836b0ba9dfaaeab88610be57
-Ke = 0x90337374f974f673707de5ba1b98e5b8
-KcA = 0x2e10249c566677c8826b48ad10b19bb5
-KcB = 0x4fcaf8fd0bfcaeeabb9d6f48e264e4a3
-MAC(A) = 0xaaef200ea5f5c41e1fdb9b3455dde715cd8aa96f8afd3274f7159c3c5
-4887f2c
-MAC(B) = 0x926eadbf4b720b46ea622d7100e0013eb24d1591496846a604cf90c14
-46fe0e4
+[Context=b'SPAKE2+-P256-SHA256-HKDF draft-01']
+[A=b'client']
+[B=b'']
+w0 = 0xe6887cf9bdfb7579c69bf47928a84514b5e355ac034863f7ffaf4390e67d7
+98c
+w1 = 0x24b5ae4abda868ec9336ffc3b78ee31c5755bef1759227ef5372ca139b94e
+512
+L = 0x0495645cfb74df6e58f9748bb83a86620bab7c82e107f57d6870da8cbcb2ff
+9f7063a14b6402c62f99afcb9706a4d1a143273259fe76f1c605a3639745a92154b9
+x = 0xec82d9258337f61239c9cd68e8e532a3a6b83d12d2b1ca5d543f44def17dfb
+8d
+X = 0x04230779960824076d3666a7418e4d433e2fa15b06176eabdd572f43a32ecc
+79a192b243d2624310a7356273b86e5fd9bd627d3ade762baeff1a320d4ad7a4e47f
+y = 0xeac3f7de4b198d5fe25c443c0cd4963807add767815dd02a6f0133b4bc2c9e
+b0
+Y = 0x044558642e71b616b248c9583bd6d7aa1b3952c6df6a9f7492a06035ca5d92
+522d84443de7aa20a59380fa4de6b7438d925dbfb7f1cfe60d79acf961ee33988c7d
+Z = 0x04b4e8770f19f58ddf83f9220c3a9305792665e0c60989e6ee9d7fa449c775
+d6395f6f25f307e3903ac045a013fbb5a676e872a6abfcf4d7bb5aac69efd6140eed
+V = 0x04141db83bc7d96f41b636622e7a5c552ad83211ff55319ac25ed0a09f0818
+bd942e8150319bfbfa686183806dc61911183f6a0f5956156023d96e0f93d275bf50
+TT = 0x21000000000000005350414b45322b2d503235362d5348413235362d484b4
+4462064726166742d30310600000000000000636c69656e740000000000000000410
+000000000000004886e2f97ace46e55ba9dd7242579f2993b64e16ef3dcab95afd49
+7333d8fa12f5ff355163e43ce224e0b0e65ff02ac8e5c7be09419c785e0ca547d55a
+12e2d20410000000000000004d8bbd6c639c62937b04d997f38c3770719c629d7014
+d49a24b4f98baa1292b4907d60aa6bfade45008a636337f5168c64d9bd36034808cd
+564490b1e656edbe7410000000000000004230779960824076d3666a7418e4d433e2
+fa15b06176eabdd572f43a32ecc79a192b243d2624310a7356273b86e5fd9bd627d3
+ade762baeff1a320d4ad7a4e47f4100000000000000044558642e71b616b248c9583
+bd6d7aa1b3952c6df6a9f7492a06035ca5d92522d84443de7aa20a59380fa4de6b74
+38d925dbfb7f1cfe60d79acf961ee33988c7d410000000000000004b4e8770f19f58
+ddf83f9220c3a9305792665e0c60989e6ee9d7fa449c775d6395f6f25f307e3903ac
+045a013fbb5a676e872a6abfcf4d7bb5aac69efd6140eed410000000000000004141
+db83bc7d96f41b636622e7a5c552ad83211ff55319ac25ed0a09f0818bd942e81503
+19bfbfa686183806dc61911183f6a0f5956156023d96e0f93d275bf5020000000000
+00000e6887cf9bdfb7579c69bf47928a84514b5e355ac034863f7ffaf4390e67d798
+c
+Ka = 0xe2cbee3ae19a4dbe9f146be6bee9bfa1
+Ke = 0x6989d8f9177ef7df67da437987f07255
+KcA = 0x2f9e0bb669d2c22645bce34da04ac16a
+KcB = 0xeb7a35168759dd8e9ce44e4dc51277ce
+HMAC(KcA, Y) = 0xe1b9258807ba4750dae1d7f3c3c294f13dc4fa60cde346d5de7
+d200e2f8fd3fc
+HMAC(KcB, X) = 0xb9c39dfa49c47757de778d9bedeaca2448b905be19a43b94ee2
+4b770208135e3
+CMAC(KcA, Y) = 0xf545e7af21e334de7389ddcf2174e822
+CMAC(KcB, X) = 0x3fb3055e16b619fd3de0e1b2bd7a9383
 
-SPAKE2+(A='', B='server')
-w0 = 0x4f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516
-cf8
-w1 = 0x8d73e4ca273859c873d809431d15f30e2b722007964e32699160b54fda3ee
-855
-L = 0x0491bb1e6672e71ad80b17d13f7a72ca2fe7f882d4bd734e2d140f67ab49d2
-c3e76dbcf706954bd9ada4e3a7fc50cf9294729f93b130ada3d3a4ae98cc7e7b6971
-X = 0x0463a7531acd204e7d83ac6562278d7ced01a715eff937a25520bd2220c626
-33db0ea510591c5cd23159a7a97181ec24433aac6e628f16d42c455fcae668411e34
-Y = 0x0433625217e2ccc0c545126f756d999c16df68b14b73b3fe473593c1d3a0d7
-287b43b353177806c641588ec969852b56b17190d6ebe80313de74e5eee0c1403025
-Z = 0x049ef5ea46e8ca42f3e822c598858ca347bf19cc74a8a1fbfd836ec4d77bee
-7f0cd4d42f4f817caa3360c918d2538d7c96de5db47a72949ca2888d02c18ea6f92b
-V = 0x0408a70fc9dca87b70a7d4a074bdcca0222806f0caa0542d8d62aecf535ea8
-ffbc5e48419c5127a0f7f03685013c09d22f797523d26e7db159fecaccebc54ed2a7
-TT = 0x060000000000000073657276657241000000000000000463a7531acd204e7
-d83ac6562278d7ced01a715eff937a25520bd2220c62633db0ea510591c5cd23159a
-7a97181ec24433aac6e628f16d42c455fcae668411e3441000000000000000433625
-217e2ccc0c545126f756d999c16df68b14b73b3fe473593c1d3a0d7287b43b353177
-806c641588ec969852b56b17190d6ebe80313de74e5eee0c14030254100000000000
-000049ef5ea46e8ca42f3e822c598858ca347bf19cc74a8a1fbfd836ec4d77bee7f0
-cd4d42f4f817caa3360c918d2538d7c96de5db47a72949ca2888d02c18ea6f92b410
-00000000000000408a70fc9dca87b70a7d4a074bdcca0222806f0caa0542d8d62aec
-f535ea8ffbc5e48419c5127a0f7f03685013c09d22f797523d26e7db159fecaccebc
-54ed2a720000000000000004f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805c
-a84f4ed3ef806516cf8
-Ka = 0x5c85900898b2079c9de09ebef63cebd1
-Ke = 0x13c812476859e909682c3be7436bfef0
-KcA = 0x77bd636ab9bf153339c5724ee04f87a7
-KcB = 0x194325b27d7c291c94a689ddafeaaa3c
-MAC(A) = 0x3bb61248a1fd2946743314848fc501eb3455eb113bd8966e200de14d5
-e412688
-MAC(B) = 0x3e7912bd2a85a1f56d36fbb16de29834b000d49e50d4c17f992942ee5
-9255f1e
+[Context=b'SPAKE2+-P256-SHA256-HKDF draft-01']
+[A=b'']
+[B=b'server']
+w0 = 0xe6887cf9bdfb7579c69bf47928a84514b5e355ac034863f7ffaf4390e67d7
+98c
+w1 = 0x24b5ae4abda868ec9336ffc3b78ee31c5755bef1759227ef5372ca139b94e
+512
+L = 0x0495645cfb74df6e58f9748bb83a86620bab7c82e107f57d6870da8cbcb2ff
+9f7063a14b6402c62f99afcb9706a4d1a143273259fe76f1c605a3639745a92154b9
+x = 0xba0f0f5b78ef23fd07868e46aeca63b51fda519a3420501acbe23d53c29187
+48
+X = 0x04c14d28f4370fea20745106cea58bcfb60f2949fa4e131b9aff5ea13fd5aa
+79d507ae1d229e447e000f15eb78a9a32c2b88652e3411642043c1b2b7992cf2d4de
+y = 0x39397fbe6db47e9fbd1a263d79f5d0aaa44df26ce755f78e092644b434533a
+42
+Y = 0x04d1bee3120fd87e86fe189cb952dc688823080e62524dd2c08dffe3d22a0a
+8986aa64c9fe0191033cafbc9bcaefc8e2ba8ba860cd127af9efdd7f1c3a41920fe8
+Z = 0x04aac71cf4c8df8181b867c9ecbee9d0963caf51f1534a823429c26fe52483
+13ffc5c5e44ea8162161ab6b3d73b87704a45889bf6343d96fa96cd1641efa71607c
+V = 0x04c7c9505365f7ce57293c92a37f1bbdc68e0322901e61edef59fee7876b17
+b063e0fa4a126eae0a671b37f1464cf1ccad591c33ae944e3b1f318d76e36fea9966
+TT = 0x21000000000000005350414b45322b2d503235362d5348413235362d484b4
+4462064726166742d303100000000000000000600000000000000736572766572410
+000000000000004886e2f97ace46e55ba9dd7242579f2993b64e16ef3dcab95afd49
+7333d8fa12f5ff355163e43ce224e0b0e65ff02ac8e5c7be09419c785e0ca547d55a
+12e2d20410000000000000004d8bbd6c639c62937b04d997f38c3770719c629d7014
+d49a24b4f98baa1292b4907d60aa6bfade45008a636337f5168c64d9bd36034808cd
+564490b1e656edbe7410000000000000004c14d28f4370fea20745106cea58bcfb60
+f2949fa4e131b9aff5ea13fd5aa79d507ae1d229e447e000f15eb78a9a32c2b88652
+e3411642043c1b2b7992cf2d4de410000000000000004d1bee3120fd87e86fe189cb
+952dc688823080e62524dd2c08dffe3d22a0a8986aa64c9fe0191033cafbc9bcaefc
+8e2ba8ba860cd127af9efdd7f1c3a41920fe8410000000000000004aac71cf4c8df8
+181b867c9ecbee9d0963caf51f1534a823429c26fe5248313ffc5c5e44ea8162161a
+b6b3d73b87704a45889bf6343d96fa96cd1641efa71607c410000000000000004c7c
+9505365f7ce57293c92a37f1bbdc68e0322901e61edef59fee7876b17b063e0fa4a1
+26eae0a671b37f1464cf1ccad591c33ae944e3b1f318d76e36fea996620000000000
+00000e6887cf9bdfb7579c69bf47928a84514b5e355ac034863f7ffaf4390e67d798
+c
+Ka = 0xec8d19b807ffb1d1eea81a93ba35cdfe
+Ke = 0x2ea40e4badfa5452b5744dc5983e99ba
+KcA = 0x66de534d9bf1e44e96a53a4b48d6b353
+KcB = 0x4945c38bb476cb0f347f3222be9b64a2
+HMAC(KcA, Y) = 0xe564c93b3015efb946dc16d642bbe7d1c8da5be164ed9fc3bae
+4e0ff86e1bd3c
+HMAC(KcB, X) = 0x072a94d9a54edc201d8891534c2317cadf3ea3792827f479e87
+3f93e90f21552
+CMAC(KcA, Y) = 0x94aacd28128dc2ce1d7f5684119d553c
+CMAC(KcB, X) = 0xbc6615eb68af10d329b2acb2d4545d97
 
-SPAKE2+(A='', B='')
-w0 = 0x4f9e28322a64f9dc7a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516
-cf8
-w1 = 0x8d73e4ca273859c873d809431d15f30e2b722007964e32699160b54fda3ee
-855
-L = 0x0491bb1e6672e71ad80b17d13f7a72ca2fe7f882d4bd734e2d140f67ab49d2
-c3e76dbcf706954bd9ada4e3a7fc50cf9294729f93b130ada3d3a4ae98cc7e7b6971
-X = 0x04f60f506cfa07506d4bfd2b3f56038b1c001fe6826374122c30e914747eab
-647988702cc70210eb2aa625e603d56961af16ec543ee3d4d2cb90d6fe2f3c1d1180
-Y = 0x046898fafef34fff9936217608151af08313305cf8e6f9add10d721c04a018
-607f5b5aca327e150cd5d588de83e46491ec766e2cf87da9fb07dc3745c0630b03bb
-Z = 0x042adeeea1417cc6c592fef772da8ba0f3aea69a5fb15923d0e9ae7c3301c7
-ff87e9ff9fba292ad410e4af71770858e9a314f1deb75f77bde276d3cc8b45ffd70c
-V = 0x04845c130c8c20865828e21ed3400abea726b07fdeb7533fa6017accc37e0b
-e4922241dad44846112e42bee999501fdb4d09fc798e4677d403d10bfa862928584e
-TT = 0x410000000000000004f60f506cfa07506d4bfd2b3f56038b1c001fe682637
-4122c30e914747eab647988702cc70210eb2aa625e603d56961af16ec543ee3d4d2c
-b90d6fe2f3c1d11804100000000000000046898fafef34fff9936217608151af0831
-3305cf8e6f9add10d721c04a018607f5b5aca327e150cd5d588de83e46491ec766e2
-cf87da9fb07dc3745c0630b03bb4100000000000000042adeeea1417cc6c592fef77
-2da8ba0f3aea69a5fb15923d0e9ae7c3301c7ff87e9ff9fba292ad410e4af7177085
-8e9a314f1deb75f77bde276d3cc8b45ffd70c410000000000000004845c130c8c208
-65828e21ed3400abea726b07fdeb7533fa6017accc37e0be4922241dad44846112e4
-2bee999501fdb4d09fc798e4677d403d10bfa862928584e20000000000000004f9e2
-8322a64f9dc7a01b282cc51e2abc4f9ed568805ca84f4ed3ef806516cf8
-Ka = 0x850a18a77b14ef5e71b4a239413630a8
-Ke = 0x4454819282b3e886a7e65b7b0de7cc62
-KcA = 0x05df6196c12d6203768c73d875e2bfc5
-KcB = 0xb58e61c322f685add02c125767e4fbb7
-MAC(A) = 0x33e50d29f8eacc67bfdab4a6c46c88d75ac3308416c64dfbb0d7fb1c0
-feda5b0
-MAC(B) = 0x55434e5e501ad2d476aa1ae334ef27ba437a5dea87683defac575a63b
-548ca64
+[Context=b'SPAKE2+-P256-SHA256-HKDF draft-01']
+[A=b'']
+[B=b'']
+w0 = 0xe6887cf9bdfb7579c69bf47928a84514b5e355ac034863f7ffaf4390e67d7
+98c
+w1 = 0x24b5ae4abda868ec9336ffc3b78ee31c5755bef1759227ef5372ca139b94e
+512
+L = 0x0495645cfb74df6e58f9748bb83a86620bab7c82e107f57d6870da8cbcb2ff
+9f7063a14b6402c62f99afcb9706a4d1a143273259fe76f1c605a3639745a92154b9
+x = 0x5b478619804f4938d361fbba3a20648725222f0a54cc4c876139efe7d9a217
+86
+X = 0x04a6db23d001723fb01fcfc9d08746c3c2a0a3feff8635d29cad2853e73586
+23425cf39712e928054561ba71e2dc11f300f1760e71eb177021a8f85e78689071cd
+y = 0x766770dad8c8eecba936823c0aed044b8c3c4f7655e8beec44a15dcbcaf78e
+5e
+Y = 0x04390d29bf185c3abf99f150ae7c13388c82b6be0c07b1b8d90d26853e8437
+4bbdc82becdb978ca3792f472424106a2578012752c11938fcf60a41df75ff7cf947
+Z = 0x040a150d9a62f514c9a1fedd782a0240a342721046cefb1111c3adb3be893c
+e9fcd2ffa137922fcf8a588d0f76ba9c55c85da2af3f1c789ca17976810387fb1d7e
+V = 0x04f8e247cc263a1846272f5a3b61b68aa60a5a2665d10cd22c89cd6bad05dc
+0e5e650f21ff017186cc92651a4cd7e66ce88f529299f340ea80fb90a9bad094e1a6
+TT = 0x21000000000000005350414b45322b2d503235362d5348413235362d484b4
+4462064726166742d303100000000000000000000000000000000410000000000000
+004886e2f97ace46e55ba9dd7242579f2993b64e16ef3dcab95afd497333d8fa12f5
+ff355163e43ce224e0b0e65ff02ac8e5c7be09419c785e0ca547d55a12e2d2041000
+0000000000004d8bbd6c639c62937b04d997f38c3770719c629d7014d49a24b4f98b
+aa1292b4907d60aa6bfade45008a636337f5168c64d9bd36034808cd564490b1e656
+edbe7410000000000000004a6db23d001723fb01fcfc9d08746c3c2a0a3feff8635d
+29cad2853e7358623425cf39712e928054561ba71e2dc11f300f1760e71eb177021a
+8f85e78689071cd410000000000000004390d29bf185c3abf99f150ae7c13388c82b
+6be0c07b1b8d90d26853e84374bbdc82becdb978ca3792f472424106a2578012752c
+11938fcf60a41df75ff7cf9474100000000000000040a150d9a62f514c9a1fedd782
+a0240a342721046cefb1111c3adb3be893ce9fcd2ffa137922fcf8a588d0f76ba9c5
+5c85da2af3f1c789ca17976810387fb1d7e410000000000000004f8e247cc263a184
+6272f5a3b61b68aa60a5a2665d10cd22c89cd6bad05dc0e5e650f21ff017186cc926
+51a4cd7e66ce88f529299f340ea80fb90a9bad094e1a62000000000000000e6887cf
+9bdfb7579c69bf47928a84514b5e355ac034863f7ffaf4390e67d798c
+Ka = 0x5929a3ce9822c81401bf0f764f69af08
+Ke = 0xea3276d68334576097e04b19ee5a3a8b
+KcA = 0x7f84b939d600117256b0c8a6d40cf181
+KcB = 0xf7d7547ced93f681e8df4c258c4516fd
+HMAC(KcA, Y) = 0x71d9412779b6c45a2c615c9df3f1fd93dc0aaf63104da8ece4a
+a1b5a3a415fea
+HMAC(KcB, X) = 0x095dc0400355cc233fde7437811815b3c1524aae80fd4e6810c
+f531cf11d20e3
+CMAC(KcA, Y) = 0xd66386ee8033bf56387db3543691064e
+CMAC(KcB, X) = 0x391070acb88ecc74dfe079cd0b8b52dc
 ~~~
-
