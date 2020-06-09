@@ -182,8 +182,8 @@ w0s || w1s = PBKDF(len(pw) || pw || len(A) || A || len(B) || B),
 and then w0 = w0s mod p and w1 = w1s mod p.
 If both identities A and B are absent, then w0s || w1s = PBKDF(pw), i.e.,
 the length prefix is omitted as in {{setup}}.
-If both identities A and B are unknown at the time of deriving w0 and w1,
-w0s and w1s are computed as if both identities were absent. They however
+If one or both identities A and B are unknown at the time of deriving w0 and w1,
+w0s and w1s are computed as if the unknown identities were absent. They however
 SHOULD be included in the transcript TT if the parties exchange those
 prior to or as part of the protocol flow.
 The party B stores the verification value pair L=w1\*P and w0.
