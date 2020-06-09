@@ -459,7 +459,7 @@ def gen_point(seed, ecname, ec):
 # Test Vectors {#testvectors}
 
 This section contains test vectors for SPAKE2+ using
-the P256-SHA256-HKDF-HMAC/CMAC ciphersuite. (Choice of PBKDF is omitted
+the P256-SHA256-HKDF-HMAC and P256-SHA256-HKDF-CMAC ciphersuites. (Choice of PBKDF is omitted
 and values for w and w0,w1 are provided directly.) All points are
 encoded using the uncompressed format, i.e., with a 0x04 octet
 prefix, specified in {{SEC1}} A and B identity strings
