@@ -218,7 +218,7 @@ TT = len(Context) || Context ||
 ~~~
 
 Context is an application-specific customization string shared between both
-parties and SHOULD precede the remaining transcript. It might contain the
+parties and MUST precede the remaining transcript. It might contain the
 name and version number of the higher-level protocol, or simply the name and version
 number of the application. The context MAY include additional data such as the
 chosen ciphersuite and PBKDF parameters like the iteration count or salt.
