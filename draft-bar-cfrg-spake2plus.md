@@ -177,16 +177,31 @@ A sample trace is shown below.
 ## SPAKE2+ {#spake2plus}
 
 Let w0 and w1 be two integers derived by hashing the password pw with the
-identities of the two participants, A and B. Specifically, compute
-w0s || w1s = PBKDF(len(pw) || pw || len(A) || A || len(B) || B),
-and then w0 = w0s mod p and w1 = w1s mod p.
-If both identities A and B are absent, then w0s || w1s = PBKDF(pw), i.e.,
-the length prefix is omitted as in {{setup}}.
+identities of the two participants, A and B. Specifically, compute:
+
+~~~
+w0s || w1s = PBKDF(len(pw) || pw || len(A) || A || len(B) || B)
+w0 = w0s mod p
+w1 = w1s mod p
+~~~
+
+If both identities A and B are absent, i.e. len(A) = len(B) = 0, then the
+length prefixes are omitted as in {{setup}}.
+
+~~~
+w0s || w1s = PBKDF(pw)
+~~~
+
 If one or both identities A and B are unknown at the time of deriving w0 and w1,
 w0s and w1s are computed as if the unknown identities were absent. They however
 SHOULD be included in the transcript TT if the parties exchange those
 prior to or as part of the protocol flow.
-The party B stores the verification value pair L=w1\*P and w0.
+
+The party B stores the verification value pair L and w0.
+
+~~~
+L = w1*P
+~~~
 
 Note that standards such as NIST.SP.800-56Ar3 suggest taking mod p of a
 hash value that is 64 bits longer than that needed to represent p to remove
@@ -196,15 +211,42 @@ forms of normalization of the password before hashing {{!RFC8265}}.
 The hashing algorithm SHOULD be a PBKDF so as to slow down brute-force
 attackers.
 
-When executing SPAKE2+, A selects x uniformly at random from the
-numbers in the range [0, p), and lets X=x\*P+w0\*M, then transmits pA=X to
-B. Upon receipt of X, B computes h\*X and aborts if the result is equal
-to I. B then selects y uniformly at random from the numbers in [0, p),
-then computes Y=y\*P+w0\*N, and transmits pB=Y to A. Upon receipt of Y,
-A computes h\*Y and aborts if the result is equal to I.
+When executing SPAKE2+, A selects x uniformly at random from the integers in
+[0, p), computes the public share pA=X, and transmits it to B.
 
-A computes Z as h\*x\*(Y-w0\*N), and V as h\*w1\*(Y-w0\*N). B computes Z as
-h\*y\*(X-w0\*M) and V as h\*y\*L. Both share Z and V as common values.
+~~~
+x <- [0, p)
+X = x*P + w0*M
+~~~
+
+Upon receipt of X, B computes h\*X and aborts if the result is equal to I to ensure
+that X is in the large prime-order subgroup of G. B then selects y uniformly at
+random from the integers in [0, p), computes the public share pB=Y and transmits
+it to A. Upon receipt of Y, A computes h\*Y and aborts if the result is equal to I.
+
+~~~
+y <- [0, p)
+Y = y*P + w0*N
+~~~
+
+Parties A and B compute Z and V that are now shared as common values. Party A computes:
+
+~~~
+Z = h*x*(Y - w0*N)
+V = h*w1*(Y - w0*N)
+~~~
+
+Party B computes:
+
+~~~
+Z = h*y*(X - w0*M)
+V = h*y*L
+~~~
+
+All proofs of security hold even if the discrete log of the fixed group element
+N is known to the adversary. In particular, one MAY set N=I, i.e. set N to the
+unit element in G.
+
 It is essential that both Z and V be used in combination with the transcript to
 derive the keying material. The protocol transcript encoding is shown below.
 
@@ -233,42 +275,39 @@ specific protocol is given in {{?I-D.ietf-mmusic-sdp-uks}}).
 
 Upon completion of this protocol, A and B compute shared secrets Ka, Ke, KcA,
 and KcB as specified in {{keys}}. B MUST send A a key confirmation message cB
-so both parties agree upon these shared secrets. This confirmation message cB
-is computed as a MAC over the received share (pA) using KcB. Specifically, B
-computes cB = MAC(KcB, pA), where MAC is also a secure PRF. After receipt and
-verification of B's confirmation message, A MUST send B a confirmation message
-using a MAC computed equivalently except with the use of pB and KcA. B MUST NOT
-send application data to A until it has received and verified the confirmation
-message. Key confirmation verification requires recomputation of the MAC and
-checking for equality against that which was received.
+so both parties can confirm that they agree upon these shared secrets. After
+receipt and verification of B's confirmation message, A MUST send B an equivalent
+confirmation message. B MUST NOT send application data to A until it has received
+and verified the confirmation message. Key confirmation verification requires
+recomputation of cA or cB and checking for equality against that which was received.
 
 # Key Schedule and Key Confirmation {#keys}
 
 The protocol transcript TT, as defined in {{spake2plus}},
-is unique and secret to A and B. Both parties use TT to
-derive shared symmetric secrets Ke and Ka as Ke || Ka = Hash(TT). The length of each
-key is equal to half of the digest output, e.g., |Ke| = |Ka| = 128 bits for SHA-256.
-If the required key size is less than half the digest output, e.g. when using SHA-512
-to derive two 128-bit keys, the digest output MAY be truncated.
-
-Both endpoints use Ka to derive subsequent MAC keys for key confirmation messages.
-Specifically, let KcA and KcB be the MAC keys used by A and B, respectively.
-A and B compute them as KcA || KcB = KDF(nil, Ka, "ConfirmationKeys")
-
-The length of each of KcA and KcB is equal to half of the KDF
-output, e.g., |KcA| = |KcB| = 128 bits for HKDF-SHA256. If half of the KDF
-output size exceeds the required key size for the chosen MAC, e.g. when using
-HKDF-SHA512 as the KDF and CMAC-AES-128 as the MAC, the KDF output MAY be truncated.
-
-The resulting key schedule for this protocol, given transcript TT, is as follows.
+is unique and secret to A and B. Both parties use TT to derive shared symmetric
+secrets Ke and Ka. The length of each key is equal to half of the digest output,
+e.g., |Ke| = |Ka| = 128 bits for SHA-256. If the required key size is less than
+half the digest output, e.g. when using SHA-512 to derive two 128-bit keys, the
+digest output MAY be truncated.
 
 ~~~
-TT -> Hash(TT) = Ka || Ke
-Ka -> KDF(nil, Ka, "ConfirmationKeys") = KcA || KcB
+Ka || Ke = Hash(TT)
+KcA || KcB = KDF(nil, Ka, "ConfirmationKeys")
 ~~~
 
-A and B output Ke as the shared secret from the protocol. Ka and its derived keys (KcA and KcB)
-are not used for anything except key confirmation.
+A and B output Ke as the shared secret from the protocol. Ka and its derived
+KcA and KcB are not used for anything except key confirmation and must be
+discarded after the protocol execution.
+
+Both endpoints MUST either exchange cA=KcA and cB=KcB directly, or employ a
+secure PRF, acting as a MAC that produces pseudorandom tags, for key confirmation.
+In the latter case, KcA and KcB are the symmetric keys used to compute tags cA
+and cB over the received key share of the respective peer.
+
+~~~
+cA = MAC(KcA, pB)
+cB = MAC(KcB, pA)
+~~~
 
 # Ciphersuites {#Ciphersuites}
 
@@ -277,6 +316,10 @@ indicates a group, cryptographic hash algorithm, and pair of KDF and MAC functio
 SPAKE2+-P256-SHA256-HKDF-HMAC. This ciphersuite indicates a SPAKE2+ protocol instance over
 P-256 that uses SHA256 along with HKDF {{!RFC5869}} and HMAC {{!RFC2104}}
 for G, Hash, KDF, and MAC functions, respectively.
+
+If no MAC algorithm is used in the key confirmation phase, its respective column
+in the table below can be ignored and the ciphersuite name will contain no MAC
+identifier.
 
 | G              | Hash   | KDF    | MAC    |
 |:---------------|:------:|:------:|:------:|
