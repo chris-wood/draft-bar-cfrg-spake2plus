@@ -296,7 +296,7 @@ KcA || KcB = KDF(nil, Ka, "ConfirmationKeys")
 ~~~
 
 A and B output Ke as the shared secret from the protocol. Ka and its derived
-KcA and KcB are not used for anything except key confirmation and must be
+KcA and KcB are not used for anything except key confirmation and MUST be
 discarded after the protocol execution.
 
 Both endpoints MUST either exchange cA=KcA and cB=KcB directly, or employ a
