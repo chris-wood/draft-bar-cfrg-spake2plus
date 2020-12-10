@@ -301,12 +301,13 @@ discarded after the protocol execution.
 
 Both endpoints MUST either exchange cA=KcA and cB=KcB directly, or employ a
 secure PRF, acting as a MAC that produces pseudorandom tags, for key confirmation.
-In the latter case, KcA and KcB are the symmetric keys used to compute tags cA
-and cB over the received key share of the respective peer.
+In the latter case, KcA and KcB are symmetric keys used to compute tags cA
+and cB over data shared between the participants. That data could for example
+be an encoding of the key shares exchanged earlier, or simply a fixed string.
 
 ~~~
-cA = MAC(KcA, pB)
-cB = MAC(KcB, pA)
+cA = MAC(KcA, ...)
+cB = MAC(KcB, ...)
 ~~~
 
 # Ciphersuites {#Ciphersuites}
