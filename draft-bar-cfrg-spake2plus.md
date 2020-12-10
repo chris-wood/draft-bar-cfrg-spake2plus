@@ -276,7 +276,7 @@ specific protocol is given in {{?I-D.ietf-mmusic-sdp-uks}}).
 Upon completion of this protocol, A and B compute shared secrets Ka, Ke, KcA,
 and KcB as specified in {{keys}}. B MUST send A a key confirmation message cB
 so both parties can confirm that they agree upon these shared secrets. After
-receipt and verification of B's confirmation message, A MUST send B an equivalent
+receipt and verification of B's confirmation message, A MUST send B a
 confirmation message. B MUST NOT send application data to A until it has received
 and verified the confirmation message. Key confirmation verification requires
 recomputation of cA or cB and checking for equality against that which was received.
