@@ -286,7 +286,7 @@ recomputation of cA or cB and checking for equality against that which was recei
 The protocol transcript TT, as defined in {{spake2plus}},
 is unique and secret to A and B. Both parties use TT to derive shared symmetric
 secrets Ke and Ka. The length of each key is equal to half of the digest output,
-e.g., |Ke| = |Ka| = 128 bits for SHA-256. The shared secret Ke MAY be truncated.
+e.g., |Ke| = |Ka| = 128 bits for SHA-256.
 
 ~~~
 Ka || Ke = Hash(TT)
@@ -307,6 +307,10 @@ be an encoding of the key shares exchanged earlier, or simply a fixed string.
 cA = MAC(KcA, ...)
 cB = MAC(KcB, ...)
 ~~~
+
+Once key confirmation is complete, applications MAY use Ke as an authenticated
+shared secret as needed. For example, applications MAY derive one or more AEAD
+keys and nonces from Ke for subsequent application data encryption.
 
 # Ciphersuites {#Ciphersuites}
 
