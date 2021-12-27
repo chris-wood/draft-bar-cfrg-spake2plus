@@ -34,7 +34,7 @@ normative:
       - ins: D. Cash
       - ins: E. Kiltz
       - ins: V. Shoup
-  UCAnalysis:
+  SPAKE2P-Analysis:
     title: "Security analysis of SPAKE2+"
     target: https://eprint.iacr.org/2020/313.pdf
     date: 2020
@@ -75,7 +75,7 @@ and the adversary can not query the salt of the password hash function ahead of 
 Constraints may consist in being in physical proximity through a local network or
 when initiation of the protocol requires a first authentication factor.
 
-This password-based key exchange protocol appears in {{TDH}} and is proven secure in {{UCAnalysis}}.
+This password-based key exchange protocol appears in {{TDH}} and is proven secure in {{SPAKE2P-Analysis}}.
 It is compatible with any prime-order group and relies only on group operations, making it simple and computationally efficient.
 Predetermined parameters for a selection of commonly used groups are also provided.
 
@@ -99,10 +99,12 @@ operations in the group additively. We assume there is a representation of
 elements of G as byte strings: common choices would be SEC1
 uncompressed or compressed {{SEC1}} for elliptic curve groups or big
 endian integers of a fixed (per-group) length for prime field DH.
-We fix two elements M and N in the prime-order subgroup of G as defined
+We fix two random elements M and N in the prime-order subgroup of G as defined
 in the table in this document for common groups, as well as a generator P
-of the (large) prime-order subgroup of G. P is specified in the document defining
-the group, and so we do not repeat it here.
+of the (large) prime-order subgroup of G. The algorithm for selecting
+M and N is defined in {{pointgen}}. Importantly, this algorithm chooses M
+and N such that their discrete log is not known. P is specified in the
+document defining the group, and so we do not repeat it here.
 
 || denotes concatenation of strings. We also let len(S) denote the
 length of a string in bytes, represented as an eight-byte little-
@@ -116,11 +118,6 @@ MAC is a Message Authentication Code algorithm that takes a secret key and
 message as input to produce an output.
 Let Hash be a hash function from arbitrary strings to bit strings of a fixed length. Common choices
 for Hash are SHA256 or SHA512 {{!RFC6234}}.
-Let PBKDF be a Password-Based Key Derivation Function designed to slow down brute-force attackers.
-Brute-force resistance may be obtained through various computation hardness parameters such as memory or CPU cycles,
-and are typically configurable.
-Scrypt {{!RFC7914}} and Argon2 are common examples of PBKDF functions.
-PBKDF and hardness parameter selection are out of scope of this document.
 {{Ciphersuites}} specifies variants of KDF, MAC, and Hash
 suitable for use with the protocols contained herein.
 
@@ -131,18 +128,18 @@ or other names (hostnames, usernames, etc). A and B may share additional data
 the protocol transcript.
 One example of additional data is a list of supported protocol versions if SPAKE2+ were
 used in a higher-level protocol which negotiates the use of a particular PAKE. Another
-example is the inclusion of PBKDF parameters and the application name.
-Including those would ensure that both parties agree upon the same set of supported
-protocols and use the same PBKDF parameters and therefore prevent downgrade and
+example is the inclusion of the application name. Including those would ensure that
+both parties agree upon the same set of supported protocols and therefore prevent downgrade and
 cross-protocol attacks. Specification of precise context values is out of scope for this document.
 
-## Protocol Flow {#flow}
+## SPAKE2+ {#flow}
 
 SPAKE2+ is a two round protocol that establishes a shared secret with an
 additional round for key confirmation. Prior to invocation, A and B are provisioned with
 information such as the input password needed to run the protocol.
-A preamble exchange may occur in order to communicate identities, protocol version and PBKDF parameters related to the verification value.
-Details of the preamble phase are out of scope of this document.
+A preamble exchange may occur in order to communicate identities,
+protocol version and other parameters related to the verification value;
+see {{preamble}} for details.
 During the first round, A, the prover, sends a public share pA
 to B, the verifier, and B responds with its own public share pB. Both A and B then derive a shared secret
 used to produce encryption and authentication keys. The latter are used during the second
@@ -174,10 +171,37 @@ A sample trace is shown below.
 
 ~~~
 
-## SPAKE2+ {#spake2plus}
+## Preamble
 
-Let w0 and w1 be two integers derived by hashing the password pw with the
-identities of the two participants, A and B. Specifically, compute:
+The preamble phase computes and distributes two values w0 and w1 between A and B,
+where w0 and w1 are derived by hashing the password pw with the identities of
+the two participants, A and B. At the end, A stores w0 and w1, whereas B stores
+w0 and L=w1*P. Protocols using this specification MUST define the method used to
+compute w0 and w1. For example, it may be necessary to carry out various
+forms of normalization of the password before hashing {{!RFC8265}}. This
+section contains requirements and default recommendations for computing w0 and w1.
+
+Both w0 and w1 are computed using a function that is indistinguishable from a
+random oracle, which means that w0 and w1 are indistinguishable from two uniformly
+random elements in the range [0, p-1]. See {{SPAKE2P-Analysis}} for details.
+
+The RECOMMENDED method for generating w0 and w1 is via a Password-Based Key
+Derivation Function (PBKDF), which is a function designed to slow down brute-force
+attackers. Brute-force resistance may be obtained through various computation hardness
+parameters such as memory or CPU cycles, and are typically configurable.
+Scrypt {{?RFC7914}} and Argon2id {{?RFC9106}} are common examples of PBKDF functions.
+Absent an application-specific profile, RECOMMENDED parameters (N, r, p)
+for Scrypt are (32768,8,1), and RECOMMENDED parameters for Argon2id
+are in {{?RFC9106, Section 4}}.
+
+The output length of the PBKDF MUST be at least 64 bits longer than
+than that needed to represent p. This is done to remove statistical bias
+introduced by the modular reduction. For example, given the prime
+order of the P-256 curve, the output of the PBKDF can be 320 bits or
+larger.
+
+Given a PBKDF, password pw, and identities A and B, the RECOMMENDED
+method for computing w0 and w1 is as follows:
 
 ~~~
 w0s || w1s = PBKDF(len(pw) || pw || len(A) || A || len(B) || B)
@@ -185,34 +209,19 @@ w0 = w0s mod p
 w1 = w1s mod p
 ~~~
 
-If both identities A and B are absent, i.e. len(A) = len(B) = 0, then the
-length prefixes are omitted as in {{setup}}.
-
-~~~
-w0s || w1s = PBKDF(pw)
-~~~
-
 If one or both identities A and B are unknown at the time of deriving w0 and w1,
-w0s and w1s are computed as if the unknown identities were absent. They however
-SHOULD be included in the transcript TT if the parties exchange those
-prior to or as part of the protocol flow.
+w0s and w1s are computed as if the unknown identities were absent, i.e., the length
+of the identity is zero. They however SHOULD be included in the transcript TT if
+the parties exchange those prior to or as part of the protocol flow.
 
-The party B stores the verification value pair L and w0.
+For simplicity, if both identities are absent, i.e. len(A) = len(B) = 0, then
+w0s || w1s = PBKDF(pw).
 
-~~~
-L = w1*P
-~~~
+## Protocol
 
-Note that standards such as NIST.SP.800-56Ar3 suggest taking mod p of a
-hash value that is 64 bits longer than that needed to represent p to remove
-statistical bias introduced by the modulation. Protocols using this specification must define
-the method used to compute w0 and w1: it may be necessary to carry out various
-forms of normalization of the password before hashing {{!RFC8265}}.
-The hashing algorithm SHOULD be a PBKDF so as to slow down brute-force
-attackers.
-
-When executing SPAKE2+, A selects x uniformly at random from the integers in
-[0, p), computes the public share pA=X, and transmits it to B.
+The online SPAKE2+ protocol runs between A and B to produce a single shared
+secret upon completion. To begin, A selects x uniformly at random from the
+integers in [0, p), computes the public share pA=X, and transmits it to B.
 
 ~~~
 x <- [0, p)
@@ -281,9 +290,9 @@ confirmation message. B MUST NOT send application data to A until it has receive
 and verified the confirmation message. Key confirmation verification requires
 recomputation of cA or cB and checking for equality against that which was received.
 
-# Key Schedule and Key Confirmation {#keys}
+## Key Schedule and Key Confirmation {#keys}
 
-The protocol transcript TT, as defined in {{spake2plus}},
+The protocol transcript TT, as defined in {{protocol}},
 is unique and secret to A and B. Both parties use TT to derive shared symmetric
 secrets Ke and Ka. The length of each key is equal to half of the digest output,
 e.g., |Ke| = |Ka| = 128 bits for SHA-256.
@@ -316,9 +325,11 @@ keys and nonces from Ke for subsequent application data encryption.
 
 This section documents SPAKE2+ ciphersuite configurations. A ciphersuite
 indicates a group, cryptographic hash algorithm, and pair of KDF and MAC functions, e.g.,
-SPAKE2+-P256-SHA256-HKDF-HMAC. This ciphersuite indicates a SPAKE2+ protocol instance over
+P256-SHA256-HKDF-HMAC-SHA256. This ciphersuite indicates a SPAKE2+ protocol instance over
 P-256 that uses SHA256 along with HKDF {{!RFC5869}} and HMAC {{!RFC2104}}
-for G, Hash, KDF, and MAC functions, respectively.
+for G, Hash, KDF, and MAC functions, respectively. Since the choice of PBKDF
+and its parameters for computing w0 and w1 and distributing does not affect
+interoperability, the PBKDF is not included as part of the ciphersuite.
 
 If no MAC algorithm is used in the key confirmation phase, its respective column
 in the table below can be ignored and the ciphersuite name will contain no MAC
@@ -326,13 +337,13 @@ identifier.
 
 | G              | Hash   | KDF    | MAC    |
 |:---------------|:------:|:------:|:------:|
-| P-256 | SHA256 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC {{!RFC2104}} |
-| P-256 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC {{!RFC2104}} |
-| P-384 | SHA256 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC {{!RFC2104}} |
-| P-384 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC {{!RFC2104}} |
-| P-521 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC {{!RFC2104}} |
-| edwards25519 | SHA256 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC {{!RFC2104}} |
-| edwards448 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC {{!RFC2104}} |
+| P-256 | SHA256 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC-SHA256 {{!RFC2104}} |
+| P-256 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC-SHA512 {{!RFC2104}} |
+| P-384 | SHA256 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC-SHA256 {{!RFC2104}} |
+| P-384 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC-SHA512 {{!RFC2104}} |
+| P-521 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC-SHA512 {{!RFC2104}} |
+| edwards25519 | SHA256 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC-SHA256 {{!RFC2104}} |
+| edwards448 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC-SHA512 {{!RFC2104}} |
 | P-256 | SHA256 {{!RFC6234}} | HKDF {{!RFC5869}} | CMAC-AES-128 {{!RFC4493}} |
 | P-256 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | CMAC-AES-128 {{!RFC4493}} |
 
@@ -409,7 +420,7 @@ No IANA action is required.
 
 # Security Considerations
 
-SPAKE2+ appears in {{TDH}} and is proven secure in {{UCAnalysis}}.
+SPAKE2+ appears in {{TDH}} and is proven secure in {{SPAKE2P-Analysis}}.
 
 Beyond the cofactor multiplication checks to ensure that elements received from
 a peer are in the prime order subgroup of G, they also MUST be checked for group
@@ -427,7 +438,10 @@ Thanks to Ben Kaduk and Watson Ladd, from which this specification originally em
 # Algorithm used for Point Generation {#pointgen}
 
 This section describes the algorithm that was used to generate
-the points (M) and (N) in the table in {{Ciphersuites}}.
+the points M and N in the table in {{Ciphersuites}}. This algorithm
+produces M and N such that they are indistinguishable from two random
+elements in the prime-order subgroup of G. See {{SPAKE2P-Analysis}}
+for additional details on this requirement.
 
 For each curve in the table below, we construct a string
 using the curve OID from {{!RFC5480}} (as an ASCII
@@ -506,9 +520,9 @@ def gen_point(seed, ecname, ec):
 # Test Vectors {#testvectors}
 
 This section contains test vectors for SPAKE2+ using
-the P256-SHA256-HKDF-HMAC and P256-SHA256-HKDF-CMAC ciphersuites. (Choice of PBKDF is omitted
-and values for w and w0,w1 are provided directly.) All points are
-encoded using the uncompressed format, i.e., with a 0x04 octet
+the P256-SHA256-HKDF-HMAC-SHA256 and P256-SHA256-HKDF-CMAC-AES-128 ciphersuites.
+(Choice of PBKDF is omitted and values for w and w0,w1 are provided directly.)
+All points are encoded using the uncompressed format, i.e., with a 0x04 octet
 prefix, specified in {{SEC1}} A and B identity strings
 are provided in the protocol invocation.
 
