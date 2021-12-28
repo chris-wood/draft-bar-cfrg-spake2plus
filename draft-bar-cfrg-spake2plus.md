@@ -189,7 +189,7 @@ The RECOMMENDED method for generating w0 and w1 is via a Password-Based Key
 Derivation Function (PBKDF), which is a function designed to slow down brute-force
 attackers. Brute-force resistance may be obtained through various computation hardness
 parameters such as memory or CPU cycles, and are typically configurable.
-Scrypt {{?RFC7914}} and Argon2id {{?RFC9106}} are common examples of PBKDF functions.
+Scrypt {{?RFC7914}} and Argon2id {{?RFC9106}} are common examples of PBKDFs.
 Absent an application-specific profile, RECOMMENDED parameters (N, r, p)
 for Scrypt are (32768,8,1), and RECOMMENDED parameters for Argon2id
 are in {{?RFC9106, Section 4}}.
