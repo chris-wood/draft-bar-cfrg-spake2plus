@@ -192,7 +192,7 @@ parameters such as memory or CPU cycles, and are typically configurable.
 Scrypt {{?RFC7914}} and Argon2id {{?RFC9106}} are common examples of PBKDFs.
 Absent an application-specific profile, RECOMMENDED parameters (N, r, p)
 for Scrypt are (32768,8,1), and RECOMMENDED parameters for Argon2id
-are in {{?RFC9106, Section 4}}.
+are in Section 4 of {{?RFC9106}}.
 
 The output length of the PBKDF MUST be at least 64 bits longer than
 than that needed to represent p. This is done to remove statistical bias
