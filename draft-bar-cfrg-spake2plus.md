@@ -337,15 +337,15 @@ identifier.
 
 | G              | Hash   | KDF    | MAC    |
 |:---------------|:------:|:------:|:------:|
-| P-256 | SHA256 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC-SHA256 {{!RFC2104}} |
-| P-256 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC-SHA512 {{!RFC2104}} |
-| P-384 | SHA256 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC-SHA256 {{!RFC2104}} |
-| P-384 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC-SHA512 {{!RFC2104}} |
-| P-521 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC-SHA512 {{!RFC2104}} |
-| edwards25519 | SHA256 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC-SHA256 {{!RFC2104}} |
-| edwards448 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | HMAC-SHA512 {{!RFC2104}} |
-| P-256 | SHA256 {{!RFC6234}} | HKDF {{!RFC5869}} | CMAC-AES-128 {{!RFC4493}} |
-| P-256 | SHA512 {{!RFC6234}} | HKDF {{!RFC5869}} | CMAC-AES-128 {{!RFC4493}} |
+| P-256 | SHA256 {{!RFC6234}} | HKDF-SHA256 {{!RFC5869}} | HMAC-SHA256 {{!RFC2104}} |
+| P-256 | SHA512 {{!RFC6234}} | HKDF-SHA512 {{!RFC5869}} | HMAC-SHA512 {{!RFC2104}} |
+| P-384 | SHA256 {{!RFC6234}} | HKDF-SHA256 {{!RFC5869}} | HMAC-SHA256 {{!RFC2104}} |
+| P-384 | SHA512 {{!RFC6234}} | HKDF-SHA512 {{!RFC5869}} | HMAC-SHA512 {{!RFC2104}} |
+| P-521 | SHA512 {{!RFC6234}} | HKDF-SHA512 {{!RFC5869}} | HMAC-SHA512 {{!RFC2104}} |
+| edwards25519 | SHA256 {{!RFC6234}} | HKDF-SHA256 {{!RFC5869}} | HMAC-SHA256 {{!RFC2104}} |
+| edwards448 | SHA512 {{!RFC6234}} | HKDF-SHA512 {{!RFC5869}} | HMAC-SHA512 {{!RFC2104}} |
+| P-256 | SHA256 {{!RFC6234}} | HKDF-SHA256 {{!RFC5869}} | CMAC-AES-128 {{!RFC4493}} |
+| P-256 | SHA512 {{!RFC6234}} | HKDF-SHA512 {{!RFC5869}} | CMAC-AES-128 {{!RFC4493}} |
 
 The following points represent permissible point generation seeds
 for the groups listed in the Table above,
