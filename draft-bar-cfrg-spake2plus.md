@@ -194,11 +194,14 @@ Absent an application-specific profile, RECOMMENDED parameters (N, r, p)
 for Scrypt are (32768,8,1), and RECOMMENDED parameters for Argon2id
 are in Section 4 of {{?RFC9106}}.
 
-The output length of the PBKDF MUST be at least 64 bits longer than
-than that needed to represent p. This is done to remove statistical bias
-introduced by the modular reduction. For example, given the prime
-order of the P-256 curve, the output of the PBKDF can be 320 bits or
-larger.
+Each half of the output of the PBKDF will be interpreted as an integer and reduced
+modulo p. To control bias, each half must be of length at least ceil(log2(p)) + k
+bits, with k >= 64. Reducing such integers mod p gives bias at most 2^-k for any
+p; this bias is negligible for any k >= 64.
+
+The minimum total output length of the PBKDF then is 2 * (ceil(log2(p)) + k) bits.
+For example, given the prime order of the P-256 curve, the output of the PBKDF
+SHOULD be at least 640 bits or 80 bytes.
 
 Given a PBKDF, password pw, and identities A and B, the RECOMMENDED
 method for computing w0 and w1 is as follows:
