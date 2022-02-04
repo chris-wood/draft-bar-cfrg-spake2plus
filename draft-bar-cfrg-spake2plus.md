@@ -212,8 +212,7 @@ w1 = w1s mod p
 If an identity is unknown at the time of computing w0s or w1s, its length is given
 as zero and the identity itself the empty octet string. If both A and B are unknown,
 then both lengths are zero and both A and B will be empty octet strings. Both
-identities however SHOULD be included in the transcript TT if the parties exchange
-those prior to or as part of the protocol flow.
+identities are included in the transcript TT as part of the protocol flow.
 
 ## Protocol
 
