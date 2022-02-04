@@ -212,13 +212,10 @@ w0 = w0s mod p
 w1 = w1s mod p
 ~~~
 
-If one or both identities A and B are unknown at the time of deriving w0 and w1,
-w0s and w1s are computed as if the unknown identities were absent, i.e., the length
-of the identity is zero. They however SHOULD be included in the transcript TT if
-the parties exchange those prior to or as part of the protocol flow.
-
-For simplicity, if both identities are absent, i.e. len(A) = len(B) = 0, then
-w0s || w1s = PBKDF(pw).
+If an identity is unknown at the time of computing w0s or w1s, its length is given
+as zero and the identity itself the empty octet string. If both A and B are unknown,
+then both lengths are zero and both A and B will be empty octet strings. Both
+identities are included in the transcript TT as part of the protocol flow.
 
 ## Protocol
 
