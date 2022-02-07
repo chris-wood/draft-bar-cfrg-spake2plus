@@ -143,31 +143,31 @@ During the first round, the prover sends a public share shareP to the verifier, 
 responds with its own public share shareV. Both parties then derive a shared secret
 used to produce encryption and authentication keys. The latter are used during the second
 round for key confirmation. ({{keys}} details the key derivation and confirmation steps.)
-In particular, the verifier sends a key confirmation message tagV to the prover,
-which in turn responds with its own key confirmation message tagP.
-(Note that shareV and tagV MAY be sent in the same message.)
+In particular, the verifier sends a key confirmation message confirmV to the prover,
+which in turn responds with its own key confirmation message confirmP.
+(Note that shareV and confirmV MAY be sent in the same message.)
 Both parties MUST NOT consider the protocol complete prior to receipt and
 validation of these key confirmation messages.
 
 A sample trace is shown below.
 
 ~~~
-               Prover                     Verifier
+                 Prover                     Verifier
 
-                 |        (registration)     |
-                 |<- - - - - - - - - - - - ->|
-                 |                           |
-                 |       (setup protocol)    |
-(compute shareP) |            shareP         |
-                 |-------------------------->|
-                 |            shareV         | (compute shareV)
-                 |<--------------------------|
-                 |                           |
-                 |       (derive secrets)    | (compute tagV)
-                 |             tagV          |
-                 |<--------------------------|
-  (compute tagP) |             tagP          |
-                 |-------------------------->|
+                   |        (registration)     |
+                   |<- - - - - - - - - - - - ->|
+                   |                           |
+                   |       (setup protocol)    |
+(compute shareP)   |            shareP         |
+                   |-------------------------->|
+                   |            shareV         | (compute shareV)
+                   |<--------------------------|
+                   |                           |
+                   |       (derive secrets)    | (compute confirmV)
+                   |           confirmV        |
+                   |<--------------------------|
+(compute confirmP) |           confirmP        |
+                   |-------------------------->|
 
 ~~~
 
@@ -292,12 +292,12 @@ of Unknown Key Share attacks in a specific protocol is given in {{?I-D.ietf-mmus
 
 Upon completion of this protocol, both parties compute shared secrets K_auth,
 K_enc, K_confirmP, and K_confirmV as specified in {{keys}}. The verifier MUST send a key
-confirmation message tagV to the prover so both parties can confirm that they
+confirmation message confirmV to the prover so both parties can confirm that they
 agree upon these shared secrets. After receipt and verification of the verifier's
 confirmation message, the prover MUST respond with its confirmation message.
 The verifier MUST NOT send application data to the prover until it has received
 and verified the confirmation message. Key confirmation verification requires
-recomputation of tagP or tagV and checking for equality against that which was
+recomputation of confirmP or confirmV and checking for equality against that which was
 received.
 
 ## Key Schedule and Key Confirmation {#keys}
@@ -318,15 +318,15 @@ is equal to half of the digest output, e.g., |K_confirmP| = |K_confirmV| = 128 b
 Hash() = SHA-256. Neither K_auth nor its derived confirmation keys are used for
 anything except key confirmation and MUST be discarded after the protocol execution.
 
-Both endpoints MUST either exchange tagP=K_confirmP and tagV=K_confirmV directly, or employ a
+Both endpoints MUST either exchange confirmP=K_confirmP and confirmV=K_confirmV directly, or employ a
 secure PRF, acting as a MAC that produces pseudorandom tags, for key confirmation.
-In the latter case, K_confirmP and K_confirmV are symmetric keys used to compute tags tagP
-and tagV over data shared between the participants. That data could for example
+In the latter case, K_confirmP and K_confirmV are symmetric keys used to compute tags confirmP
+and confirmV over data shared between the participants. That data could for example
 be an encoding of the key shares exchanged earlier, or simply a fixed string.
 
 ~~~
-tagP = MAC(K_confirmP, ...)
-tagV = MAC(K_confirmV, ...)
+confirmP = MAC(K_confirmP, ...)
+confirmV = MAC(K_confirmV, ...)
 ~~~
 
 Once key confirmation is complete, applications MAY use K_enc as an authenticated
