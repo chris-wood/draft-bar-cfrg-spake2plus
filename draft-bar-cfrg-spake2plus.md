@@ -59,19 +59,19 @@ This method is simple to implement, compatible with any prime order group and is
 This document describes SPAKE2+, a Password Authenticated Key Exchange (PAKE) protocol
 run between two parties for deriving a strong shared key with no risk of disclosing the password.
 SPAKE2+ is an augmented PAKE protocol, as only one party makes direct use of the password during the execution of the protocol.
-The other party only needs a verification value at the time of the protocol execution instead of the password.
-The verification value can be computed once, during an offline initialization phase.
+The other party only needs a record corresponding to the other party's registration at the time of the protocol execution instead of the password.
+This record can be computed once, during an offline registration phase.
 The party using the password directly would typically be a client, and acts as a prover,
 while the other party would be a server, and acts as verifier.
 
-The protocol is augmented in the sense that it provides some resilience to the compromise or extraction of the verification value.
-The design of the protocol forces the adversary to recover the password from the verification value to successfully execute the protocol.
+The protocol is augmented in the sense that it provides some resilience to the compromise or extraction of the registration record.
+The design of the protocol forces the adversary to recover the password from the record to successfully execute the protocol.
 Hence this protocol can be advantageously combined with a salted Password Hashing Function to increase the cost of the recovery and slow down attacks.
-The verification value cannot be used directly to successfully run the protocol as a prover,
+The record cannot be used directly to successfully run the protocol as a prover,
 making this protocol more robust than balanced PAKEs which don't benefit from Password Hashing Functions to the same extent.
 
 This augmented property is especially valuable in scenarios where the execution of the protocol is constrained
-and the adversary can not query the salt of the password hash function ahead of the attack.
+and the adversary cannot not query the salt of the password hash function ahead of the attack.
 Constraints may consist in being in physical proximity through a local network or
 when initiation of the protocol requires a first authentication factor.
 
@@ -89,8 +89,6 @@ document are to be interpreted as described in {{!RFC2119}}.
 
 # Definition of SPAKE2+
 
-## Offline Initialization {#setup}
-
 Let G be a group in which the computational Diffie-Hellman (CDH)
 problem is hard. Suppose G has order p\*h where p is a large prime;
 h will be called the cofactor. Let I be the unit element in
@@ -107,7 +105,7 @@ and N such that their discrete log is not known. P is specified in the
 document defining the group, and so we do not repeat it here.
 
 || denotes concatenation of strings. We also let len(S) denote the
-length of a string in bytes, represented as an eight-byte little-
+length of a string in bytes, represented as an eight-byte little
 endian number. Finally, let nil represent an empty string, i.e.,
 len(nil) = 0.
 
@@ -121,9 +119,9 @@ for Hash are SHA256 or SHA512 {{!RFC6234}}.
 {{Ciphersuites}} specifies variants of KDF, MAC, and Hash
 suitable for use with the protocols contained herein.
 
-Let A and B be two parties. A and B may also have digital
-representations of the parties' identities such as Media Access Control addresses
-or other names (hostnames, usernames, etc). A and B may share additional data
+Let there be two parties, a prover and a verifier. Their identities, denoted as
+idProver and idVerifier, may also have digital representations such as Media Access Control addresses
+or other names (hostnames, usernames, etc). The parties may share additional data
 (the context) separate from their identities which they may want to include in
 the protocol transcript.
 One example of additional data is a list of supported protocol versions if SPAKE2+ were
@@ -132,58 +130,61 @@ example is the inclusion of the application name. Including those would ensure t
 both parties agree upon the same set of supported protocols and therefore prevent downgrade and
 cross-protocol attacks. Specification of precise context values is out of scope for this document.
 
-## SPAKE2+ {#flow}
+## Protocol Overview
 
 SPAKE2+ is a two round protocol that establishes a shared secret with an
-additional round for key confirmation. Prior to invocation, A and B are provisioned with
-information such as the input password needed to run the protocol.
-A preamble exchange may occur in order to communicate identities,
-protocol version and other parameters related to the verification value;
-see {{preamble}} for details.
-During the first round, A, the prover, sends a public share pA
-to B, the verifier, and B responds with its own public share pB. Both A and B then derive a shared secret
+additional round for key confirmation. Prior to invocation, both parties are
+provisioned with information such as the input password needed to run the
+protocol. The registration phase may include communicating identities, protocol
+version and other parameters related to the registration record; see
+{{registration}} for details.
+
+During the first round, the prover sends a public share shareP to the verifier, which in turn
+responds with its own public share shareV. Both parties then derive a shared secret
 used to produce encryption and authentication keys. The latter are used during the second
-round for key confirmation. ({{keys}} details the key derivation and
-confirmation steps.) In particular, B sends a key confirmation message cB to A, and A responds
-with its own key confirmation message cA. (Note that pB and cB MAY be sent in the same message.)
-Both parties MUST NOT consider the protocol complete prior to receipt and validation of these key
-confirmation messages.
+round for key confirmation. ({{keys}} details the key derivation and confirmation steps.)
+In particular, the verifier sends a key confirmation message confirmV to the prover,
+which in turn responds with its own key confirmation message confirmP.
+(Note that shareV and confirmV MAY be sent in the same message.)
+Both parties MUST NOT consider the protocol complete prior to receipt and
+validation of these key confirmation messages.
 
 A sample trace is shown below.
 
 ~~~
-               A                           B
+                 Prover                     Verifier
 
-               |         (Preamble)        |
-               |<- - - - - - - - - - - - ->|
-               |                           |
-               |       (setup protocol)    |
-  (compute pA) |             pA            |
-               |-------------------------->|
-               |             pB            | (compute pB)
-               |<--------------------------|
-               |                           |
-               |       (derive secrets)    | (compute cB)
-               |             cB            |
-               |<--------------------------|
-  (compute cA) |             cA            |
-               |-------------------------->|
+                   |        (registration)     |
+                   |<- - - - - - - - - - - - ->|
+                   |                           |
+                   |       (setup protocol)    |
+(compute shareP)   |            shareP         |
+                   |-------------------------->|
+                   |            shareV         | (compute shareV)
+                   |<--------------------------|
+                   |                           |
+                   |       (derive secrets)    | (compute confirmV)
+                   |           confirmV        |
+                   |<--------------------------|
+(compute confirmP) |           confirmP        |
+                   |-------------------------->|
 
 ~~~
 
-## Preamble
+## Offline Registration
 
-The preamble phase computes and distributes two values w0 and w1 between A and B,
-where w0 and w1 are derived by hashing the password pw with the identities of
-the two participants, A and B. At the end, A stores w0 and w1, whereas B stores
-w0 and L=w1*P. Protocols using this specification MUST define the method used to
-compute w0 and w1. For example, it may be necessary to carry out various
-forms of normalization of the password before hashing {{!RFC8265}}. This
-section contains requirements and default recommendations for computing w0 and w1.
+The registration phase computes the values w0 and w1, as well as the registration
+record L=w1\*P. w0 and w1 are derived by hashing the password pw with the identities
+of the two participants. w0 and the record L are then shared with the verifier and
+stored as part of the registration record associated with the prover. The prover
+SHOULD derive w0 and w1 from the password before the protocol begins. Both w0 and
+w1 are derived using a function with range [0, p-1], which is modeled as a random
+oracle in {{SPAKE2P-Analysis}}.
 
-Both w0 and w1 are computed using a function that is indistinguishable from a
-random oracle, which means that w0 and w1 are indistinguishable from two uniformly
-random elements in the range [0, p-1]. See {{SPAKE2P-Analysis}} for details.
+Protocols using this specification MUST define the method used to compute w0 and w1.
+For example, it may be necessary to carry out various forms of normalization of the
+password before hashing {{!RFC8265}}. This section contains requirements and default
+recommendations for computing w0 and w1.
 
 The RECOMMENDED method for generating w0 and w1 is via a Password-Based Key
 Derivation Function (PBKDF), which is a function designed to slow down brute-force
@@ -203,49 +204,55 @@ The minimum total output length of the PBKDF then is 2 * (ceil(log2(p)) + k) bit
 For example, given the prime order of the P-256 curve, the output of the PBKDF
 SHOULD be at least 640 bits or 80 bytes.
 
-Given a PBKDF, password pw, and identities A and B, the RECOMMENDED
+Given a PBKDF, password pw, and identities idProver and idVerifier, the RECOMMENDED
 method for computing w0 and w1 is as follows:
 
 ~~~
-w0s || w1s = PBKDF(len(pw) || pw || len(A) || A || len(B) || B)
+w0s || w1s = PBKDF(len(pw) || pw || 
+             len(idProver) || idProver || 
+             len(idVerifier) || idVerifier)
 w0 = w0s mod p
 w1 = w1s mod p
 ~~~
 
 If an identity is unknown at the time of computing w0s or w1s, its length is given
-as zero and the identity itself the empty octet string. If both A and B are unknown,
-then both lengths are zero and both A and B will be empty octet strings. Both
-identities are included in the transcript TT as part of the protocol flow.
+as zero and the identity itself is represented as the empty octet string. If both
+idProver and idVerifier are unknown, then their lengths are given as zero and both
+identities will be represented as empty octet strings. idProver and idVerifier are
+included in the transcript TT as part of the protocol flow.
 
-## Protocol
+## Online Authentication
 
-The online SPAKE2+ protocol runs between A and B to produce a single shared
-secret upon completion. To begin, A selects x uniformly at random from the
-integers in [0, p), computes the public share pA=X, and transmits it to B.
+The online SPAKE2+ protocol runs between the prover and verifier to produce a
+single shared secret upon completion. To begin, the prover selects x uniformly
+at random from the integers in [0, p-1], computes the public share shareP=X,
+and transmits it to the verifier.
 
 ~~~
-x <- [0, p)
+x <- [0, p-1]
 X = x*P + w0*M
 ~~~
 
-Upon receipt of X, B computes h\*X and aborts if the result is equal to I to ensure
-that X is in the large prime-order subgroup of G. B then selects y uniformly at
-random from the integers in [0, p), computes the public share pB=Y and transmits
-it to A. Upon receipt of Y, A computes h\*Y and aborts if the result is equal to I.
+Upon receipt of X, the verifier computes h\*X and aborts if the result is equal
+to I to ensure that X is in the large prime-order subgroup of G. The verifier then
+selects y uniformly at random from the integers in [0, p), computes the public
+share shareV=Y and transmits it to the prover. Upon receipt of Y, the prover
+computes h\*Y and aborts if the result is equal to I.
 
 ~~~
-y <- [0, p)
+y <- [0, p-1]
 Y = y*P + w0*N
 ~~~
 
-Parties A and B compute Z and V that are now shared as common values. Party A computes:
+Both participants compute Z and V that are now shared as common values.
+The prover computes:
 
 ~~~
 Z = h*x*(Y - w0*N)
 V = h*w1*(Y - w0*N)
 ~~~
 
-Party B computes:
+The verifier computes:
 
 ~~~
 Z = h*y*(X - w0*M)
@@ -261,7 +268,8 @@ derive the keying material. The protocol transcript encoding is shown below.
 
 ~~~
 TT = len(Context) || Context ||
-  || len(A) || A || len(B) || B
+  || len(idProver) || idProver
+  || len(idVerifier) || idVerifier
   || len(M) || M || len(N) || N
   || len(X) || X || len(Y) || Y
   || len(Z) || Z || len(V) || V
@@ -276,50 +284,54 @@ chosen ciphersuite and PBKDF parameters like the iteration count or salt.
 The context and its length prefix MAY be omitted.
 
 If an identity is absent, its length is given as zero and the identity itself
-the empty octet string. If both A and B are absent, then both lengths are zero
-and both A and B will be empty octet strings. In applications where identities
-are not implicit, A and B SHOULD always be non-empty. Otherwise, the protocol
-risks Unknown Key Share attacks (discussion of Unknown Key Share attacks in a
-specific protocol is given in {{?I-D.ietf-mmusic-sdp-uks}}).
+is represented as the empty octet string. If both identities are absent, then
+their lengths are given as zero and both are represented as empty octet strings.
+In applications where identities are not implicit, idProver and idVerifier SHOULD always be
+non-empty. Otherwise, the protocol risks Unknown Key Share attacks (discussion
+of Unknown Key Share attacks in a specific protocol is given in {{?I-D.ietf-mmusic-sdp-uks}}).
 
-Upon completion of this protocol, A and B compute shared secrets Ka, Ke, KcA,
-and KcB as specified in {{keys}}. B MUST send A a key confirmation message cB
-so both parties can confirm that they agree upon these shared secrets. After
-receipt and verification of B's confirmation message, A MUST send B a
-confirmation message. B MUST NOT send application data to A until it has received
+Upon completion of this protocol, both parties compute shared secrets K_auth,
+K_enc, K_confirmP, and K_confirmV as specified in {{keys}}. The verifier MUST send a key
+confirmation message confirmV to the prover so both parties can confirm that they
+agree upon these shared secrets. After receipt and verification of the verifier's
+confirmation message, the prover MUST respond with its confirmation message.
+The verifier MUST NOT send application data to the prover until it has received
 and verified the confirmation message. Key confirmation verification requires
-recomputation of cA or cB and checking for equality against that which was received.
+recomputation of confirmP or confirmV and checking for equality against that which was
+received.
 
 ## Key Schedule and Key Confirmation {#keys}
 
-The protocol transcript TT, as defined in {{protocol}},
-is unique and secret to A and B. Both parties use TT to derive shared symmetric
-secrets Ke and Ka. The length of each key is equal to half of the digest output,
-e.g., |Ke| = |Ka| = 128 bits for SHA-256.
+The protocol transcript TT, as defined in {{protocol}}, is unique and secret to
+the participants. Both parties use TT to derive shared symmetric secrets K_auth
+and K_enc and output K_enc as the shared secret from the protocol. The length of
+each key is equal to half of the digest output, e.g., |K_auth| = |K_enc| = 128
+bits for Hash() = SHA-256.
 
 ~~~
-Ka || Ke = Hash(TT)
-KcA || KcB = KDF(nil, Ka, "ConfirmationKeys")
+K_auth || K_enc = Hash(TT)
+K_confirmP || K_confirmV = KDF(nil, K_auth, "ConfirmationKeys")
 ~~~
 
-A and B output Ke as the shared secret from the protocol. Ka and its derived
-KcA and KcB are not used for anything except key confirmation and MUST be
-discarded after the protocol execution.
+K_auth is used to derive K_confirmP and K_confirmV. The length of each confirmation key
+is equal to half of the digest output, e.g., |K_confirmP| = |K_confirmV| = 128 bits for
+Hash() = SHA-256. Neither K_auth nor its derived confirmation keys are used for
+anything except key confirmation and MUST be discarded after the protocol execution.
 
-Both endpoints MUST either exchange cA=KcA and cB=KcB directly, or employ a
+Both endpoints MUST either exchange confirmP=K_confirmP and confirmV=K_confirmV directly, or employ a
 secure PRF, acting as a MAC that produces pseudorandom tags, for key confirmation.
-In the latter case, KcA and KcB are symmetric keys used to compute tags cA
-and cB over data shared between the participants. That data could for example
+In the latter case, K_confirmP and K_confirmV are symmetric keys used to compute tags confirmP
+and confirmV over data shared between the participants. That data could for example
 be an encoding of the key shares exchanged earlier, or simply a fixed string.
 
 ~~~
-cA = MAC(KcA, ...)
-cB = MAC(KcB, ...)
+confirmP = MAC(K_confirmP, ...)
+confirmV = MAC(K_confirmV, ...)
 ~~~
 
-Once key confirmation is complete, applications MAY use Ke as an authenticated
+Once key confirmation is complete, applications MAY use K_enc as an authenticated
 shared secret as needed. For example, applications MAY derive one or more AEAD
-keys and nonces from Ke for subsequent application data encryption.
+keys and nonces from K_enc for subsequent application data encryption.
 
 # Ciphersuites {#Ciphersuites}
 
@@ -351,9 +363,10 @@ The following points represent permissible point generation seeds
 for the groups listed in the Table above,
 using the algorithm presented in {{pointgen}}.
 These bytestrings are compressed points as in {{SEC1}}
-for curves from {{SEC1}}.
+for curves from {{SEC1}} and {{!RFC8032}}.
 
 For P256:
+
 ~~~
 M =
 02886e2f97ace46e55ba9dd7242579f2993b64e16ef3dcab95afd497333d8fa12f
@@ -365,6 +378,7 @@ seed: 1.2.840.10045.3.1.7 point generation seed (N)
 ~~~
 
 For P384:
+
 ~~~
 M =
 030ff0895ae5ebf6187080a82d82b42e2765e3b2f8749c7e05eba366434b363d3dc
@@ -378,6 +392,7 @@ seed: 1.3.132.0.34 point generation seed (N)
 ~~~
 
 For P521:
+
 ~~~
 M =
 02003f06f38131b2ba2600791e82488e8d20ab889af753a41806c5db18d37d85608
@@ -391,6 +406,7 @@ seed: 1.3.132.0.35 point generation seed (N)
 ~~~
 
 For edwards25519:
+
 ~~~
 M =
 d048032c6ea0b6d697ddc2e86bda85a33adac920f1bf18e1b0c6d166a5cecdaf
@@ -402,6 +418,7 @@ seed: edwards25519 point generation seed (N)
 ~~~
 
 For edwards448:
+
 ~~~
 M =
 b6221038a775ecd007a4e4dde39fd76ae91d3cf0cc92be8f0c2fa6d6b66f9a12
@@ -426,8 +443,8 @@ Beyond the cofactor multiplication checks to ensure that elements received from
 a peer are in the prime order subgroup of G, they also MUST be checked for group
 membership as failure to properly validate group elements can lead to attacks.
 
-The choices of random numbers MUST BE uniform. Randomly generated values (e.g., x and y)
-MUST NOT be reused; such reuse may permit dictionary attacks on the password.
+The ephemeral randomness used by the prover and verifier MUST be
+generated using a cryptographically secure PRNG.
 
 # Acknowledgements
 
@@ -528,8 +545,8 @@ are provided in the protocol invocation.
 
 ~~~
 [Context=b'SPAKE2+-P256-SHA256-HKDF draft-01']
-[A=b'client']
-[B=b'server']
+[idProver=b'client']
+[idVerifier=b'server']
 w0 = 0xe6887cf9bdfb7579c69bf47928a84514b5e355ac034863f7ffaf4390e67d7
 98c
 w1 = 0x24b5ae4abda868ec9336ffc3b78ee31c5755bef1759227ef5372ca139b94e
@@ -565,20 +582,20 @@ c76b7aa1eb6080a832e5332c36898426912e29c40ef9e9c742eee82bf30410000000
 382e82b348c8131d8ed669d169c2e03a858db7cf6ca2853a4071251a39fbe8cfc39b
 c2000000000000000e6887cf9bdfb7579c69bf47928a84514b5e355ac034863f7ffa
 f4390e67d798c
-Ka = 0xf9cab9adcc0ed8e5a4db11a8505914b2
-Ke = 0x801db297654816eb4f02868129b9dc89
-KcA = 0x0d248d7d19234f1486b2efba5179c52d
-KcB = 0x556291df26d705a2caedd6474dd0079b
-HMAC(KcA, Y) = 0xd4376f2da9c72226dd151b77c2919071155fc22a2068d90b5fa
+K_auth = 0xf9cab9adcc0ed8e5a4db11a8505914b2
+K_enc = 0x801db297654816eb4f02868129b9dc89
+K_confirmP = 0x0d248d7d19234f1486b2efba5179c52d
+K_confirmV = 0x556291df26d705a2caedd6474dd0079b
+HMAC(K_confirmP, Y) = 0xd4376f2da9c72226dd151b77c2919071155fc22a2068d90b5fa
 a6c78c11e77dd
-HMAC(KcB, X) = 0x0660a680663e8c5695956fb22dff298b1d07a526cf3cc591adf
+HMAC(K_confirmV, X) = 0x0660a680663e8c5695956fb22dff298b1d07a526cf3cc591adf
 ecd1f6ef6e02e
-CMAC(KcA, Y) = 0xad04419077d806572fd7c8ab6d78656a
-CMAC(KcB, X) = 0xaa076038a84938018a276e673ee7583e
+CMAC(K_confirmP, Y) = 0xad04419077d806572fd7c8ab6d78656a
+CMAC(K_confirmV, X) = 0xaa076038a84938018a276e673ee7583e
 
 [Context=b'SPAKE2+-P256-SHA256-HKDF draft-01']
-[A=b'client']
-[B=b'']
+[idProver=b'client']
+[idVerifier=b'']
 w0 = 0xe6887cf9bdfb7579c69bf47928a84514b5e355ac034863f7ffaf4390e67d7
 98c
 w1 = 0x24b5ae4abda868ec9336ffc3b78ee31c5755bef1759227ef5372ca139b94e
@@ -614,20 +631,20 @@ db83bc7d96f41b636622e7a5c552ad83211ff55319ac25ed0a09f0818bd942e81503
 19bfbfa686183806dc61911183f6a0f5956156023d96e0f93d275bf5020000000000
 00000e6887cf9bdfb7579c69bf47928a84514b5e355ac034863f7ffaf4390e67d798
 c
-Ka = 0xe2cbee3ae19a4dbe9f146be6bee9bfa1
-Ke = 0x6989d8f9177ef7df67da437987f07255
-KcA = 0x2f9e0bb669d2c22645bce34da04ac16a
-KcB = 0xeb7a35168759dd8e9ce44e4dc51277ce
-HMAC(KcA, Y) = 0xe1b9258807ba4750dae1d7f3c3c294f13dc4fa60cde346d5de7
+K_auth = 0xe2cbee3ae19a4dbe9f146be6bee9bfa1
+K_enc = 0x6989d8f9177ef7df67da437987f07255
+K_confirmP = 0x2f9e0bb669d2c22645bce34da04ac16a
+K_confirmV = 0xeb7a35168759dd8e9ce44e4dc51277ce
+HMAC(K_confirmP, Y) = 0xe1b9258807ba4750dae1d7f3c3c294f13dc4fa60cde346d5de7
 d200e2f8fd3fc
-HMAC(KcB, X) = 0xb9c39dfa49c47757de778d9bedeaca2448b905be19a43b94ee2
+HMAC(K_confirmV, X) = 0xb9c39dfa49c47757de778d9bedeaca2448b905be19a43b94ee2
 4b770208135e3
-CMAC(KcA, Y) = 0xf545e7af21e334de7389ddcf2174e822
-CMAC(KcB, X) = 0x3fb3055e16b619fd3de0e1b2bd7a9383
+CMAC(K_confirmP, Y) = 0xf545e7af21e334de7389ddcf2174e822
+CMAC(K_confirmV, X) = 0x3fb3055e16b619fd3de0e1b2bd7a9383
 
 [Context=b'SPAKE2+-P256-SHA256-HKDF draft-01']
-[A=b'']
-[B=b'server']
+[idProver=b'']
+[idVerifier=b'server']
 w0 = 0xe6887cf9bdfb7579c69bf47928a84514b5e355ac034863f7ffaf4390e67d7
 98c
 w1 = 0x24b5ae4abda868ec9336ffc3b78ee31c5755bef1759227ef5372ca139b94e
@@ -663,20 +680,20 @@ b6b3d73b87704a45889bf6343d96fa96cd1641efa71607c410000000000000004c7c
 26eae0a671b37f1464cf1ccad591c33ae944e3b1f318d76e36fea996620000000000
 00000e6887cf9bdfb7579c69bf47928a84514b5e355ac034863f7ffaf4390e67d798
 c
-Ka = 0xec8d19b807ffb1d1eea81a93ba35cdfe
-Ke = 0x2ea40e4badfa5452b5744dc5983e99ba
-KcA = 0x66de534d9bf1e44e96a53a4b48d6b353
-KcB = 0x4945c38bb476cb0f347f3222be9b64a2
-HMAC(KcA, Y) = 0xe564c93b3015efb946dc16d642bbe7d1c8da5be164ed9fc3bae
+K_auth = 0xec8d19b807ffb1d1eea81a93ba35cdfe
+K_enc = 0x2ea40e4badfa5452b5744dc5983e99ba
+K_confirmP = 0x66de534d9bf1e44e96a53a4b48d6b353
+K_confirmV = 0x4945c38bb476cb0f347f3222be9b64a2
+HMAC(K_confirmP, Y) = 0xe564c93b3015efb946dc16d642bbe7d1c8da5be164ed9fc3bae
 4e0ff86e1bd3c
-HMAC(KcB, X) = 0x072a94d9a54edc201d8891534c2317cadf3ea3792827f479e87
+HMAC(K_confirmV, X) = 0x072a94d9a54edc201d8891534c2317cadf3ea3792827f479e87
 3f93e90f21552
-CMAC(KcA, Y) = 0x94aacd28128dc2ce1d7f5684119d553c
-CMAC(KcB, X) = 0xbc6615eb68af10d329b2acb2d4545d97
+CMAC(K_confirmP, Y) = 0x94aacd28128dc2ce1d7f5684119d553c
+CMAC(K_confirmV, X) = 0xbc6615eb68af10d329b2acb2d4545d97
 
 [Context=b'SPAKE2+-P256-SHA256-HKDF draft-01']
-[A=b'']
-[B=b'']
+[idProver=b'']
+[idVerifier=b'']
 w0 = 0xe6887cf9bdfb7579c69bf47928a84514b5e355ac034863f7ffaf4390e67d7
 98c
 w1 = 0x24b5ae4abda868ec9336ffc3b78ee31c5755bef1759227ef5372ca139b94e
@@ -711,14 +728,14 @@ a0240a342721046cefb1111c3adb3be893ce9fcd2ffa137922fcf8a588d0f76ba9c5
 6272f5a3b61b68aa60a5a2665d10cd22c89cd6bad05dc0e5e650f21ff017186cc926
 51a4cd7e66ce88f529299f340ea80fb90a9bad094e1a62000000000000000e6887cf
 9bdfb7579c69bf47928a84514b5e355ac034863f7ffaf4390e67d798c
-Ka = 0x5929a3ce9822c81401bf0f764f69af08
-Ke = 0xea3276d68334576097e04b19ee5a3a8b
-KcA = 0x7f84b939d600117256b0c8a6d40cf181
-KcB = 0xf7d7547ced93f681e8df4c258c4516fd
-HMAC(KcA, Y) = 0x71d9412779b6c45a2c615c9df3f1fd93dc0aaf63104da8ece4a
+K_auth = 0x5929a3ce9822c81401bf0f764f69af08
+K_enc = 0xea3276d68334576097e04b19ee5a3a8b
+K_confirmP = 0x7f84b939d600117256b0c8a6d40cf181
+K_confirmV = 0xf7d7547ced93f681e8df4c258c4516fd
+HMAC(K_confirmP, Y) = 0x71d9412779b6c45a2c615c9df3f1fd93dc0aaf63104da8ece4a
 a1b5a3a415fea
-HMAC(KcB, X) = 0x095dc0400355cc233fde7437811815b3c1524aae80fd4e6810c
+HMAC(K_confirmV, X) = 0x095dc0400355cc233fde7437811815b3c1524aae80fd4e6810c
 f531cf11d20e3
-CMAC(KcA, Y) = 0xd66386ee8033bf56387db3543691064e
-CMAC(KcB, X) = 0x391070acb88ecc74dfe079cd0b8b52dc
+CMAC(K_confirmP, Y) = 0xd66386ee8033bf56387db3543691064e
+CMAC(K_confirmV, X) = 0x391070acb88ecc74dfe079cd0b8b52dc
 ~~~
