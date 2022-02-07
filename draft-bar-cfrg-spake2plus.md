@@ -208,7 +208,9 @@ Given a PBKDF, password pw, and identities idProver and idVerifier, the RECOMMEN
 method for computing w0 and w1 is as follows:
 
 ~~~
-w0s || w1s = PBKDF(len(pw) || pw || len(idProver) || idProver || len(idVerifier) || idVerifier)
+w0s || w1s = PBKDF(len(pw) || pw || 
+             len(idProver) || idProver || 
+             len(idVerifier) || idVerifier)
 w0 = w0s mod p
 w1 = w1s mod p
 ~~~
