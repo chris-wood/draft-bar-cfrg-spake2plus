@@ -179,7 +179,7 @@ oracle in {{SPAKE2P-Analysis}}.
 
 The registration phase also produces two random elements M and N in the prime-order
 subgroup of G. The algorithm for selecting M and N is defined in {{pointgen}}.
-Importantly, this algorithm chooses M and N such that their discrete log is not
+Importantly, this algorithm chooses M and N such that their discrete logs are not
 known. Pre-computed values for M and N are listed in {{Ciphersuites}} for each
 group. Applications MAY use different M and N values provided they are computed,
 e.g., using different input seeds to the algorithm in {{pointgen}}, as random elements
