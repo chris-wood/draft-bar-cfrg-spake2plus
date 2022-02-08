@@ -318,15 +318,13 @@ is equal to half of the digest output, e.g., |K_confirmP| = |K_confirmV| = 128 b
 Hash() = SHA-256. Neither K_auth nor its derived confirmation keys are used for
 anything except key confirmation and MUST be discarded after the protocol execution.
 
-Both endpoints MUST either exchange confirmP=K_confirmP and confirmV=K_confirmV directly, or employ a
-secure PRF, acting as a MAC that produces pseudorandom tags, for key confirmation.
-In the latter case, K_confirmP and K_confirmV are symmetric keys used to compute tags confirmP
-and confirmV over data shared between the participants. That data could for example
-be an encoding of the key shares exchanged earlier, or simply a fixed string.
+Both endpoints MUST employ a MAC that produces pseudorandom tags for key confirmation.
+K_confirmP and K_confirmV are symmetric keys used to compute tags confirmP and
+confirmV over the public key shares received from the other peer earlier.
 
 ~~~
-confirmP = MAC(K_confirmP, ...)
-confirmV = MAC(K_confirmV, ...)
+confirmP = MAC(K_confirmP, shareV)
+confirmV = MAC(K_confirmV, shareP)
 ~~~
 
 Once key confirmation is complete, applications MAY use K_enc as an authenticated
