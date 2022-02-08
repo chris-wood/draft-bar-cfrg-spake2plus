@@ -97,12 +97,8 @@ operations in the group additively. We assume there is a representation of
 elements of G as byte strings: common choices would be SEC1
 uncompressed or compressed {{SEC1}} for elliptic curve groups or big
 endian integers of a fixed (per-group) length for prime field DH.
-We fix two random elements M and N in the prime-order subgroup of G as defined
-in the table in this document for common groups, as well as a generator P
-of the (large) prime-order subgroup of G. The algorithm for selecting
-M and N is defined in {{pointgen}}. Importantly, this algorithm chooses M
-and N such that their discrete log is not known. P is specified in the
-document defining the group, and so we do not repeat it here.
+We fix a generate P of (large) prime-order subgroup of G. P is specified
+in the document defining the group, and so we do not repeat it here.
 
 || denotes concatenation of strings. We also let len(S) denote the
 length of a string in bytes, represented as an eight-byte little
@@ -181,7 +177,15 @@ SHOULD derive w0 and w1 from the password before the protocol begins. Both w0 an
 w1 are derived using a function with range [0, p-1], which is modeled as a random
 oracle in {{SPAKE2P-Analysis}}.
 
-Protocols using this specification MUST define the method used to compute w0 and w1.
+The registration phase also produces two random elements M and N in the prime-order
+subgroup of G. The algorithm for selecting M and N is defined in {{pointgen}}.
+Importantly, this algorithm chooses M and N such that their discrete log is not
+known. Pre-computed values for M and N are listed in {{Ciphersuites}} for each
+group. Applications MAY use different M and N values provided they are computed,
+e.g., using different input seeds to the algorithm in {{pointgen}}, as random elements
+for which the discrete log is unknown.
+
+Applications using this specification MUST define the method used to compute w0 and w1.
 For example, it may be necessary to carry out various forms of normalization of the
 password before hashing {{!RFC8265}}. This section contains requirements and default
 recommendations for computing w0 and w1.
@@ -208,8 +212,8 @@ Given a PBKDF, password pw, and identities idProver and idVerifier, the RECOMMEN
 method for computing w0 and w1 is as follows:
 
 ~~~
-w0s || w1s = PBKDF(len(pw) || pw || 
-             len(idProver) || idProver || 
+w0s || w1s = PBKDF(len(pw) || pw ||
+             len(idProver) || idProver ||
              len(idVerifier) || idVerifier)
 w0 = w0s mod p
 w1 = w1s mod p
@@ -357,11 +361,9 @@ identifier.
 | P-256 | SHA256 {{!RFC6234}} | HKDF-SHA256 {{!RFC5869}} | CMAC-AES-128 {{!RFC4493}} |
 | P-256 | SHA512 {{!RFC6234}} | HKDF-SHA512 {{!RFC5869}} | CMAC-AES-128 {{!RFC4493}} |
 
-The following points represent permissible point generation seeds
-for the groups listed in the Table above,
-using the algorithm presented in {{pointgen}}.
-These bytestrings are compressed points as in {{SEC1}}
-for curves from {{SEC1}} and {{!RFC8032}}.
+The following points represent permissible point generation seeds for the groups listed
+in the Table above, using the algorithm presented in {{pointgen}}. These bytestrings are
+compressed points as in {{SEC1}} for curves from {{SEC1}} and {{!RFC8032}}.
 
 For P256:
 
@@ -455,8 +457,9 @@ Thanks to Ben Kaduk and Watson Ladd, from which this specification originally em
 This section describes the algorithm that was used to generate
 the points M and N in the table in {{Ciphersuites}}. This algorithm
 produces M and N such that they are indistinguishable from two random
-elements in the prime-order subgroup of G. See {{SPAKE2P-Analysis}}
-for additional details on this requirement.
+points in the prime-order subgroup of G, where the discrete log
+of these points is unknown. See {{SPAKE2P-Analysis}} for additional
+details on this requirement.
 
 For each curve in the table below, we construct a string
 using the curve OID from {{!RFC5480}} (as an ASCII
