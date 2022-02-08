@@ -1,3 +1,4 @@
+*.sage.py
 *.html
 *.pdf
 *.redxml
