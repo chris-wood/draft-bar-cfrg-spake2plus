@@ -318,7 +318,7 @@ is equal to half of the digest output, e.g., |K_confirmP| = |K_confirmV| = 128 b
 Hash() = SHA-256. Neither K_auth nor its derived confirmation keys are used for
 anything except key confirmation and MUST be discarded after the protocol execution.
 
-Both endpoints MUST employ a MAC that produces pseudorandom tags, for key confirmation.
+Both endpoints MUST employ a MAC that produces pseudorandom tags for key confirmation.
 K_confirmP and K_confirmV are symmetric keys used to compute tags confirmP and
 confirmV over the public key shares received from the other peer earlier.
 
