@@ -267,7 +267,7 @@ It is essential that both Z and V be used in combination with the transcript to
 derive the keying material. The protocol transcript encoding is shown below.
 
 ~~~
-TT = len(Context) || Context ||
+TT = len(Context) || Context
   || len(idProver) || idProver
   || len(idVerifier) || idVerifier
   || len(M) || M || len(N) || N
