@@ -445,7 +445,7 @@ generated using a cryptographically secure PRNG.
 Elements received from a peer MUST be checked for group membership: failure to
 properly deserialize and validate group elements can lead to attacks. An endpoint
 MUST abort the protocol if any received public value is not a member of the
-large prime-order subgroup of G. Multiplication of a public value X by the
+large prime-order subgroup of G. Multiplication of a public value V by the
 cofactor h will yield the identity element I whenever V is an element of a
 small-order subgroup. Consequently, prover and verifier MUST abort the protocol 
 upon of any received value V such that V\*h = I. Failure to do so may lead to subgroup
