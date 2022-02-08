@@ -233,11 +233,12 @@ x <- [0, p-1]
 X = x*P + w0*M
 ~~~
 
-Upon receipt of X, the verifier computes h\*X and aborts if the result is equal
-to I to ensure that X is in the large prime-order subgroup of G. The verifier then
-selects y uniformly at random from the integers in [0, p), computes the public
-share shareV=Y and transmits it to the prover. Upon receipt of Y, the prover
-computes h\*Y and aborts if the result is equal to I.
+Upon receipt of X, the verifier checks the received element for group membership
+and aborts if X is not in the large prime-order subgroup of G; see {{security}}
+for details. The verifier then selects y uniformly at random from the integers
+in [0, p-1], computes the public share shareV=Y and transmits it to the prover.
+Upon receipt of Y, the prover checks the received element for group membership
+and aborts if Y is not in the large prime-order subgroup of G.
 
 ~~~
 y <- [0, p-1]
@@ -259,6 +260,7 @@ Z = h*y*(X - w0*M)
 V = h*y*L
 ~~~
 
+The multiplication by the cofactor h prevents small subgroup confinement attacks.
 All proofs of security hold even if the discrete log of the fixed group element
 N is known to the adversary. In particular, one MAY set N=I, i.e. set N to the
 unit element in G.
@@ -433,16 +435,20 @@ seed: edwards448 point generation seed (N)
 
 No IANA action is required.
 
-# Security Considerations
+# Security Considerations {#security}
 
 SPAKE2+ appears in {{TDH}} and is proven secure in {{SPAKE2P-Analysis}}.
 
-Beyond the cofactor multiplication checks to ensure that elements received from
-a peer are in the prime order subgroup of G, they also MUST be checked for group
-membership as failure to properly validate group elements can lead to attacks.
-
 The ephemeral randomness used by the prover and verifier MUST be
 generated using a cryptographically secure PRNG.
+
+Elements received from a peer MUST be checked for group membership: failure to
+properly deserialize and validate group elements can lead to attacks. An endpoint
+MUST abort the protocol if any received public value is not a member of the
+large prime-order subgroup of G. Multiplication of a public value X by the
+cofactor h will yield the identity element I whenever X is an element of a
+small-order subgroup. Any X where X\*h = I MUST be discarded and abort the
+protocol flow or will lead to subgroup confinement attacks.
 
 # Acknowledgements
 
