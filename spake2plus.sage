@@ -205,13 +205,13 @@ def spake2plus(ec, di, confirm_keys, ctx, idProver, idVerifier):
 
 # Various ciphersuites.
 suites = [
-    (P256, SHA256, confirm_keys_hmac, b'SPAKE2+-P256-SHA256-HMAC-SHA256 Test Vectors'),
-    (P256, SHA512, confirm_keys_hmac, b'SPAKE2+-P256-SHA512-HMAC-SHA512 Test Vectors'),
-    (P384, SHA256, confirm_keys_hmac, b'SPAKE2+-P384-SHA256-HMAC-SHA256 Test Vectors'),
-    (P384, SHA512, confirm_keys_hmac, b'SPAKE2+-P384-SHA512-HMAC-SHA512 Test Vectors'),
-    (P521, SHA512, confirm_keys_hmac, b'SPAKE2+-P521-SHA512-HMAC-SHA512 Test Vectors'),
-    (P256, SHA256, confirm_keys_cmac, b'SPAKE2+-P256-SHA256-CMAC-AES-128 Test Vectors'),
-    (P256, SHA512, confirm_keys_cmac, b'SPAKE2+-P256-SHA512-CMAC-AES-128 Test Vectors'),
+    (P256, SHA256, confirm_keys_hmac, b'SPAKE2+-P256-SHA256-HKDF-SHA256-HMAC-SHA256 Test Vectors'),
+    (P256, SHA512, confirm_keys_hmac, b'SPAKE2+-P256-SHA512-HKDF-SHA512-HMAC-SHA512 Test Vectors'),
+    (P384, SHA256, confirm_keys_hmac, b'SPAKE2+-P384-SHA256-HKDF-SHA256-HMAC-SHA256 Test Vectors'),
+    (P384, SHA512, confirm_keys_hmac, b'SPAKE2+-P384-SHA512-HKDF-SHA512-HMAC-SHA512 Test Vectors'),
+    (P521, SHA512, confirm_keys_hmac, b'SPAKE2+-P521-SHA512-HKDF-SHA512-HMAC-SHA512 Test Vectors'),
+    (P256, SHA256, confirm_keys_cmac, b'SPAKE2+-P256-SHA256-HKDF-SHA256-CMAC-AES-128 Test Vectors'),
+    (P256, SHA512, confirm_keys_cmac, b'SPAKE2+-P256-SHA512-HKDF-SHA512-CMAC-AES-128 Test Vectors'),
 ]
 
 prover = b'client'
