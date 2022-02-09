@@ -328,7 +328,7 @@ derivation and confirmation and MUST be discarded after the protocol execution.
 Applications MAY derive additional keys from K_shared as needed.
 
 The length of each confirmation key is dependent on the MAC function of the chosen
-ciphersuite. For HKDF, the RECOMMENDED key length is equal to the output length of
+ciphersuite. For HMAC, the RECOMMENDED key length is equal to the output length of
 the digest output, e.g., 256 bits for Hash() = SHA-256. For CMAC-AES, each
 confirmation key MUST be of length k, where k is the chosen AES key size,
 e.g., 128 bits for CMAC-AES-128.
