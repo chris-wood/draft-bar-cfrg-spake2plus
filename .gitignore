@@ -1,4 +1,3 @@
-*.sage.py
 *.html
 *.pdf
 *.redxml
@@ -10,9 +9,8 @@
 .tags
 .targets.mk
 /*-[0-9][0-9].xml
-issues.json
-pulls.json
+archive.json
 report.xml
 venv/
 lib
-draft-tw-cfrg-spake2plus.xml
+draft-bar-cfrg-spake2plus.xml

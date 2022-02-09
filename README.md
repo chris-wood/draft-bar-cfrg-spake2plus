@@ -2,9 +2,9 @@
 
 This is the working area for the individual Internet-Draft, "SPAKE2+, an Augmented PAKE".
 
-* [Editor's Copy](https://chris-wood.github.io/draft-bar-cfrg-spake2plus/#go.draft-tw-cfrg-spake2plus.html)
-* [Individual Draft](https://tools.ietf.org/html/draft-tw-cfrg-spake2plus)
-* [Compare Editor's Copy to Individual Draft](https://chris-wood.github.io/draft-bar-cfrg-spake2plus/#go.draft-tw-cfrg-spake2plus.diff)
+* [Editor's Copy](https://chris-wood.github.io/draft-bar-cfrg-spake2plus/#go.draft-bar-cfrg-spake2plus.html)
+* [Individual Draft](https://tools.ietf.org/html/draft-bar-cfrg-spake2plus)
+* [Compare Editor's Copy to Individual Draft](https://chris-wood.github.io/draft-bar-cfrg-spake2plus/#go.draft-bar-cfrg-spake2plus.diff)
 
 ## Building the Draft
 
