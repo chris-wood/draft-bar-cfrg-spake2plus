@@ -325,7 +325,7 @@ K_shared = KDF(nil, K_main, "SharedKey")
 
 Neither K_main nor its derived confirmation keys are used for anything except key
 derivation and confirmation and MUST be discarded after the protocol execution.
-Besides K_shared, applications MAY derive additional keys from K_main as needed.
+Applications MAY derive additional keys from K_shared as needed.
 
 The length of each confirmation key is dependent on the MAC function of the chosen
 ciphersuite. For HKDF, the RECOMMENDED key length is equal to the output length of
