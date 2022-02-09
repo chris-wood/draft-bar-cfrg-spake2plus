@@ -315,8 +315,7 @@ The protocol transcript TT, as defined in {{online-authentication}}, is unique a
 the participants. Both parties use TT to derive the shared symmetric secret K_main from the
 protocol. The length of K_main is equal to the length of the digest output, e.g., 256 bits
 for Hash() = SHA-256. The confirmation keys K_confirmP and K_confirmV, as well as the shared
-encryption key K_shared are derived from K_main. The length of K_shared can be freely chosen
-by the application.
+encryption key K_shared are derived from K_main.
 
 ~~~
 K_main = Hash(TT)
