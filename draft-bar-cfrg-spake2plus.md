@@ -374,7 +374,8 @@ identifier.
 
 The following points represent permissible point generation seeds for the groups listed
 in the Table above, using the algorithm presented in {{pointgen}}. These bytestrings are
-compressed points as in {{SEC1}} for curves from {{SEC1}} and {{!RFC8032}}.
+compressed points as in {{SEC1}} for curves from {{SEC1}} and {{!RFC8032}}. Note that
+these values are identical to those used in the companion SPAKE2 specification {{I-D.irtf-cfrg-spake2}}.
 
 For P256:
 
@@ -458,7 +459,7 @@ properly deserialize and validate group elements can lead to attacks. An endpoin
 MUST abort the protocol if any received public value is not a member of the
 large prime-order subgroup of G. Multiplication of a public value V by the
 cofactor h will yield the identity element I whenever V is an element of a
-small-order subgroup. Consequently, prover and verifier MUST abort the protocol 
+small-order subgroup. Consequently, prover and verifier MUST abort the protocol
 upon of any received value V such that V\*h = I. Failure to do so may lead to subgroup
 confinement attacks.
 
