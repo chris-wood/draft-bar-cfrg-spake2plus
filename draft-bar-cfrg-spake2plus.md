@@ -75,17 +75,24 @@ and the adversary cannot not query the salt of the password hash function ahead 
 Constraints may consist in being in physical proximity through a local network or
 when initiation of the protocol requires a first authentication factor.
 
-This password-based key exchange protocol appears in {{TDH}} and is proven secure in {{SPAKE2P-Analysis}}.
-It is compatible with any prime-order group and relies only on group operations, making it simple and computationally efficient.
-Predetermined parameters for a selection of commonly used groups are also provided.
-
 This document has content split out from a related document specifying SPAKE2 {{!I-D.irtf-cfrg-spake2}}.
+Neither SPAKE2 nor SPAKE2+ was selected as the result of the CFRG PAKE selection competition. However,
+this password-based key exchange protocol appears in {{TDH}} and is proven secure in {{SPAKE2P-Analysis}}.
+It is compatible with any prime-order group and relies only on group operations, making it simple and
+computationally efficient. Thus, it was felt that publication was beneficial to make the protocol
+available for wider consideration.
+
+This document was produced outside of the IETF and IRTF, and represents the opinions of the authors.
+Publication of this document as an RFC in the Independent Submissions Stream does not imply endorsement
+of SPAKE2+ by the IETF or IRTF.
 
 # Requirements Notation
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-"SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
-document are to be interpreted as described in {{!RFC2119}}.
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+"OPTIONAL" in this document are to be interpreted as described in BCP
+14 {{!RFC2119}} {{!RFC8174}} when, and only when, they appear in all
+capitals, as shown here.
 
 # Definition of SPAKE2+
 
@@ -297,7 +304,7 @@ is represented as the empty octet string. If both identities are absent, then
 their lengths are given as zero and both are represented as empty octet strings.
 In applications where identities are not implicit, idProver and idVerifier SHOULD always be
 non-empty. Otherwise, the protocol risks Unknown Key Share attacks (discussion
-of Unknown Key Share attacks in a specific protocol is given in {{?I-D.ietf-mmusic-sdp-uks}}).
+of Unknown Key Share attacks in a specific protocol is given in {{?RFC8844}}).
 
 Upon completion of this protocol, both parties compute shared secrets K_auth,
 K_enc, K_confirmP, and K_confirmV as specified in {{keys}}. The verifier MUST send a key
@@ -357,7 +364,7 @@ and its parameters for computing w0 and w1 and distributing does not affect
 interoperability, the PBKDF is not included as part of the ciphersuite.
 
 If no MAC algorithm is used in the key confirmation phase, its respective column
-in the table below can be ignored and the ciphersuite name will contain no MAC
+in Table 1 can be ignored and the ciphersuite name will contain no MAC
 identifier.
 
 | G              | Hash   | KDF    | MAC    |
@@ -373,7 +380,7 @@ identifier.
 | P-256 | SHA512 {{!RFC6234}} | HKDF-SHA512 {{!RFC5869}} | CMAC-AES-128 {{!RFC4493}} |
 
 The following points represent permissible point generation seeds for the groups listed
-in the Table above, using the algorithm presented in {{pointgen}}. These bytestrings are
+in Table 1, using the algorithm presented in {{pointgen}}. These bytestrings are
 compressed points as in {{SEC1}} for curves from {{SEC1}} and {{!RFC8032}}. Note that
 these values are identical to those used in the companion SPAKE2 specification {{I-D.irtf-cfrg-spake2}}.
 
