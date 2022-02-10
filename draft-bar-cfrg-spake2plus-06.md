@@ -1,7 +1,7 @@
 ---
 title: SPAKE2+, an Augmented PAKE
 abbrev: spake2plus
-docname: draft-bar-cfrg-spake2plus-latest
+docname: draft-bar-cfrg-spake2plus-06
 date: {DATE}
 category: info
 
@@ -51,10 +51,6 @@ This document describes SPAKE2+, a Password Authenticated Key Exchange (PAKE) pr
 run between two parties for deriving a strong shared key with no risk of disclosing the password.
 SPAKE2+ is an augmented PAKE protocol, as only one party has knowledge of the password.
 This method is simple to implement, compatible with any prime order group and is computationally efficient.
-
-This document was produced outside of the IETF and IRTF, and represents the opinions of the authors.
-Publication of this document as an RFC in the Independent Submissions Stream does not imply endorsement
-of SPAKE2+ by the IETF or IRTF.
 
 --- middle
 
