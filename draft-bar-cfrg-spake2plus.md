@@ -536,34 +536,34 @@ Edwards448Point.stdbase() in Appendix A of {{RFC8032}}:
 
 ~~~
 def iterated_hash(seed, n):
-    h = seed
-    for i in range(n):
-        h = hashlib.sha256(h).digest()
-    return h
+  h = seed
+  for i in range(n):
+    h = hashlib.sha256(h).digest()
+  return h
 
 def bighash(seed, start, sz):
-    n = -(-sz // 32)
-    hashes = [iterated_hash(seed, i) for i in range(start, start + n)]
-    return b''.join(hashes)[:sz]
+  n = -(-sz // 32)
+  hashes = [iterated_hash(seed, i) for i in range(start, start + n)]
+  return b''.join(hashes)[:sz]
 
 def canon_pointstr(ecname, s):
-    if ecname == 'edwards25519':
-        return s
-    elif ecname == 'edwards448':
-        return s[:-1] + bytes([s[-1] & 0x80])
-    else:
-        return bytes([(s[0] & 1) | 2]) + s[1:]
+  if ecname == 'edwards25519':
+    return s
+  elif ecname == 'edwards448':
+    return s[:-1] + bytes([s[-1] & 0x80])
+  else:
+    return bytes([(s[0] & 1) | 2]) + s[1:]
 
 def gen_point(seed, ecname, ec):
-    for i in range(1, 1000):
-        hval = bighash(seed, i, len(ec.encode()))
-        pointstr = canon_pointstr(ecname, hval)
-        try:
-            p = ec.decode(pointstr)
-            if p != ec.zero_elem() and p * p.l() == ec.zero_elem():
-                return pointstr, i
-        except Exception:
-            pass
+  for i in range(1, 1000):
+    hval = bighash(seed, i, len(ec.encode()))
+    pointstr = canon_pointstr(ecname, hval)
+    try:
+      p = ec.decode(pointstr)
+      if p != ec.zero_elem() and p * p.l() == ec.zero_elem():
+        return pointstr, i
+    except Exception:
+      pass
 ~~~
 
 # Test Vectors {#testvectors}
