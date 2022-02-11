@@ -79,12 +79,15 @@ and the adversary cannot not query the salt of the password hash function ahead 
 Constraints may consist in being in physical proximity through a local network or
 when initiation of the protocol requires a first authentication factor.
 
-This document has content split out from a related document specifying SPAKE2 {{!I-D.irtf-cfrg-spake2}}.
-Neither SPAKE2 nor SPAKE2+ was selected as the result of the CFRG PAKE selection competition. However,
-this password-based key exchange protocol appears in {{TDH}} and is proven secure in {{SPAKE2P-Analysis}}.
-It is compatible with any prime-order group and relies only on group operations, making it simple and
-computationally efficient. Thus, it was felt that publication was beneficial to make the protocol
-available for wider consideration.
+This document has content split out from a related document specifying SPAKE2 {{!I-D.irtf-cfrg-spake2}},
+which is a symmetric PAKE protocol, where both parties have knowledge of the password.
+SPAKE2+ is the asymmetric or augmented version of SPAKE2, wherein only one party has knowledge of the password.
+SPAKE2+ is specified separately in this document because the use cases for symmetric and augmented PAKEs
+are different, and therefore warrant different technical specifications. Neither SPAKE2 nor SPAKE2+
+was selected as the result of the CFRG PAKE selection competition. However, this password-based key exchange
+protocol appears in {{TDH}} and is proven secure in {{SPAKE2P-Analysis}}. It is compatible with any
+prime-order group and relies only on group operations, making it simple and computationally efficient.
+Thus, it was felt that publication was beneficial to make the protocol available for wider consideration.
 
 This document was produced outside of the IETF and IRTF, and represents the opinions of the authors.
 Publication of this document as an RFC in the Independent Submissions Stream does not imply endorsement
