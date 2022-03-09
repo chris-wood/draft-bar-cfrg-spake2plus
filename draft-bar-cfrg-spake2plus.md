@@ -251,31 +251,37 @@ x <- [0, p-1]
 X = x*P + w0*M
 ~~~
 
-Upon receipt of X, the verifier checks the received element for group membership
+The verifier, when it receives X, checks the received element for group membership
 and aborts if X is not in the large prime-order subgroup of G; see {{security}}
 for details. The verifier then selects y uniformly at random from the integers
 in [0, p-1], computes the public share shareV=Y and transmits it to the prover.
-Upon receipt of Y, the prover checks the received element for group membership
-and aborts if Y is not in the large prime-order subgroup of G.
+It then computes Z and V, which will be the common shared values:
 
 ~~~
-y <- [0, p-1]
-Y = y*P + w0*N
+Verifier_receives_X:
+   if not_in_subgroup(X): reject
+
+   y <- [0, p-1]
+   Y = y*P + w0*N
+
+   Transmit(Y)
+
+   Z = h*y*(X - w0*M)
+   V = h*y*L
 ~~~
 
-Both participants compute Z and V that are now shared as common values.
-The prover computes:
+The prover, when it receives Y, checks the received element for group membership
+and aborts if Y is not in the large prime-order subgroup of G; see {{security}}
+for details. It then computes Z and V, which will be the same as the Z and V
+values computed by the verifier, assuming both participants share the same
+password.
 
 ~~~
-Z = h*x*(Y - w0*N)
-V = h*w1*(Y - w0*N)
-~~~
+Prover_receives_Y:
+   if not_in_subgroup(Y): reject
 
-The verifier computes:
-
-~~~
-Z = h*y*(X - w0*M)
-V = h*y*L
+   Z = h*x*(Y - w0*N)
+   V = h*w1*(Y - w0*N)
 ~~~
 
 The multiplication by the cofactor h prevents small subgroup confinement attacks.
