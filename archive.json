@@ -1,0 +1,1830 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2022-03-24T00:17:54.582590+00:00",
+  "repo": "chris-wood/draft-bar-cfrg-spake2plus",
+  "labels": [
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "documentation",
+      "description": "Improvements or additions to documentation",
+      "color": "0075ca"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [
+    {
+      "number": 3,
+      "id": "MDU6SXNzdWU3ODY2ODg0NDc=",
+      "title": "Add hash around Context when Context is big",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/issues/3",
+      "state": "CLOSED",
+      "author": "vauclair",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "Current specification states that Context is a string with application data. This string with its length are prepended to the Transcript TT. This implies that the device has to keep a potentially large amount of data in memory to be able to compute the transcript. An alternative would be to prepend the hash of the Context and the length of the hash of the Context to the transcript. This implies that as soon as these value are computed, the Context can be dropped. However, for the cases where the Context is small, this would be overkill because at the end, in these cases, the hashed Context would be bigger than the unhashed Context. A solution that would give the best of both worlds would be to state that if the Context size is smaller or equal to the size of the output of the Spake2+ selected hash function, the Context is prepended to the script and if the Context size is bigger than the size of the hash function output, the hash of the Context is prepended to the script.",
+      "createdAt": "2021-01-15T07:55:56Z",
+      "updatedAt": "2022-02-08T13:48:05Z",
+      "closedAt": "2022-02-08T13:47:32Z",
+      "comments": [
+        {
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Key derivation uses `Hash(TT)` instead of `TT` directly. Most crypto libraries support ingesting data incrementally, see `SHA256_Init()`, `SHA256_Update()` and `SHA256_Final()` in OpenSSL. That way the device has to only keep a fixed-size digest state until the end of the protocol run.\r\n\r\ncc @chris-wood",
+          "createdAt": "2022-01-03T06:38:03Z",
+          "updatedAt": "2022-01-03T06:38:03Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "@ttaubert this might be worth noting in an appendix. I agree that this is an implementation issue at the end of the day. I'd also be fine closing this without resolution.",
+          "createdAt": "2022-01-03T14:17:07Z",
+          "updatedAt": "2022-01-03T14:17:07Z"
+        },
+        {
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "body": "After some more consideration, I'd be in favour of closing without resolution. This is a very implementation-specific issue -- I don't think it's worth calling out in a separate note.",
+          "createdAt": "2022-02-02T11:48:47Z",
+          "updatedAt": "2022-02-02T11:48:47Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "Works for me. That said, @vauclair, if you have text you'd like to suggest, we'd happily review it!",
+          "createdAt": "2022-02-08T13:47:32Z",
+          "updatedAt": "2022-02-08T13:48:05Z"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "id": "I_kwDODroSBs4_i5FG",
+      "title": "JP review comments",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/issues/4",
+      "state": "CLOSED",
+      "author": "chris-wood",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "> * In 3.1: \"We fix two elements M and N in the prime-order subgroup\": It should say how these are generated, and most importantly whether their discrete log must be known or not. If not, a hash-to-curve algorithm might be necessary.\r\n\r\nPer the [security analysis](https://eprint.iacr.org/2020/313.pdf), it's required that these are random group elements for which the DL is unknown. [Appendix A](https://chris-wood.github.io/draft-bar-cfrg-spake2plus/draft-bar-cfrg-spake2plus.html#section-appendix.a) describes the try-and-increment algorithm for generating these values, but its presentation could be improved. I don't think we should add a hash-to-curve dependency since (a) TAI is much simpler and (b) generation is not timing sensitive, but I'm open to hearing counterarguments.\r\n\r\n> * In 3.3: \"If both identities A and B are absent, i.e. len(A) = len(B) = 0, then the length prefixes are omitted as in Section 3.1.\". Would be clearer to just say: \"If both identities are absent, then w0s || w1s = PBKDF(pw)\". Risk of misunderstanding/misimplementation otherwise.\r\n\r\nNit acknowledged.\r\n\r\n> * In 3.3: The mod p reductions (as in \" w0 = w0s mod p\") can introduce a small statistical bias, as they discuss briefly. At the very end the draft further says \"The choices of random numbers MUST BE uniform.\". But nowhere does it say why, and what's the risk. \r\n\r\nThis is done for alignment with the [security analysis](https://eprint.iacr.org/2020/313.pdf), which models the output of this as a random oracle. Any bias in the output would (I think) break that assumption. We can clarify this in the security considerations, with a forward pointer to match.\r\n\r\n> And just writing the specification as  \"w0 = w0s mod p\" is misleading when you say later that in fact w0 might have to be computed differently from w0s. I think this part needs clarification.\r\n\r\nGood point. We should make requirements for computing w0 and w1 more clear, and give a reasonable recommendation for computing them in the default case. We could fold in the bias explanation from the previous comment here, too.\r\n\r\n> * It would greatly help implementers to include examples of \"reasonable\" parameters for Scrypt and Argon2 when used as PBKDFs.\r\n\r\nThis is a fine suggestion. We can include some recommended parameters for both Scrypt and Argon2 in an appendix.\r\n\r\n> * In 5 (ciphersuites): strictly speaking, \"HMAC\" is not a MAC, guess they mean HMAC-SHA256 (with a key of some specific length). \r\n\r\nNit acknowledged -- we'll fix the ciphersuite column.\r\n\r\n> Also, why doesn't it include PBKDFs?\r\n\r\nUnless I'm missing something, choice of PBKDF and its parameters are not needed for interoperability, so they don't need to be in the suite.\r\n\r\ncc @ttaubert, @veorq",
+      "createdAt": "2021-11-29T14:32:56Z",
+      "updatedAt": "2022-01-03T14:17:44Z",
+      "closedAt": "2022-01-03T14:17:44Z",
+      "comments": []
+    },
+    {
+      "number": 6,
+      "id": "I_kwDODroSBs5CVh-z",
+      "title": "Key confirmation methods",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/issues/6",
+      "state": "CLOSED",
+      "author": "chris-wood",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "From @cjpatton\r\n\r\n* Quote:\r\n\r\n  > Both endpoints MUST either exchange cA=KcA and cB=KcB directly, or employ a\r\n  > secure PRF, acting as a MAC that produces pseudorandom tags, for key\r\n  > confirmation. In the latter case, KcA and KcB are symmetric keys used to\r\n  > compute tags cA and cB over data shared between the participants.\r\n\r\n  Two methods for key confirmation are permitted. If the first method is\r\n  sufficient (just sending the confirmation key directy), then why bother with\r\n  the MAC? In particular because [SPAKE2P-Analysis] takes the first method,\r\n  what value is added by the second?\r\n\r\n  From an implementor's perspective, I think that a choice here is confusing, as\r\n  it's not immediately clear what are the security implications of the choice.\r\n  As a cryptographer, it's fairly clear to me that the second method is no less\r\n  secure then the first, but an implementor might well believe that the first\r\n  method is open to an attack that the second isn't.\r\n\r\n  I'd recommend specifying just one of these methods. If you're going to leave\r\n  this choice to the implementor, it would be best to make clear the pros and\r\n  cons of each method. In addition, for the second method, being more\r\n  perscriptive would be useful. Right now it says:\r\n\r\n  > [In the second method,] KcA and KcB are symmetric keys used to compute tags\r\n  > cA and cB over data shared between the participants. That data could for\r\n  > example be an encoding of the key shares exchanged earlier, or simply a\r\n  > fixed string.\r\n\r\n  As an implementor, I would prefer to have the MAC data spelled out, since it's\r\n  not clear to me what the security implications are of whatever I choose to\r\n  MAC. Maybe just mandate what's in the test vectors?\r\n\r\n  Finally, niit: A MAC is sufficient, I don't think there's a need to use the\r\n  acronym \"PRF\" here. (This is the only place it's used in the document.)\r\n",
+      "createdAt": "2022-01-24T17:30:25Z",
+      "updatedAt": "2022-02-08T13:46:03Z",
+      "closedAt": "2022-02-08T13:46:03Z",
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "@ttaubert can we replace the confirmation messages using the output of MAC(...) with the K_confirmV/P values directly? ",
+          "createdAt": "2022-02-07T20:00:09Z",
+          "updatedAt": "2022-02-07T20:00:09Z"
+        },
+        {
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "body": "#20 updates the spec to be more prescriptive about MAC inputs, which I fully agree is a good thing for implementors. I'd prefer computing a MAC over the exchanged key shares, that's what we use for our tests vectors too, as @cjpatton pointed out.",
+          "createdAt": "2022-02-08T10:28:30Z",
+          "updatedAt": "2022-02-08T10:28:30Z"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "id": "I_kwDODroSBs5CVj9D",
+      "title": "Editorial things",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/issues/7",
+      "state": "CLOSED",
+      "author": "chris-wood",
+      "authorAssociation": "OWNER",
+      "assignees": [
+        "chris-wood"
+      ],
+      "labels": [],
+      "body": "From @cjpatton\r\n\r\n# Section 1\r\n\r\n* \"verification value\" doesn't quite capture the semantics of the server's\r\n  input. It's also not clear why this would hide the password. (The reason the\r\n  password is hard to compute is that all the server has is its image under a\r\n  one-way function.) I would instead call this the \"record\" to align with the\r\n  OPAQUE spec.\r\n\r\n* s/initialization phase/registration phase/ to align with the OPAQUE spec.\r\n\r\n* s/can not/cannot/\r\n\r\n# Section 3\r\n\r\n* Editorial: Variables A and B are used for the identities. Group elements are\r\n  similarly denoted by single capital letters. This makes the spec hard to read,\r\n  because my brain has to remember that A and B aren't curve points. I would\r\n  suggest picking different names, such as idProver and idVerifier or something.\r\n\r\n## 3.1\r\n\r\n* s/little- endian/little endian/\r\n\r\n## 3.3\r\n\r\n* This is a bit confusing:\r\n\r\n  > At the end, A stores w0 and w1, ...\r\n\r\n  Thinking of A as the client, the client doesn't need to store `w0` and `w1`\r\n  long term, it just needs to derive them from the password before the protocol\r\n  begins. I would instead write \"A derives w0 and w1 from the password, ...\".\r\n\r\n* Quote:\r\n\r\n  > Both w0 and w1 are computed using a function that is indistinguishable from a\r\n  > random oracle, which means that w0 and w1 are indistinguishable from two\r\n  > uniformly random elements in the range [0, p-1]. See [SPAKE2P-Analysis] for\r\n  > details.\r\n\r\n  A functionn can't be said to be indistinguishable from a random oracle, since\r\n  it's computed by a deterministic algorithm. I would rewrite this as \"Both w0\r\n  and w1 are derived using a function with range [0, p-1] and which is modeled\r\n  as a random oracle in [SPAKE2P-Analaysis].\"\r\n\r\n## 3.4\r\n\r\n* nit: In this seciton `[0, p)` is used to denote the set of integers between 0\r\n  and p (exclusive). Above, `[0, p-1]` is used to denote the same set. I would\r\n  be consistent.\r\n\r\n* Quote:\r\n\r\n  > All proofs of security hold even if the discrete log of the fixed group\r\n  > element N is known to the adversary. In particular, one MAY set N=I, i.e.\r\n  > set N to the unit element in G.\r\n\r\n  I'm not sure this is true. In any case, this contradicts the following\r\n  statement from Section 3.1:\r\n\r\n  > Importantly, [the algorithm that generates constants M and N] chooses M and\r\n  > N such that their discrete log is not known. P is specified in the document\r\n  > defining the group, and so we do not repeat it here.\r\n\r\n* Quote:\r\n\r\n  > If an identity is absent, its length is given as zero and the identity\r\n  > itself the empty octet string. If both A and B are absent, then both lengths\r\n  > are zero and both A and B will be empty octet strings.\r\n\r\n  Aren't A and B the identities? Should \"identity\" instead by \"Context\" here?\r\n\r\n## 3.5\r\n\r\n* Quote:\r\n\r\n  > The length of each key is equal to half of the digest output, e.g., |Ke| =\r\n  > |Ka| = 128 bits for SHA-256.\r\n  >\r\n  > Ka || Ke = Hash(TT)\r\n  > KcA || KcB = KDF(nil, Ka, \"ConfirmationKeys\")\r\n\r\n  The length of Ka and Ke are defined, but what about KcA and KcB? It seems like\r\n  what you want here is for the output length of KDF to be the same as Hash and\r\n  for |KcA| = |KcB| = |Ka|.\r\n\r\n  Instead of \"digest output\" do you mean the length of the KDF's output? Perhaps\r\n\r\n# Section 4\r\n\r\n* There is a reference in this section for the NIST-curve standards but not for\r\n  edwards25519 or edwards448. [RFC8032] would be suitable.\r\n\r\n* Editorial: The definitions of the points are not rendered properly in HTML. I\r\n  believe you need to put a blank line before the \"~~~\".\r\n\r\n\r\n# Section 6\r\n\r\n  Finally, I would replace this paragraph with more standard boiler plate:\r\n\r\n  > The choices of random numbers MUST BE uniform. Randomly generated values\r\n  > (e.g., x and y) MUST NOT be reused; such reuse may permit dictionary attacks\r\n  > on the password.\r\n\r\n  For example: \"The ephemeral randomness used by the prover and verifier MUST be\r\n  generated using a cryptographically secure CSPRNG.\"\r\n\r\n\r\n# Appendix A\r\n\r\n* Editorial: This section looks to be identical to the same section in the\r\n  SPAKE2 document. Why not just reference it there?",
+      "createdAt": "2022-01-24T17:38:28Z",
+      "updatedAt": "2022-02-07T22:19:14Z",
+      "closedAt": "2022-02-07T22:19:14Z",
+      "comments": [
+        {
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> Editorial: This section looks to be identical to the same section in the\r\n> SPAKE2 document. Why not just reference it there?\r\n\r\nI'll leave this in for now. SPAKE2 is still a draft so I don't think we can just reference it?\r\n\r\n>> All proofs of security hold even if the discrete log of the fixed group\r\n>> element N is known to the adversary. In particular, one MAY set N=I, i.e.\r\n>> set N to the unit element in G.\r\n\r\n> I'm not sure this is true.\r\n\r\nFrom [SPAKE2P-Analysis]:\r\n<img width=\"736\" src=\"https://user-images.githubusercontent.com/300895/152796207-cb56b0de-f81c-48de-916a-8320861d8926.png\">\r\n\r\n> In any case, this contradicts the following statement from Section 3.1:\r\n\r\n>> Importantly, [the algorithm that generates constants M and N] chooses M and\r\n>> N such that their discrete log is not known. P is specified in the document\r\n>> defining the group, and so we do not repeat it here.\r\n\r\nI don't think this paragraph is contradicting the previous statement. I says the algorithm is choosing M,N such that their dlog is unknown, but not explicitly why. We don't *need* to do that for N but it doesn't hurt either.",
+          "createdAt": "2022-02-07T13:28:03Z",
+          "updatedAt": "2022-02-07T13:28:03Z"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "id": "I_kwDODroSBs5CVkRq",
+      "title": "SPAKE2 comparison",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/issues/8",
+      "state": "CLOSED",
+      "author": "chris-wood",
+      "authorAssociation": "OWNER",
+      "assignees": [
+        "chris-wood"
+      ],
+      "labels": [],
+      "body": "From @cjpatton\r\n\r\n# Comparison to the SPAKE2 spec\r\n\r\n* SPAKE2 is more prescriptive about key confirmation:\r\n\r\n  > This confirmation message cA is computed as a MAC over the protocol\r\n  > transcript TT using KcA, as follows: cA = MAC(KcA, TT).  Similarly, B MUST\r\n  > send A a confirmation message using a MAC computed equivalently except with\r\n  > the use of KcB.\r\n\r\n  I think SPAKE2+ should follow suit.\r\n\r\n* SPAKE2 and SPAKE2+ use the same fixed points M, N. I think this is a good idea\r\n  because it means the implementations of the two protocols can share code.\r\n  However, an argument can be made for generating different fixed points for\r\n  SPAKE2+: Finding the discrete log for a fixed point in one protocol does not\r\n  lead to a break in the other. I think SPAKE2+ could address this argument in\r\n  Security Requirements, but I wouldn't make a protocol change for this.\r\n\r\n* The definitions of the fixed points and the algorithm for generating them are\r\n  identical in both drafts (or at least they should be, I haven't checked\r\n  closely). I'd suggest removing these sections from the SPAKE2+ draft and just\r\n  referring to SPAKE2. (Or vice versa, depending on which gets published first.)\r\n",
+      "createdAt": "2022-01-24T17:39:54Z",
+      "updatedAt": "2022-02-08T15:31:33Z",
+      "closedAt": "2022-02-08T15:31:32Z",
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "@cjpatton I don't understand your comment about the key confirmation being less prescriptive than SPAKE2. Is the generation of each confirmation message not clear? Something else? \r\n\r\nThe other comment about shared fixed points makes sense. I think generating different points is the way to go. @ttaubert, thoughts?",
+          "createdAt": "2022-01-24T17:51:25Z",
+          "updatedAt": "2022-01-24T17:51:25Z"
+        },
+        {
+          "author": "cjpatton",
+          "authorAssociation": "NONE",
+          "body": "From draft-04 (maybe I should be looking at the latest, unpublished version?):\r\n\r\n> [In case a MAC is used for key confirmation], KcA and KcB are symmetric keys used to compute tags cA and cB over data shared between the participants. That data could for example be an encoding of the key shares exchanged earlier, or simply a fixed string.\r\n> \r\n>  cA = MAC(KcA, ...)\r\n>  cB = MAC(KcB, ...)\r\n\r\nI.e, this draft doesn't tell you what to MAC, whereas the SPAKE2 draft tells you exactly what to MAC (`TT`).",
+          "createdAt": "2022-01-24T17:55:59Z",
+          "updatedAt": "2022-01-24T17:55:59Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "Got it -- thanks for clarifying!",
+          "createdAt": "2022-01-24T18:50:30Z",
+          "updatedAt": "2022-01-24T18:50:30Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "@ttaubert I suggest we simply MAC the entire transcript for the confirmation message. If you agree, could you please send a PR?",
+          "createdAt": "2022-02-07T19:56:54Z",
+          "updatedAt": "2022-02-07T19:56:54Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "Also, regarding M and N, we can update their generation method (and test vectors) by domain separating the hash for SPAKE2+ and SPAKE2. @ttaubert would you be OK with this change?",
+          "createdAt": "2022-02-07T19:58:33Z",
+          "updatedAt": "2022-02-07T19:58:33Z"
+        },
+        {
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> @ttaubert I suggest we simply MAC the entire transcript for the confirmation message. If you agree, could you please send a PR?\r\n\r\nAs proposed in #20, I think we should stick to MAC-ing the key shares as shown in our test vectors.\r\n\r\nSee also #3, encoding the transcript `TT` can be done incrementally. That would likely be harder for the key confirmation as I think most MAC APIs will require the confirmation key upfront, which itself is derived from `TT`.",
+          "createdAt": "2022-02-08T10:33:05Z",
+          "updatedAt": "2022-02-08T10:33:05Z"
+        },
+        {
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> Also, regarding M and N, we can update their generation method (and test vectors) by domain separating the hash for SPAKE2+ and SPAKE2. @ttaubert would you be OK with this change?\r\n\r\nThis should be covered by the change in #23 as well.",
+          "createdAt": "2022-02-08T15:26:38Z",
+          "updatedAt": "2022-02-08T15:26:38Z"
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "id": "I_kwDODroSBs5CVkUZ",
+      "title": "Test vectors",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/issues/9",
+      "state": "CLOSED",
+      "author": "chris-wood",
+      "authorAssociation": "OWNER",
+      "assignees": [
+        "chris-wood"
+      ],
+      "labels": [],
+      "body": "From @cjpatton\r\n\r\n# Appendix B\r\n\r\n* The test vectors refer to draft-01 in the context string. I think it would be\r\n  worth regenerating them without this reference.\r\n\r\n* Test vectors for more ciphersuites would be useful. I would at least include\r\n  edwards25519.\r\n\r\n",
+      "createdAt": "2022-01-24T17:40:07Z",
+      "updatedAt": "2022-02-08T15:21:44Z",
+      "closedAt": "2022-02-08T15:21:44Z",
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "We can re-generate the test vectors and include those for edwards25519.",
+          "createdAt": "2022-01-24T17:47:10Z",
+          "updatedAt": "2022-01-24T17:47:10Z"
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "id": "I_kwDODroSBs5CVkre",
+      "title": "Consider promoting subgroup checks",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/issues/10",
+      "state": "CLOSED",
+      "author": "chris-wood",
+      "authorAssociation": "OWNER",
+      "assignees": [
+        "chris-wood"
+      ],
+      "labels": [],
+      "body": "From @cjpatton\r\n\r\n# Section 6\r\n\r\n* The following specifies prover/verifier behavior and so needs to be moved into\r\n  the protocol section:\r\n\r\n  > Beyond the cofactor multiplication checks to ensure that elements received\r\n  > from a peer are in the prime order subgroup of G, they also MUST be checked\r\n  > for group membership as failure to properly validate group elements can lead\r\n  > to attacks.\r\n\r\n  What would be appropriate here is a discussion of small subgroup attacks and\r\n  how the spec mitigates them, since these aren't considered in\r\n  [SPAKE2P-Analysis]. Incidentally, it may be worth pointing out that the\r\n  ristretto255 and decaf448 are both instantiations of G that are compatible\r\n  with this specification and perform these checks implicitly. (Although we'd\r\n  need a draft to specify M, N.)\r\n",
+      "createdAt": "2022-01-24T17:41:39Z",
+      "updatedAt": "2022-02-08T15:17:04Z",
+      "closedAt": "2022-02-08T15:17:04Z",
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "This is a good improvement \ud83d\udc4d ",
+          "createdAt": "2022-01-24T17:52:36Z",
+          "updatedAt": "2022-01-24T17:52:36Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "@ttaubert I'm OK with your change on the subgroup-check branch provided that we also give folks a mechanism for testing group membership. In particular, the old text had \"multiply by cofactor and check for identity element.\" Can we list that as the mechanism here?",
+          "createdAt": "2022-02-07T20:02:21Z",
+          "updatedAt": "2022-02-07T20:02:21Z"
+        }
+      ]
+    },
+    {
+      "number": 11,
+      "id": "I_kwDODroSBs5CVk3t",
+      "title": "KDFs",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/issues/11",
+      "state": "CLOSED",
+      "author": "chris-wood",
+      "authorAssociation": "OWNER",
+      "assignees": [
+        "chris-wood"
+      ],
+      "labels": [],
+      "body": "From @cjpatton\r\n\r\n# Section 4\r\n\r\n* The spec aims to work with any KDF, i.e., it does not assume that HKDF will\r\n  always be used. That means either (1) the KDF column of Table 1 needs to\r\n  specify the hash function in use for HKDF or (2) it needs to be spelled out\r\n  somewhere that HKDF-based ciphersuites use the Hash algorithm as the\r\n  underlying hash function.\r\n",
+      "createdAt": "2022-01-24T17:42:30Z",
+      "updatedAt": "2022-02-03T16:30:31Z",
+      "closedAt": "2022-02-03T16:30:31Z",
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "This is [already done](https://github.com/chris-wood/draft-bar-cfrg-spake2plus/blob/master/draft-bar-cfrg-spake2plus.md#ciphersuites-ciphersuites). I'm realizing now that the editor's copy isn't updating based on that change, ugh. \r\n\r\n@cjpatton, I think we can close this. Please confirm.",
+          "createdAt": "2022-01-24T17:55:00Z",
+          "updatedAt": "2022-01-24T17:55:00Z"
+        },
+        {
+          "author": "cjpatton",
+          "authorAssociation": "NONE",
+          "body": "This section looks the same as the version I reviewed (draft-04), in particular which hash function is used with the HKDF modes is still seems ambiguous. I suppose it's clear enough from context, but it's odd that the MAC specifies the hash function (e..g, `HMAC-SHA256`) but the KDF does not (e.g., `HKDF`). ",
+          "createdAt": "2022-01-24T18:04:38Z",
+          "updatedAt": "2022-01-24T18:04:38Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "Yep, right, I was looking at the HMAC column. We can fix this.",
+          "createdAt": "2022-01-24T18:51:28Z",
+          "updatedAt": "2022-01-24T18:51:28Z"
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "id": "I_kwDODroSBs5CVlGw",
+      "title": "Empty identities",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/issues/12",
+      "state": "CLOSED",
+      "author": "chris-wood",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "From @cjpatton\r\n\r\n* Quote:\r\n\r\n  > For simplicity, if both identities are absent, i.e. len(A) = len(B) = 0,\r\n  > then w0s || w1s = PBKDF(pw).\r\n\r\n  This may be problematic from the perspective of the security analysis, I\r\n  suggest we go back to the Shoup paper and check. The problem is that RO\r\n  queries for sessions with no identities might collide with queries for\r\n  sessions with identities. For example, a password `pw` in one session may be\r\n  equal to `len(pw2) || pw2 || len(A) || A || len(B) || B)` where `pw2` is the\r\n  password in another session in which `A` and `B` are the identities.\r\n\r\n  Since this logic isn't excercised in the rest of the spec, I would just remove\r\n  it and not treat this as a special case.",
+      "createdAt": "2022-01-24T17:43:34Z",
+      "updatedAt": "2022-02-04T12:43:13Z",
+      "closedAt": "2022-02-04T12:43:13Z",
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "IIRC the security analysis does cover this case, though I would need to go back and double check. @ttaubert, do you recall off hand? If it does, we can safely close this without action.",
+          "createdAt": "2022-01-24T17:55:46Z",
+          "updatedAt": "2022-01-24T17:55:46Z"
+        },
+        {
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "body": "The security analysis does explicitly not cover this case:\r\n\r\n<img width=\"1188\" src=\"https://user-images.githubusercontent.com/300895/151812454-d94ea7f7-2ed4-4dde-98f6-334a87e3c56d.png\">",
+          "createdAt": "2022-01-31T14:35:14Z",
+          "updatedAt": "2022-01-31T14:35:14Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "Ah, well, interesting! ",
+          "createdAt": "2022-01-31T16:10:56Z",
+          "updatedAt": "2022-01-31T16:10:56Z"
+        }
+      ]
+    },
+    {
+      "number": 13,
+      "id": "I_kwDODroSBs5CVlKB",
+      "title": "Clarify bias",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/issues/13",
+      "state": "CLOSED",
+      "author": "chris-wood",
+      "authorAssociation": "OWNER",
+      "assignees": [
+        "chris-wood"
+      ],
+      "labels": [],
+      "body": "From @cjpatton\r\n\r\n* Quote:\r\n\r\n  > The output length of the PBKDF MUST be at least 64 bits longer than than\r\n  > that needed to represent p. This is done to remove statistical bias\r\n  > introduced by the modular reduction. For example, given the prime order of\r\n  > the P-256 curve, the output of the PBKDF can be 320 bits or larger.\r\n\r\n  Three notes here, one editorial and two technical. First, this paragraph needs\r\n  a transition sentence so that it's clear that we're going to interpret the\r\n  output of PBKDF as an integer and reduce it.\r\n\r\n  Second, this is bound to be a source of bugs. I think it would be worthhile to\r\n  explicitly define the minimum output length as a function of `p`. The\r\n  hash-to-curve draft has to deal with the same thing\r\n  (https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve#section-5.3)\r\n  so it might be worth cribbing off of that.\r\n\r\n  Third, I don't think it would be clear for an implementor why this is\r\n  important. On the other hand, a cryptographer might argue that this strategy\r\n  is algorithm is sub-optimal, either in terms of efficiency or the biased\r\n  induced. I think a bit of discussion about where the bias comes from, as well\r\n  as a link to an analysis that relates the minimum output length to the bias\r\n  induced by modular reduction, would be useful.",
+      "createdAt": "2022-01-24T17:43:45Z",
+      "updatedAt": "2022-02-03T21:40:59Z",
+      "closedAt": "2022-02-03T21:40:59Z",
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "> Second, this is bound to be a source of bugs. I think it would be worthhile to explicitly define the minimum output length as a function of p. The hash-to-curve draft has to deal with the same thing (https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve#section-5.3) so it might be worth cribbing off of that.\r\n\r\nBeing explicit here is a good improvement.\r\n\r\n> Third, I don't think it would be clear for an implementor why this is important. On the other hand, a cryptographer might argue that this strategy is algorithm is sub-optimal, either in terms of efficiency or the biased induced. I think a bit of discussion about where the bias comes from, as well as a link to an analysis that relates the minimum output length to the bias induced by modular reduction, would be useful.\r\n\r\nI don't think this is necessary. @cjpatton, why would this be useful to an implementer?",
+          "createdAt": "2022-01-24T17:57:15Z",
+          "updatedAt": "2022-01-24T17:57:15Z"
+        },
+        {
+          "author": "cjpatton",
+          "authorAssociation": "NONE",
+          "body": "I suppose it matters less to an implementer, but for someone who is trying to understand the security of this thing, I do think it's important to understand what bias is induced, why that bias is acceptable, and why this algorithm was picked over other strategies.",
+          "createdAt": "2022-01-24T18:09:28Z",
+          "updatedAt": "2022-01-24T18:09:28Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "> I suppose it matters less to an implementer, but for someone who is trying to understand the security of this thing, I do think it's important to understand what bias is induced, why that bias is acceptable, and why this algorithm was picked over other strategies.\r\n\r\nThe point is that there is _no_ bias introduced, and sampling more bits is the way to address that. I don't think we need to explain why this was chosen over other techniques like rejection sampling. ",
+          "createdAt": "2022-01-24T18:52:29Z",
+          "updatedAt": "2022-01-24T18:52:29Z"
+        },
+        {
+          "author": "cjpatton",
+          "authorAssociation": "NONE",
+          "body": "Oh, I see. You mean that the following text claims that there is *no bias* (i.e., that all integers in [0, p) are equiprobable): \r\n\r\n> The output length of the PBKDF MUST be at least 64 bits longer than than that needed to represent p. This is done to remove statistical bias introduced by the modular reduction.\r\n\r\nIn that case I would say that this claim isn't self-evident and needs to be justified. \r\n\r\n",
+          "createdAt": "2022-01-24T18:56:55Z",
+          "updatedAt": "2022-01-24T18:56:55Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "I'm saying I disagree that we need to include additional rationale here (rather than simply citing something), much like one doesn't explain why, say, AES is a secure PRP when used.",
+          "createdAt": "2022-01-24T19:10:30Z",
+          "updatedAt": "2022-01-24T19:10:30Z"
+        },
+        {
+          "author": "cjpatton",
+          "authorAssociation": "NONE",
+          "body": "Yes, a citation would be sufficient justification, but I would also suggest clarifying whether you mean that the statistical bias is completely eliminated or is merely reduced. My original reading was that the bias was reduced (and I wondered by how much), but based on this conversation, it sounds like the bias is completely eliminated (and if so, I want to understand why).",
+          "createdAt": "2022-01-24T19:22:26Z",
+          "updatedAt": "2022-01-24T19:22:26Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "> My original reading was that the bias was reduced (and I wondered by how much), but based on this conversation, it sounds like the bias is completely eliminated (and if so, I want to understand why).\r\n\r\nThe bias is made _negligible_, not eliminated entirely. I don't think the draft needs to provide proof of this. We can merely cite something else. ",
+          "createdAt": "2022-01-24T19:28:33Z",
+          "updatedAt": "2022-01-24T19:28:33Z"
+        },
+        {
+          "author": "cjpatton",
+          "authorAssociation": "NONE",
+          "body": "My ask is to sharpen the text to clarify that the bias is not completely eliminated but is negligible, and add a reference that supports this.",
+          "createdAt": "2022-01-24T20:12:20Z",
+          "updatedAt": "2022-01-24T20:12:20Z"
+        },
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "Lovely -- thanks \ud83d\udc4d ",
+          "createdAt": "2022-01-24T20:13:15Z",
+          "updatedAt": "2022-01-24T20:13:15Z"
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "id": "I_kwDODroSBs5CbQuh",
+      "title": "Scott's review",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/issues/14",
+      "state": "CLOSED",
+      "author": "chris-wood",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "I went through the draft, the TLDR is that other than one sticking point\r\n(which has been raised before), it looks pretty good; my comments were\r\nabout a few places which I thought could be expressed clearer.\r\n\r\nHere are my comments (actually, I initially reviewed the -03 version and\r\nhad more comments; some of those have already been addressed before I even\r\nraised them):\r\n\r\n\r\n *   In section 3.1 (the offline initialization), you state:\r\n\r\n  We fix two random elements M and N in the prime-order subgroup\r\n  of G as defined in the table in this document for common groups, as\r\n  well as a generator P of the (large) prime-order subgroup of G.\r\n\r\n             It is critical to the security that no one know the discrete\r\nlog of M wrt P; IMHO, something that critical should be\r\ncalled out.\r\n\r\n\r\n *   In section 3.4 (Protocol), you give the various steps of the on-line\r\nprotocol.  However, some of those steps are out of order (for example, A\r\nchecks on the received value Y before B computes and sends it); I\r\nbelieve it would be clearer if you followed strict chronological order\r\n(and included the mandatory error checking in pseudocode, rather than\r\njust in text).\r\n\r\n\r\n *   In section 3.4, you also state:\r\n\r\n\r\n  All proofs of security hold even if the discrete log of the fixed\r\n  group element N is known to the adversary.  In particular, one MAY\r\n  set N=I, i.e. set N to the unit element in G.\r\n\r\n             If that is the case, then why just not mandate N=I always? \r\nAfter all, this simplifies the computation.\r\n\r\n\r\n *   The only other issue (which has been raised a number of times\r\nbefore) is the selection of a global M for a specific parameter set. \r\nWhile this is convenient, this also means that the protocol has a 'solve\r\none discrete log problem, break the entire system globally' property\r\nthat I cannot endorse.\r\n",
+      "createdAt": "2022-01-25T22:54:22Z",
+      "updatedAt": "2022-02-08T15:31:27Z",
+      "closedAt": "2022-02-08T15:31:27Z",
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "> The only other issue (which has been raised a number of times before) is the selection of a global M for a specific parameter set. While this is convenient, this also means that the protocol has a 'solve one discrete log problem, break the entire system globally' property that I cannot endorse.\r\n\r\nThis is an interesting point. I think we can address this by saying that implementations MAY generate M and N that meet the requirements, provided we list the requirements (DLOG is not known). We do this for M and N out of alignment with the security analysis, so I think we ought to keep this the same and not use the identity element for N. \r\n\r\n@ttaubert, what do you think? ",
+          "createdAt": "2022-02-07T20:10:10Z",
+          "updatedAt": "2022-02-07T20:10:10Z"
+        }
+      ]
+    }
+  ],
+  "pulls": [
+    {
+      "number": 1,
+      "id": "MDExOlB1bGxSZXF1ZXN0NDI3MjMyNTU4",
+      "title": "Corrections, additions, test vectors",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/1",
+      "state": "MERGED",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This PR:\r\n\r\n* Fixes a few typos and makes other small corrections and clarifications.\r\n* Updates the SageMath notebook to version 9 and to produce new test vectors (including CMAC).\r\n* Allows some more flexibility around identities when not available at the time `w0` and `w1` (and `L`) are generated.\r\n* Adds details for the truncation of the results of `KDF(nil, Ka, \"ConfirmationKeys\")` when the output is larger than twice the key size of the MAC.\r\n\r\nA few additions are due to Victor's proof:\r\n\r\n* `TT` now leads with an application-specific customization string called `Context`.\r\n* The optional AAD in the key confirmation phase was replaced by `Context`.\r\n* The fixed elements `M` and `N` are now included in `TT`.",
+      "createdAt": "2020-06-03T14:15:20Z",
+      "updatedAt": "2020-06-09T12:44:18Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "fce311bc921936fc26ce7644a119ed0d738f17d0",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "draft-next",
+      "headRefOid": "41766a2d875013e749cd494a935868ef7abd86f3",
+      "closedAt": "2020-06-09T12:44:18Z",
+      "mergedAt": "2020-06-09T12:44:18Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "179a2022c4258897fbc150086941ee136739b7d6"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NDIzOTk4MzY0",
+          "commit": {
+            "abbreviatedOid": "c180ca7"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "CHANGES_REQUESTED",
+          "body": "",
+          "createdAt": "2020-06-03T23:12:01Z",
+          "updatedAt": "2020-06-08T23:56:13Z",
+          "comments": [
+            {
+              "originalPosition": 19,
+              "body": "```suggestion\r\nIt is compatible with any prime-order group and relies only on group operations, making it simple and computationally efficient.\r\n```",
+              "createdAt": "2020-06-03T23:12:01Z",
+              "updatedAt": "2020-06-09T12:44:12Z"
+            },
+            {
+              "originalPosition": 49,
+              "body": "```suggestion\r\ncross-protocol attacks. Specification of precise context values is out of scope for this document.\r\n```",
+              "createdAt": "2020-06-08T23:43:07Z",
+              "updatedAt": "2020-06-09T12:44:12Z"
+            },
+            {
+              "originalPosition": 85,
+              "body": "What if only one of them is unknown? Is only the unknown identity omitted?",
+              "createdAt": "2020-06-08T23:44:17Z",
+              "updatedAt": "2020-06-09T12:44:12Z"
+            },
+            {
+              "originalPosition": 123,
+              "body": "```suggestion\r\nparties and MUST precede the remaining transcript. It might contain the\r\n```",
+              "createdAt": "2020-06-08T23:44:51Z",
+              "updatedAt": "2020-06-09T12:44:12Z"
+            },
+            {
+              "originalPosition": 133,
+              "body": "This is worrisome :-( The security proofs assume treat Hash as a RO, which is the case if the input is prefix-free, but how do we guarantee prefix-freedom if some values are optional? As an example, consider two different protocols Foo and Bar. In Foo, A's identity is omitted. In Bar, B's identity is omitted. Moreover, assume that there exists a party acting as B in Foo with identity (name) N and a party acting as A in Bar with identity (name) N'. If N = N', and if the context string is omitted from both protocols, we can have a RO collision. \r\n\r\nIs this a problem? (I think an easy fix is to add a type byte before each length value in the transcript, e.g.:\r\n\r\n```\r\nTT = 0x00 || len(Context) || Context ||\r\n  0x01 || || len(A) || A || 0x02 || len(B) || B\r\n  0x03 || || len(M) || M || 0x04 || len(N) || N\r\n  0x05 || len(X) || X || 0x06 || len(Y) || Y\r\n  0x07 || len(Z) || Z || 0x08 || len(V) || V\r\n  0x09 || len(w0) || w0\r\n```\r\n\r\nCumbersome, and probably a hard change to pitch, but I think this is probably needed.",
+              "createdAt": "2020-06-08T23:50:40Z",
+              "updatedAt": "2020-06-09T12:44:12Z"
+            },
+            {
+              "originalPosition": 153,
+              "body": "How do we deal with tail loss? What if an adversary drops the confirmation message? It's probably better to say, B MUST NOT send application data to A until it has received and verified the confirmation message.",
+              "createdAt": "2020-06-08T23:53:12Z",
+              "updatedAt": "2020-06-09T12:44:12Z"
+            },
+            {
+              "originalPosition": 177,
+              "body": "```suggestion\r\nHKDF-SHA512 as the KDF and CMAC-AES-128 as the MAC, the KDF output MAY be truncated.\r\n```",
+              "createdAt": "2020-06-08T23:54:11Z",
+              "updatedAt": "2020-06-09T12:44:12Z"
+            },
+            {
+              "originalPosition": 205,
+              "body": "Riad pointed out simpler text for this, captured in this issue: https://github.com/cfrg/draft-irtf-cfrg-hpke/issues/107",
+              "createdAt": "2020-06-08T23:55:11Z",
+              "updatedAt": "2020-06-09T12:44:12Z"
+            },
+            {
+              "originalPosition": 214,
+              "body": "```suggestion\r\nthe P256-SHA256-HKDF-HMAC and P256-SHA256-HKDF-CMAC ciphersuites. (Choice of PBKDF is omitted\r\n```",
+              "createdAt": "2020-06-08T23:55:31Z",
+              "updatedAt": "2020-06-09T12:44:12Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NDI2NzExNzUy",
+          "commit": {
+            "abbreviatedOid": "c180ca7"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2020-06-09T00:34:55Z",
+          "updatedAt": "2020-06-09T00:34:55Z",
+          "comments": [
+            {
+              "originalPosition": 133,
+              "body": "(Alternatively, we can remove the \"optional\" part and just always encode the lengths. That'd probably be simpler.)",
+              "createdAt": "2020-06-09T00:34:55Z",
+              "updatedAt": "2020-06-09T12:44:12Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NDI2OTgwNzgy",
+          "commit": {
+            "abbreviatedOid": "7e0803e"
+          },
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2020-06-09T09:55:50Z",
+          "updatedAt": "2020-06-09T09:55:51Z",
+          "comments": [
+            {
+              "originalPosition": 85,
+              "body": "Yeah, that was the idea. Will clarify.",
+              "createdAt": "2020-06-09T09:55:51Z",
+              "updatedAt": "2020-06-09T12:44:12Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NDI2OTkwMTg1",
+          "commit": {
+            "abbreviatedOid": "d6db6c4"
+          },
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2020-06-09T10:07:50Z",
+          "updatedAt": "2020-06-09T10:07:50Z",
+          "comments": [
+            {
+              "originalPosition": 153,
+              "body": "Let's add that, good point.",
+              "createdAt": "2020-06-09T10:07:50Z",
+              "updatedAt": "2020-06-09T12:44:12Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NDI3MDU4MDcw",
+          "commit": {
+            "abbreviatedOid": "2dbbdfb"
+          },
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2020-06-09T11:49:04Z",
+          "updatedAt": "2020-06-09T11:49:04Z",
+          "comments": [
+            {
+              "originalPosition": 133,
+              "body": "That's a great point, thanks for bringing this up! I've removed the \"optional\" part and identities are now mandatory parts of the transcript, even if their lengths are zero and the identities themselves are empty octet strings. It even simplifies things a bit. \ud83d\udc4d",
+              "createdAt": "2020-06-09T11:49:04Z",
+              "updatedAt": "2020-06-09T12:44:12Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NDI3MTAxMTUy",
+          "commit": {
+            "abbreviatedOid": "7357e54"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2020-06-09T12:43:38Z",
+          "updatedAt": "2020-06-09T12:43:39Z",
+          "comments": [
+            {
+              "originalPosition": 15,
+              "body": "```suggestion\r\nspecific protocol is given in {{?I-D.ietf-mmusic-sdp-uks}}).\r\n```",
+              "createdAt": "2020-06-09T12:43:38Z",
+              "updatedAt": "2020-06-09T12:44:12Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NDI3MTAxNTIy",
+          "commit": {
+            "abbreviatedOid": "7357e54"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2020-06-09T12:44:04Z",
+          "updatedAt": "2020-06-09T12:44:04Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTM2MjYxNTEx",
+      "title": "Proposal for draft-02",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/2",
+      "state": "MERGED",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "This PR aims to improve readability a bit. It pulls computations out of the paragraphs and puts them in code blocks -- that should make the protocol easier to understand when skimming it the first time. Some computations were rearranged to take a more common form.\r\n\r\nIt further adds two insights from Shoup's paper proving it secure: a MAC is not strictly necessary for key confirmation, sending `KcA` and `KcB` is sufficient. The fixed element N might be chosen to have a known discrete log.",
+      "createdAt": "2020-12-10T21:14:49Z",
+      "updatedAt": "2020-12-11T00:51:50Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "179a2022c4258897fbc150086941ee136739b7d6",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "draft-02",
+      "headRefOid": "3e645de1af8a059c3353b230a10a950b7301ae8d",
+      "closedAt": "2020-12-11T00:51:50Z",
+      "mergedAt": "2020-12-11T00:51:50Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "2a026179b59df2a8828191100f0731a4be91a05d"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTQ5NjY0NzE2",
+          "commit": {
+            "abbreviatedOid": "2cf6179"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "CHANGES_REQUESTED",
+          "body": "",
+          "createdAt": "2020-12-10T22:42:14Z",
+          "updatedAt": "2020-12-10T22:52:12Z",
+          "comments": [
+            {
+              "originalPosition": 103,
+              "body": "```suggestion\r\nreceipt and verification of B's confirmation message, A MUST send B a\r\nconfirmation message. B MUST NOT send application data to A until it has received\r\n```",
+              "createdAt": "2020-12-10T22:42:14Z",
+              "updatedAt": "2020-12-11T00:49:50Z"
+            },
+            {
+              "originalPosition": 134,
+              "body": "```suggestion\r\nKcA and KcB are not used for anything except key confirmation and MUST be\r\n```",
+              "createdAt": "2020-12-10T22:44:31Z",
+              "updatedAt": "2020-12-11T00:49:50Z"
+            },
+            {
+              "originalPosition": 146,
+              "body": "Is the input to this MAC actually relevant, if the alternative is to just send cA or cB directly? If not, I would simplify and make this MAC(KcA, <fixed string>). Rationale: encoding public keys is not something we really discuss, so it's just simpler to avoid it altogether, I think.",
+              "createdAt": "2020-12-10T22:46:23Z",
+              "updatedAt": "2020-12-11T00:49:50Z"
+            },
+            {
+              "originalPosition": 117,
+              "body": "Hmm, what *is* the required key size in this case? (Namely, what is the maximum amount of truncation allowed here?)",
+              "createdAt": "2020-12-10T22:48:27Z",
+              "updatedAt": "2020-12-11T00:49:50Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTQ5NzAwNzY5",
+          "commit": {
+            "abbreviatedOid": "0df2c04"
+          },
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2020-12-10T23:46:01Z",
+          "updatedAt": "2020-12-10T23:46:01Z",
+          "comments": [
+            {
+              "originalPosition": 146,
+              "body": "It's not relevant. I've abstracted this part a bit.",
+              "createdAt": "2020-12-10T23:46:01Z",
+              "updatedAt": "2020-12-11T00:49:50Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTQ5NzEzMTY0",
+          "commit": {
+            "abbreviatedOid": "0df2c04"
+          },
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2020-12-11T00:16:49Z",
+          "updatedAt": "2020-12-11T00:16:49Z",
+          "comments": [
+            {
+              "originalPosition": 117,
+              "body": "That wording is confusing indeed. It should just say that the shared secret `Ke` can be truncated if needed.",
+              "createdAt": "2020-12-11T00:16:49Z",
+              "updatedAt": "2020-12-11T00:49:50Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTQ5NzI1Njg0",
+          "commit": {
+            "abbreviatedOid": "3e645de"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2020-12-11T00:51:43Z",
+          "updatedAt": "2020-12-11T00:51:43Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "id": "PR_kwDODroSBs4wT33a",
+      "title": "Address JP's review",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/5",
+      "state": "MERGED",
+      "author": "chris-wood",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Closes #4\r\n\r\ncc @veorq, @ttaubert",
+      "createdAt": "2021-12-27T17:20:19Z",
+      "updatedAt": "2022-01-03T14:17:44Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "2a026179b59df2a8828191100f0731a4be91a05d",
+      "headRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "headRefName": "caw/jp-review",
+      "headRefOid": "76cb51fc6a07788b94f41752b1b2bba33d18dadb",
+      "closedAt": "2022-01-03T14:17:44Z",
+      "mergedAt": "2022-01-03T14:17:44Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "53b4b1c613e651e99cef5218a84f87fc3b072290"
+      },
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "@veorq, would you be able to give this a quick look and let us know if it addresses your comments?",
+          "createdAt": "2021-12-29T20:54:25Z",
+          "updatedAt": "2021-12-29T20:54:25Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs4yIb9G",
+          "commit": {
+            "abbreviatedOid": "db0d0e3"
+          },
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "LGTM, thanks!",
+          "createdAt": "2021-12-28T19:57:22Z",
+          "updatedAt": "2021-12-28T20:05:06Z",
+          "comments": [
+            {
+              "originalPosition": 96,
+              "body": "nit: \"PBKDF functions\" -> \"PBKDFs\"?",
+              "createdAt": "2021-12-28T19:57:22Z",
+              "updatedAt": "2021-12-28T20:05:06Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs4yIcv7",
+          "commit": {
+            "abbreviatedOid": "db0d0e3"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2021-12-28T20:06:05Z",
+          "updatedAt": "2021-12-28T20:06:05Z",
+          "comments": [
+            {
+              "originalPosition": 96,
+              "body": "```suggestion\r\nScrypt {{?RFC7914}} and Argon2id {{?RFC9106}} are common examples of PBKDFs.\r\n```",
+              "createdAt": "2021-12-28T20:06:05Z",
+              "updatedAt": "2021-12-28T20:06:05Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 15,
+      "id": "PR_kwDODroSBs4x9T9l",
+      "title": "Make identities A,B mandatory inputs to PBKDF, fixes #12",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/15",
+      "state": "MERGED",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Fixes #12 by making identities mandatory inputs to the PBKDF when computing `w0s` and `w1s`.",
+      "createdAt": "2022-02-02T10:33:24Z",
+      "updatedAt": "2022-02-04T14:25:39Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "7162f15c0d70620378af1386b1d2578c654ff200",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "mandatory-identities-for-pbkdf",
+      "headRefOid": "3fbd49121fb6bb029a8bcfd924059906aef511cb",
+      "closedAt": "2022-02-04T12:43:13Z",
+      "mergedAt": "2022-02-04T12:43:13Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "f1ce130e55adefa901c7ac6baea09dbced2d17c0"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs4z-zAj",
+          "commit": {
+            "abbreviatedOid": "8f7857d"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "CHANGES_REQUESTED",
+          "body": "Looks good pending my suggestion!",
+          "createdAt": "2022-02-03T16:30:57Z",
+          "updatedAt": "2022-02-03T16:33:11Z",
+          "comments": [
+            {
+              "originalPosition": 12,
+              "body": "```suggestion\r\nas zero and the identity itself the empty octet string. If both A and B are unknown,\r\n```",
+              "createdAt": "2022-02-03T16:30:58Z",
+              "updatedAt": "2022-02-03T16:33:11Z"
+            },
+            {
+              "originalPosition": 15,
+              "body": "```suggestion\r\nidentities are included in the transcript TT as part of the protocol flow.\r\n```",
+              "createdAt": "2022-02-03T16:31:54Z",
+              "updatedAt": "2022-02-03T16:33:11Z"
+            },
+            {
+              "originalPosition": 15,
+              "body": "Since they're now mandatory, they're always included in the transcript, so we can drop the SHOULD here, I think.",
+              "createdAt": "2022-02-03T16:32:51Z",
+              "updatedAt": "2022-02-03T16:33:11Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs40CZHC",
+          "commit": {
+            "abbreviatedOid": "3fbd491"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-02-04T12:43:09Z",
+          "updatedAt": "2022-02-04T12:43:09Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 16,
+      "id": "PR_kwDODroSBs4x9c9P",
+      "title": "Clarify bias when reducing integers mod p, fixes #13",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/16",
+      "state": "MERGED",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Fixes #13 by clarifying bias when reducing integers mod p.",
+      "createdAt": "2022-02-02T11:16:32Z",
+      "updatedAt": "2022-02-04T10:45:34Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "7162f15c0d70620378af1386b1d2578c654ff200",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "clarify-bias",
+      "headRefOid": "b741c3e3132329804673595dd28e09bb8b27db24",
+      "closedAt": "2022-02-03T21:41:00Z",
+      "mergedAt": "2022-02-03T21:40:59Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "e3956073b9e03c4a167c255b0f5c315dffbde871"
+      },
+      "comments": [
+        {
+          "author": "cjpatton",
+          "authorAssociation": "NONE",
+          "body": "Yup, I'm happy!",
+          "createdAt": "2022-02-03T18:34:16Z",
+          "updatedAt": "2022-02-03T18:34:16Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs4z_AWU",
+          "commit": {
+            "abbreviatedOid": "b741c3e"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "Good fix (doubling the output length) =) This looks good to me. @cjpatton, are you OK with this explanation?",
+          "createdAt": "2022-02-03T17:04:31Z",
+          "updatedAt": "2022-02-03T17:04:31Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 17,
+      "id": "PR_kwDODroSBs4x9eak",
+      "title": "Ciphersuite should be explicit about the hash function used for HKDF",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/17",
+      "state": "MERGED",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Fixes #11 by specifying the hash function used for HKDF in the ciphersuites table.",
+      "createdAt": "2022-02-02T11:23:27Z",
+      "updatedAt": "2022-02-04T10:48:52Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "7162f15c0d70620378af1386b1d2578c654ff200",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "hkdf-specify-hash-func",
+      "headRefOid": "8c06c62033f46f8f9a64df45505389a93b99fa5d",
+      "closedAt": "2022-02-03T16:30:31Z",
+      "mergedAt": "2022-02-03T16:30:31Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "736bc49cd14db49418a27b948bc5ab689bb7c69f"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs4z-y09",
+          "commit": {
+            "abbreviatedOid": "8c06c62"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-02-03T16:30:26Z",
+          "updatedAt": "2022-02-03T16:30:26Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 18,
+      "id": "PR_kwDODroSBs4yLEzj",
+      "title": "Address mostly editorial issues reported by @cjpatton, fixes #7",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/18",
+      "state": "MERGED",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Quite a few changes in here to address issues reported in #7.\r\n\r\n* \"verification value\" is now referred to as the record\r\n* Participants A and B are now prover and verifier with identities idProver and idVerifier.\r\n\r\nSections were rearranged a bit. Starting with an overview, then a registration phase, followed by the description of the authentication phase.\r\n\r\nThe issues not addressed with this PR are pointed out in my last comment in #7.",
+      "createdAt": "2022-02-07T13:55:45Z",
+      "updatedAt": "2022-02-08T09:14:14Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "f1ce130e55adefa901c7ac6baea09dbced2d17c0",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "cjpatton-editorial",
+      "headRefOid": "9d7de1b2820c8dff85e9a63c0d3a943908557c29",
+      "closedAt": "2022-02-07T22:19:13Z",
+      "mergedAt": "2022-02-07T22:19:13Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "e675926171d146957de55995fdb18fd9c7fd9df8"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs40KeWe",
+          "commit": {
+            "abbreviatedOid": "ec143e1"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "My only comment is that we rename the confirmation messages from `tag` to `confirm`, otherwise this LGTM \ud83d\udc4d  Thanks, @ttaubert!",
+          "createdAt": "2022-02-07T19:36:54Z",
+          "updatedAt": "2022-02-07T19:39:22Z",
+          "comments": [
+            {
+              "originalPosition": 168,
+              "body": "```suggestion\r\nw0s || w1s = PBKDF(len(pw) || pw || \r\n             len(idProver) || idProver || \r\n             len(idVerifier) || idVerifier)\r\n```",
+              "createdAt": "2022-02-07T19:36:54Z",
+              "updatedAt": "2022-02-07T19:39:22Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs40LDLw",
+          "commit": {
+            "abbreviatedOid": "9d7de1b"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-02-07T22:19:10Z",
+          "updatedAt": "2022-02-07T22:19:10Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 19,
+      "id": "PR_kwDODroSBs4yOQca",
+      "title": "fix double concatenation for transcript encoding",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/19",
+      "state": "MERGED",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Fixing a small mistake I spotted.",
+      "createdAt": "2022-02-08T09:40:23Z",
+      "updatedAt": "2022-02-08T14:02:37Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "e675926171d146957de55995fdb18fd9c7fd9df8",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "fix-tt-computation",
+      "headRefOid": "6090b4fe34f245d07f6442215f977b569b125377",
+      "closedAt": "2022-02-08T13:46:44Z",
+      "mergedAt": "2022-02-08T13:46:44Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "689ed0deb39f148a819b259552a6d2e771002563"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs40N3D2",
+          "commit": {
+            "abbreviatedOid": "6090b4f"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-02-08T13:46:35Z",
+          "updatedAt": "2022-02-08T13:46:35Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 20,
+      "id": "PR_kwDODroSBs4yObei",
+      "title": "specify MAC inputs in key confirmation phase, fixes #6",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/20",
+      "state": "MERGED",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Let's be more prescriptive about the inputs to the MAC in the key confirmation phase.",
+      "createdAt": "2022-02-08T10:26:21Z",
+      "updatedAt": "2022-02-08T14:01:37Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "e675926171d146957de55995fdb18fd9c7fd9df8",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "clarify-key-confirmation",
+      "headRefOid": "812d2745a5dc6729e0e2eb1175c46bcfb2c2f0ca",
+      "closedAt": "2022-02-08T13:46:02Z",
+      "mergedAt": "2022-02-08T13:46:02Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "bd2c65a27a52dd4f1960d23bd0c0a71918c6a77c"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs40N2ZG",
+          "commit": {
+            "abbreviatedOid": "6ac27b1"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-02-08T13:44:29Z",
+          "updatedAt": "2022-02-08T13:45:08Z",
+          "comments": [
+            {
+              "originalPosition": 9,
+              "body": "```suggestion\r\nBoth endpoints MUST employ a MAC that produces pseudorandom tags for key confirmation.\r\n```",
+              "createdAt": "2022-02-08T13:44:29Z",
+              "updatedAt": "2022-02-08T13:45:08Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 21,
+      "id": "PR_kwDODroSBs4yPSyE",
+      "title": "Clarify subgroup checks and countermeasures, fixes #10",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/21",
+      "state": "MERGED",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2022-02-08T14:23:30Z",
+      "updatedAt": "2022-02-08T15:18:04Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "689ed0deb39f148a819b259552a6d2e771002563",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "subgroup-checks",
+      "headRefOid": "eb26b1c6537dcfb93a3be6d788ed38a2cc8483fb",
+      "closedAt": "2022-02-08T15:17:03Z",
+      "mergedAt": "2022-02-08T15:17:03Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "7ec3111fc3db52d852795761715d7b665a1607d7"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs40OMKl",
+          "commit": {
+            "abbreviatedOid": "e340308"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-02-08T14:41:27Z",
+          "updatedAt": "2022-02-08T14:42:00Z",
+          "comments": [
+            {
+              "originalPosition": 48,
+              "body": "```suggestion\r\nlarge prime-order subgroup of G. Multiplication of a public value X by the\r\ncofactor h will yield the identity element I whenever V is an element of a\r\nsmall-order subgroup. Consequently, prover and verifier MUST abort the protocol \r\nupon of any received value V such that V\\*h = I. Failure to do so may lead to subgroup\r\nconfinement attacks.\r\n```",
+              "createdAt": "2022-02-08T14:41:28Z",
+              "updatedAt": "2022-02-08T14:42:00Z"
+            },
+            {
+              "originalPosition": 48,
+              "body": "Swapped X with V so as to not lead people to only check the prover's share (X).",
+              "createdAt": "2022-02-08T14:41:57Z",
+              "updatedAt": "2022-02-08T14:42:00Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs40OZsz",
+          "commit": {
+            "abbreviatedOid": "511728e"
+          },
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-02-08T15:16:11Z",
+          "updatedAt": "2022-02-08T15:16:16Z",
+          "comments": [
+            {
+              "originalPosition": 45,
+              "body": "```suggestion\r\nlarge prime-order subgroup of G. Multiplication of a public value V by the\r\n```\r\n\r\nThere's one more `X` here.",
+              "createdAt": "2022-02-08T15:16:11Z",
+              "updatedAt": "2022-02-08T15:16:16Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 22,
+      "id": "PR_kwDODroSBs4yPXDP",
+      "title": "Update test vectors and fix section references",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/22",
+      "state": "MERGED",
+      "author": "chris-wood",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Closes #9.\r\n\r\ncc @ttaubert ",
+      "createdAt": "2022-02-08T14:38:51Z",
+      "updatedAt": "2022-02-08T15:21:44Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "689ed0deb39f148a819b259552a6d2e771002563",
+      "headRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "headRefName": "caw/remove-draft-version-in-test-vectors",
+      "headRefOid": "d7d1112d77d5590f9dd3d817128385c834f71897",
+      "closedAt": "2022-02-08T15:21:44Z",
+      "mergedAt": "2022-02-08T15:21:44Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "663f5487ae9a57dc679861ad9902896271489536"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs40Obqj",
+          "commit": {
+            "abbreviatedOid": "d7d1112"
+          },
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-02-08T15:21:17Z",
+          "updatedAt": "2022-02-08T15:21:17Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 23,
+      "id": "PR_kwDODroSBs4yPgZL",
+      "title": "Allow M and N to vary",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/23",
+      "state": "MERGED",
+      "author": "chris-wood",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Closes #14.",
+      "createdAt": "2022-02-08T15:13:57Z",
+      "updatedAt": "2022-02-08T15:31:27Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "663f5487ae9a57dc679861ad9902896271489536",
+      "headRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "headRefName": "caw/vary-m-and-n",
+      "headRefOid": "14c0a751c9c992357b2725d7fb00f1533836bdbc",
+      "closedAt": "2022-02-08T15:31:27Z",
+      "mergedAt": "2022-02-08T15:31:27Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "bbaf373e9916b027b9992c8cb359b6ab8c817eab"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs40Ocqi",
+          "commit": {
+            "abbreviatedOid": "ca50635"
+          },
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-02-08T15:23:48Z",
+          "updatedAt": "2022-02-08T15:24:24Z",
+          "comments": [
+            {
+              "originalPosition": 22,
+              "body": "```suggestion\r\nImportantly, this algorithm chooses M and N such that their discrete logs are not\r\n```",
+              "createdAt": "2022-02-08T15:23:48Z",
+              "updatedAt": "2022-02-08T15:24:24Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 24,
+      "id": "PR_kwDODroSBs4yTUNN",
+      "title": "Improve shared key derivation and add more test vectors",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/24",
+      "state": "MERGED",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2022-02-09T13:40:34Z",
+      "updatedAt": "2022-02-09T14:55:16Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "bbaf373e9916b027b9992c8cb359b6ab8c817eab",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "better-shared-key-derivation",
+      "headRefOid": "af2975a5f0373ddc281dab0fba26df905914ff92",
+      "closedAt": "2022-02-09T14:54:00Z",
+      "mergedAt": "2022-02-09T14:54:00Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "dbb271a25306ffd998afa6280158a88927e0d11d"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs40TksJ",
+          "commit": {
+            "abbreviatedOid": "18abcdb"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "CHANGES_REQUESTED",
+          "body": "Some editorial changes requested, but otherwise this is great. Nice work with the reference implementation!",
+          "createdAt": "2022-02-09T14:30:41Z",
+          "updatedAt": "2022-02-09T14:36:18Z",
+          "comments": [
+            {
+              "originalPosition": 12,
+              "body": "```suggestion\r\nencryption key K_shared are derived from K_main.\r\n```",
+              "createdAt": "2022-02-09T14:30:41Z",
+              "updatedAt": "2022-02-09T14:36:18Z"
+            },
+            {
+              "originalPosition": 12,
+              "body": "```suggestion\r\nencryption key K_shared are derived from K_main. The length of K_shared is equal to the\r\nlength of the KDF output, which is defined by the ciphersuite.\r\n```",
+              "createdAt": "2022-02-09T14:32:16Z",
+              "updatedAt": "2022-02-09T14:36:18Z"
+            },
+            {
+              "originalPosition": 28,
+              "body": "```suggestion\r\nApplications MAY derive additional keys from K_shared as needed.\r\n```",
+              "createdAt": "2022-02-09T14:33:26Z",
+              "updatedAt": "2022-02-09T14:36:18Z"
+            },
+            {
+              "originalPosition": 31,
+              "body": "```suggestion\r\nciphersuite. For HMAC, the RECOMMENDED key length is equal to the output length of\r\n```",
+              "createdAt": "2022-02-09T14:33:58Z",
+              "updatedAt": "2022-02-09T14:36:18Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs40TrBJ",
+          "commit": {
+            "abbreviatedOid": "087ff5c"
+          },
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-02-09T14:47:28Z",
+          "updatedAt": "2022-02-09T14:47:29Z",
+          "comments": [
+            {
+              "originalPosition": 12,
+              "body": "Let's not be explicit about the length of `K_shared`.",
+              "createdAt": "2022-02-09T14:47:28Z",
+              "updatedAt": "2022-02-09T14:47:29Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs40TsXl",
+          "commit": {
+            "abbreviatedOid": "087ff5c"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "LGTM pending one final nit!",
+          "createdAt": "2022-02-09T14:51:05Z",
+          "updatedAt": "2022-02-09T14:51:23Z",
+          "comments": [
+            {
+              "originalPosition": 11,
+              "body": "```suggestion\r\nkey K_shared are derived from K_main.\r\n```\r\n\r\nI suppose one could use it for things other than encryption? \ud83e\udd37 ",
+              "createdAt": "2022-02-09T14:51:05Z",
+              "updatedAt": "2022-02-09T14:51:23Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs40TtLM",
+          "commit": {
+            "abbreviatedOid": "087ff5c"
+          },
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-02-09T14:53:10Z",
+          "updatedAt": "2022-02-09T14:53:10Z",
+          "comments": [
+            {
+              "originalPosition": 11,
+              "body": "Ah, yes. Good spot!",
+              "createdAt": "2022-02-09T14:53:10Z",
+              "updatedAt": "2022-02-09T14:53:10Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 25,
+      "id": "PR_kwDODroSBs4yTm7z",
+      "title": "Note shared M and N, and fix lints",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/25",
+      "state": "MERGED",
+      "author": "chris-wood",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "cc @ttaubert ",
+      "createdAt": "2022-02-09T14:56:18Z",
+      "updatedAt": "2022-02-09T15:16:57Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "dbb271a25306ffd998afa6280158a88927e0d11d",
+      "headRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "headRefName": "caw/note-spake2-shared-m-and-n",
+      "headRefOid": "1076319640d2d6be11aa53beb4bd29b4f210c77a",
+      "closedAt": "2022-02-09T15:16:57Z",
+      "mergedAt": "2022-02-09T15:16:57Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "ee010ed1d4d6847d0b052d122d633d86541a9ae0"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs40TwiZ",
+          "commit": {
+            "abbreviatedOid": "1076319"
+          },
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-02-09T15:01:46Z",
+          "updatedAt": "2022-02-09T15:01:46Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 26,
+      "id": "PR_kwDODroSBs4yTnLJ",
+      "title": "s/HKDF/HMAC for test vector contexts",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/26",
+      "state": "MERGED",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2022-02-09T14:57:15Z",
+      "updatedAt": "2022-02-09T17:47:24Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "dbb271a25306ffd998afa6280158a88927e0d11d",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "hmac-hkdf-test-vectors",
+      "headRefOid": "0fe822488bcfced44736b5c5668b35d8faeda74f",
+      "closedAt": "2022-02-09T15:16:45Z",
+      "mergedAt": "2022-02-09T15:16:45Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "d4041f538c666405e2899f3254929f46b7ba3618"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs40TxsQ",
+          "commit": {
+            "abbreviatedOid": "77cc207"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-02-09T15:04:45Z",
+          "updatedAt": "2022-02-09T15:05:30Z",
+          "comments": [
+            {
+              "originalPosition": 24,
+              "body": "```suggestion\r\n    (P256, SHA256, confirm_keys_hmac, b'SPAKE2+-P256-SHA256-HKDF-HMAC Test Vectors'),\r\n    (P256, SHA512, confirm_keys_hmac, b'SPAKE2+-P256-SHA512-HKDF-HMAC Test Vectors'),\r\n    (P384, SHA256, confirm_keys_hmac, b'SPAKE2+-P384-SHA256-HKDF-HMAC Test Vectors'),\r\n    (P384, SHA512, confirm_keys_hmac, b'SPAKE2+-P384-SHA512-HKDF-HMAC Test Vectors'),\r\n    (P521, SHA512, confirm_keys_hmac, b'SPAKE2+-P521-SHA512-HKDF-HMAC Test Vectors'),\r\n    (P256, SHA256, confirm_keys_cmac, b'SPAKE2+-P256-SHA256-HKDF-CMAC-AES-128 Test Vectors'),\r\n    (P256, SHA512, confirm_keys_cmac, b'SPAKE2+-P256-SHA512-HKDF-CMAC-AES-128 Test Vectors'),\r\n```",
+              "createdAt": "2022-02-09T15:04:46Z",
+              "updatedAt": "2022-02-09T15:05:30Z"
+            },
+            {
+              "originalPosition": 24,
+              "body": "To match the notation we use in the spec -- can we also update the test vectors?",
+              "createdAt": "2022-02-09T15:05:03Z",
+              "updatedAt": "2022-02-09T15:05:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs40T0WZ",
+          "commit": {
+            "abbreviatedOid": "523b90e"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-02-09T15:11:42Z",
+          "updatedAt": "2022-02-09T15:11:42Z",
+          "comments": [
+            {
+              "originalPosition": 25,
+              "body": "Missing the hash function for HKDF here and below",
+              "createdAt": "2022-02-09T15:11:42Z",
+              "updatedAt": "2022-02-09T15:11:42Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs40T2Jm",
+          "commit": {
+            "abbreviatedOid": "0fe8224"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-02-09T15:16:31Z",
+          "updatedAt": "2022-02-09T15:16:31Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 27,
+      "id": "PR_kwDODroSBs4yYPt7",
+      "title": "Address Adrian's feedback",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/27",
+      "state": "MERGED",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "cc @chris-wood ",
+      "createdAt": "2022-02-10T12:49:33Z",
+      "updatedAt": "2022-02-10T13:46:56Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "cb184cda9cc1608976436f8d964913530f8343c5",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "adrian-feedback",
+      "headRefOid": "34b3a709231c6d28af614b271728fb86e46acf7c",
+      "closedAt": "2022-02-10T13:46:26Z",
+      "mergedAt": "2022-02-10T13:46:26Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "b6e150b02a5560eeaff5eed631ec5eef6c9c463f"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs40YlqI",
+          "commit": {
+            "abbreviatedOid": "34b3a70"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-02-10T13:46:23Z",
+          "updatedAt": "2022-02-10T13:46:23Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 28,
+      "id": "PR_kwDODroSBs4yZCFp",
+      "title": "add disclaimer to abstract",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/28",
+      "state": "MERGED",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "cc @chris-wood ",
+      "createdAt": "2022-02-10T15:00:45Z",
+      "updatedAt": "2022-02-11T09:29:36Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "b6e150b02a5560eeaff5eed631ec5eef6c9c463f",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "abstract-disclaimer",
+      "headRefOid": "2ace363304b98e5478ecc6a800028b9f6bbb0aa8",
+      "closedAt": "2022-02-10T22:02:18Z",
+      "mergedAt": "2022-02-10T22:02:18Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "6ec9a73b9437bc34981e533963c6a852cf10d5b1"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs40ZaFu",
+          "commit": {
+            "abbreviatedOid": "2ace363"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-02-10T16:09:55Z",
+          "updatedAt": "2022-02-10T16:09:55Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 29,
+      "id": "PR_kwDODroSBs4ycA6G",
+      "title": "Clarify differences between this and SPAKE2",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/29",
+      "state": "MERGED",
+      "author": "chris-wood",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "Clarifies the following:\r\n- what is SPAKE2\r\n- how does this differ from / complement SPAKE2\r\n- and why was it split out",
+      "createdAt": "2022-02-10T22:03:25Z",
+      "updatedAt": "2022-02-11T14:53:52Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "6ec9a73b9437bc34981e533963c6a852cf10d5b1",
+      "headRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "headRefName": "caw/explain-spake2-differences",
+      "headRefOid": "4995ce17e6552eed51baddf1b8f339c9fe8f0d8e",
+      "closedAt": "2022-02-11T14:53:52Z",
+      "mergedAt": "2022-02-11T14:53:52Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "92d142ac7a1ecd8f8e4d4ae2a74c9cef0ada3c5f"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs40bV5g",
+          "commit": {
+            "abbreviatedOid": "4995ce1"
+          },
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-02-10T22:07:20Z",
+          "updatedAt": "2022-02-10T22:07:20Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 30,
+      "id": "PR_kwDODroSBs40LgPn",
+      "title": "better pseudocode to clarify protocol flow",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/30",
+      "state": "OPEN",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [
+        "ttaubert"
+      ],
+      "labels": [],
+      "body": "Improved pseudocode to clarify the protocol flow, as suggested by Scott Fluhrer.\r\n\r\ncc @chris-wood ",
+      "createdAt": "2022-03-09T15:21:01Z",
+      "updatedAt": "2022-03-22T12:13:52Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "2b9fedc239e8f00a17fb0501ce5476179427d755",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "scott-pseudocode",
+      "headRefOid": "66a1e0c271678be580f3acd80614074662ff103f",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "body": "ping @ttaubert: thoughts? :) ",
+          "createdAt": "2022-03-22T12:13:52Z",
+          "updatedAt": "2022-03-22T12:13:52Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs416mxs",
+          "commit": {
+            "abbreviatedOid": "66a1e0c"
+          },
+          "author": "sfluhrer",
+          "authorAssociation": "NONE",
+          "state": "APPROVED",
+          "body": "Looks good",
+          "createdAt": "2022-03-09T15:31:27Z",
+          "updatedAt": "2022-03-09T15:31:27Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDODroSBs42C92U",
+          "commit": {
+            "abbreviatedOid": "66a1e0c"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-03-11T04:17:52Z",
+          "updatedAt": "2022-03-11T04:20:23Z",
+          "comments": [
+            {
+              "originalPosition": 17,
+              "body": "I wonder if it would be more clear if we were to write each step in terms of explicit functions, and then show how they're called? \r\n\r\nFor example, these might be the functions:\r\n\r\n```\r\ndef ProverInit:\r\n   // Compute Prover key share\r\n   x <- [0, p-1]\r\n   X = x*P + w0*M\r\n   return (x, X)\r\n\r\ndef VerifierFinish(X):\r\n   if not_in_subgroup(X):\r\n      raise \"invalid input\"\r\n   \r\n   // Compute Verifier key share\r\n   y <- [0, p-1]\r\n   Y = y*P + w0*N\r\n   \r\n   // Compute shared values\r\n   Z = h*y*(X - w0*M)\r\n   V = h*y*L\r\n\r\n   return (Z, V)\r\n\r\ndef ProverFinish(x, Y):\r\n   if not_in_subgroup(Y):\r\n      raise \"invalid input\"\r\n\r\n   // Compute shared values\r\n   Z = h*x*(Y - w0*N)\r\n   V = h*w1*(Y - w0*N)\r\n\r\n   return (Y, Z, V)\r\n```\r\n\r\nAnd then this might be how we describe the protocol:\r\n\r\n```\r\nProver:\r\n   (x, X) = ProverInit()\r\n   Transmit(X)\r\n   Y = Receive()\r\n   (Z, V) = ProverFinish(x, Y)\r\n   // ... write how to use (Z, V)?\r\n\r\nVerifier:\r\n   X = Receive()\r\n   (Y, Z, V) = VerifierFinish(X)\r\n   Transmit(Y)\r\n   // ... write how to use (Z, V)?\r\n```\r\n\r\nAnd I might just include this in an appendix, [similar to RFC8446](https://datatracker.ietf.org/doc/html/rfc8446#appendix-A). What do you think?",
+              "createdAt": "2022-03-11T04:17:52Z",
+              "updatedAt": "2022-03-11T04:20:23Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
