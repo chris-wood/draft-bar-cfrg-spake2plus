@@ -313,8 +313,8 @@ In applications where identities are not implicit, idProver and idVerifier SHOUL
 non-empty. Otherwise, the protocol risks Unknown Key Share attacks (discussion
 of Unknown Key Share attacks in a specific protocol is given in {{?RFC8844}}).
 
-Upon completion of this protocol, both parties compute shared secrets K_auth,
-K_enc, K_confirmP, and K_confirmV as specified in {{keys}}. The verifier MUST send a key
+Upon completion of this protocol, both parties compute shared secrets K_main,
+K_shared, K_confirmP, and K_confirmV as specified in {{keys}}. The verifier MUST send a key
 confirmation message confirmV to the prover so both parties can confirm that they
 agree upon these shared secrets. After receipt and verification of the verifier's
 confirmation message, the prover MUST respond with its confirmation message.
@@ -356,9 +356,9 @@ confirmP = MAC(K_confirmP, shareV)
 confirmV = MAC(K_confirmV, shareP)
 ~~~
 
-Once key confirmation is complete, applications MAY use K_enc as an authenticated
+Once key confirmation is complete, applications MAY use K_shared as an authenticated
 shared secret as needed. For example, applications MAY derive one or more AEAD
-keys and nonces from K_enc for subsequent application data encryption.
+keys and nonces from K_shared for subsequent application data encryption.
 
 # Ciphersuites {#Ciphersuites}
 
