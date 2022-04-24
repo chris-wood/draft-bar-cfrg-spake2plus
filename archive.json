@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-03-24T00:17:54.582590+00:00",
+  "timestamp": "2022-04-24T00:20:03.679200+00:00",
   "repo": "chris-wood/draft-bar-cfrg-spake2plus",
   "labels": [
     {
@@ -476,6 +476,32 @@
           "body": "> The only other issue (which has been raised a number of times before) is the selection of a global M for a specific parameter set. While this is convenient, this also means that the protocol has a 'solve one discrete log problem, break the entire system globally' property that I cannot endorse.\r\n\r\nThis is an interesting point. I think we can address this by saying that implementations MAY generate M and N that meet the requirements, provided we list the requirements (DLOG is not known). We do this for M and N out of alignment with the security analysis, so I think we ought to keep this the same and not use the identity element for N. \r\n\r\n@ttaubert, what do you think? ",
           "createdAt": "2022-02-07T20:10:10Z",
           "updatedAt": "2022-02-07T20:10:10Z"
+        }
+      ]
+    },
+    {
+      "number": 31,
+      "id": "I_kwDODroSBs5IPer_",
+      "title": "how is K_enc produced?",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/issues/31",
+      "state": "OPEN",
+      "author": "Kxuan",
+      "authorAssociation": "NONE",
+      "assignees": [
+        "ttaubert"
+      ],
+      "labels": [],
+      "body": "The document says:\r\n\r\n> Once key confirmation is complete, applications MAY use K_enc as an authenticated shared secret as needed. For example, applications MAY derive one or more AEAD keys and nonces from K_enc for subsequent application data encryption.\r\n\r\nBut the document does not explicit says how to produce `K_enc`.",
+      "createdAt": "2022-04-22T08:33:36Z",
+      "updatedAt": "2022-04-23T16:42:48Z",
+      "closedAt": null,
+      "comments": [
+        {
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Thanks! Those `K_enc` references need to be removed indeed.",
+          "createdAt": "2022-04-23T16:42:48Z",
+          "updatedAt": "2022-04-23T16:42:48Z"
         }
       ]
     }
@@ -1825,6 +1851,34 @@
           ]
         }
       ]
+    },
+    {
+      "number": 32,
+      "id": "PR_kwDODroSBs42q_Ro",
+      "title": "remove references to old key names, fixes #31",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/32",
+      "state": "OPEN",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [
+        "ttaubert"
+      ],
+      "labels": [],
+      "body": "Remove `K_enc` and `K_auth` references.\r\n\r\ncc @chris-wood ",
+      "createdAt": "2022-04-23T16:45:57Z",
+      "updatedAt": "2022-04-23T16:46:04Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "2b9fedc239e8f00a17fb0501ce5476179427d755",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "remove-old-key-refs",
+      "headRefOid": "c449faa2cee3aa14ecd6802ea0b9945aa9c8cd6c",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
