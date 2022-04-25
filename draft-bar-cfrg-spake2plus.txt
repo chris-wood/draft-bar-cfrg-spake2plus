@@ -4,8 +4,8 @@
 
 Network Working Group                                         T. Taubert
 Internet-Draft                                                Apple Inc.
-Intended status: Informational                                 C.A. Wood
-Expires: 15 August 2022                                 11 February 2022
+Intended status: Informational                                C. A. Wood
+Expires: 27 October 2022                                   25 April 2022
 
 
                        SPAKE2+, an Augmented PAKE
@@ -47,7 +47,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 15 August 2022.
+   This Internet-Draft will expire on 27 October 2022.
 
 Copyright Notice
 
@@ -359,7 +359,7 @@ Table of Contents
    given in [RFC8844]).
 
    Upon completion of this protocol, both parties compute shared secrets
-   K_auth, K_enc, K_confirmP, and K_confirmV as specified in
+   K_main, K_shared, K_confirmP, and K_confirmV as specified in
    Section 3.4.  The verifier MUST send a key confirmation message
    confirmV to the prover so both parties can confirm that they agree
    upon these shared secrets.  After receipt and verification of the
@@ -403,10 +403,10 @@ Table of Contents
    confirmP = MAC(K_confirmP, shareV)
    confirmV = MAC(K_confirmV, shareP)
 
-   Once key confirmation is complete, applications MAY use K_enc as an
-   authenticated shared secret as needed.  For example, applications MAY
-   derive one or more AEAD keys and nonces from K_enc for subsequent
-   application data encryption.
+   Once key confirmation is complete, applications MAY use K_shared as
+   an authenticated shared secret as needed.  For example, applications
+   MAY derive one or more AEAD keys and nonces from K_shared for
+   subsequent application data encryption.
 
 4.  Ciphersuites
 
@@ -1159,10 +1159,8 @@ Authors' Addresses
    One Apple Park Way
    Cupertino, California 95014,
    United States of America
-
    Email: ttaubert@apple.com
 
 
    Christopher A. Wood
-
    Email: caw@heapingbits.net
