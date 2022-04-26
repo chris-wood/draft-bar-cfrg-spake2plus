@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-04-24T00:20:03.679200+00:00",
+  "timestamp": "2022-04-26T00:22:55.570519+00:00",
   "repo": "chris-wood/draft-bar-cfrg-spake2plus",
   "labels": [
     {
@@ -484,7 +484,7 @@
       "id": "I_kwDODroSBs5IPer_",
       "title": "how is K_enc produced?",
       "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/issues/31",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "Kxuan",
       "authorAssociation": "NONE",
       "assignees": [
@@ -493,8 +493,8 @@
       "labels": [],
       "body": "The document says:\r\n\r\n> Once key confirmation is complete, applications MAY use K_enc as an authenticated shared secret as needed. For example, applications MAY derive one or more AEAD keys and nonces from K_enc for subsequent application data encryption.\r\n\r\nBut the document does not explicit says how to produce `K_enc`.",
       "createdAt": "2022-04-22T08:33:36Z",
-      "updatedAt": "2022-04-23T16:42:48Z",
-      "closedAt": null,
+      "updatedAt": "2022-04-25T21:16:28Z",
+      "closedAt": "2022-04-25T21:16:28Z",
       "comments": [
         {
           "author": "ttaubert",
@@ -1857,7 +1857,7 @@
       "id": "PR_kwDODroSBs42q_Ro",
       "title": "remove references to old key names, fixes #31",
       "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/32",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "ttaubert",
       "authorAssociation": "COLLABORATOR",
       "assignees": [
@@ -1866,19 +1866,35 @@
       "labels": [],
       "body": "Remove `K_enc` and `K_auth` references.\r\n\r\ncc @chris-wood ",
       "createdAt": "2022-04-23T16:45:57Z",
-      "updatedAt": "2022-04-23T16:46:04Z",
+      "updatedAt": "2022-04-25T21:16:27Z",
       "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
       "baseRefName": "master",
       "baseRefOid": "2b9fedc239e8f00a17fb0501ce5476179427d755",
       "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
       "headRefName": "remove-old-key-refs",
       "headRefOid": "c449faa2cee3aa14ecd6802ea0b9945aa9c8cd6c",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2022-04-25T21:16:27Z",
+      "mergedAt": "2022-04-25T21:16:27Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "a6081120a1e2157ec8049fd5a7de1bd3866ade59"
+      },
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs44xWwx",
+          "commit": {
+            "abbreviatedOid": "c449faa"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "Great catch =)",
+          "createdAt": "2022-04-25T21:15:57Z",
+          "updatedAt": "2022-04-25T21:15:57Z",
+          "comments": []
+        }
+      ]
     }
   ]
 }
