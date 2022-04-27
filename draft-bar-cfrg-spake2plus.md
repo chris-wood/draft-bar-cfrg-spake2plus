@@ -75,7 +75,7 @@ The record cannot be used directly to successfully run the protocol as a prover,
 making this protocol more robust than balanced PAKEs which don't benefit from Password Hashing Functions to the same extent.
 
 This augmented property is especially valuable in scenarios where the execution of the protocol is constrained
-and the adversary cannot not query the salt of the password hash function ahead of the attack.
+and the adversary cannot query the salt of the password hash function ahead of the attack.
 Constraints may consist in being in physical proximity through a local network or
 when initiation of the protocol requires a first authentication factor.
 
