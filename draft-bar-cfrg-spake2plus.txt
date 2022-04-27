@@ -5,7 +5,7 @@
 Network Working Group                                         T. Taubert
 Internet-Draft                                                Apple Inc.
 Intended status: Informational                                C. A. Wood
-Expires: 27 October 2022                                   25 April 2022
+Expires: 29 October 2022                                   27 April 2022
 
 
                        SPAKE2+, an Augmented PAKE
@@ -47,7 +47,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 27 October 2022.
+   This Internet-Draft will expire on 29 October 2022.
 
 Copyright Notice
 
@@ -109,7 +109,7 @@ Table of Contents
    Functions to the same extent.
 
    This augmented property is especially valuable in scenarios where the
-   execution of the protocol is constrained and the adversary cannot not
+   execution of the protocol is constrained and the adversary cannot
    query the salt of the password hash function ahead of the attack.
    Constraints may consist in being in physical proximity through a
    local network or when initiation of the protocol requires a first
