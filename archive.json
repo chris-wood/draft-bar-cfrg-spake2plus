@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-04-26T00:22:55.570519+00:00",
+  "timestamp": "2022-04-28T00:29:07.189577+00:00",
   "repo": "chris-wood/draft-bar-cfrg-spake2plus",
   "labels": [
     {
@@ -1796,7 +1796,7 @@
       "labels": [],
       "body": "Improved pseudocode to clarify the protocol flow, as suggested by Scott Fluhrer.\r\n\r\ncc @chris-wood ",
       "createdAt": "2022-03-09T15:21:01Z",
-      "updatedAt": "2022-03-22T12:13:52Z",
+      "updatedAt": "2022-04-27T07:31:33Z",
       "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
       "baseRefName": "master",
       "baseRefOid": "2b9fedc239e8f00a17fb0501ce5476179427d755",
@@ -1849,6 +1849,26 @@
               "updatedAt": "2022-03-11T04:20:23Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDODroSBs4446aC",
+          "commit": {
+            "abbreviatedOid": "66a1e0c"
+          },
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-04-27T07:31:32Z",
+          "updatedAt": "2022-04-27T07:31:33Z",
+          "comments": [
+            {
+              "originalPosition": 17,
+              "body": "I implemented this as a separate PR, #33, so we have both versions to look at.",
+              "createdAt": "2022-04-27T07:31:32Z",
+              "updatedAt": "2022-04-27T07:31:33Z"
+            }
+          ]
         }
       ]
     },
@@ -1866,7 +1886,7 @@
       "labels": [],
       "body": "Remove `K_enc` and `K_auth` references.\r\n\r\ncc @chris-wood ",
       "createdAt": "2022-04-23T16:45:57Z",
-      "updatedAt": "2022-04-25T21:16:27Z",
+      "updatedAt": "2022-04-27T07:10:03Z",
       "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
       "baseRefName": "master",
       "baseRefOid": "2b9fedc239e8f00a17fb0501ce5476179427d755",
@@ -1892,6 +1912,212 @@
           "body": "Great catch =)",
           "createdAt": "2022-04-25T21:15:57Z",
           "updatedAt": "2022-04-25T21:15:57Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 33,
+      "id": "PR_kwDODroSBs422i_7",
+      "title": "add pseudocode for protocol flow to appendix",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/33",
+      "state": "OPEN",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [
+        "ttaubert"
+      ],
+      "labels": [],
+      "body": "Alternative to #30, moving the whole pseudocode protocol flow description to the appendix.\r\n\r\nShould we reference this somewhere?\r\n\r\ncc @chris-wood ",
+      "createdAt": "2022-04-27T07:30:55Z",
+      "updatedAt": "2022-04-27T15:15:22Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "a6081120a1e2157ec8049fd5a7de1bd3866ade59",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "pseudocode-2",
+      "headRefOid": "b29ab2853c6c3549739ea713a68f3fa5daacd05f",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs447Qcn",
+          "commit": {
+            "abbreviatedOid": "b29ab28"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-04-27T14:57:55Z",
+          "updatedAt": "2022-04-27T14:57:55Z",
+          "comments": [
+            {
+              "originalPosition": 49,
+              "body": "```suggestion\r\nA full SPAKE2+ protocol run initiated by the prover will look as follows,\r\nwhere Transmit and Receive are shorthand for sending and receiving\r\na message to the peer:\r\n```",
+              "createdAt": "2022-04-27T14:57:55Z",
+              "updatedAt": "2022-04-27T14:57:55Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs447Uv3",
+          "commit": {
+            "abbreviatedOid": "b29ab28"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-04-27T15:08:38Z",
+          "updatedAt": "2022-04-27T15:08:40Z",
+          "comments": [
+            {
+              "originalPosition": 46,
+              "body": "```suggestion\r\n## Transcript Computation\r\n\r\ndef ComputeTranscript(Context, idProver, idVerifier, M, N, shareP, shareV, Z, V, w0):\r\n   TT = len(Context) || Context\r\n      || len(idProver) || idProver\r\n      || len(idVerifier) || idVerifier\r\n      || len(M) || M\r\n      || len(N) || N\r\n      || len(shareP) || shareP\r\n      || len(shareV) || shareV\r\n      || len(Z) || Z\r\n      || len(V) || V\r\n      || len(w0) || w0\r\n\r\n## Key Schedule Computation\r\n\r\ndef ComputeKeySchedule(TT):\r\n   K_main = Hash(TT)\r\n   K_confirmP || K_confirmV = KDF(nil, K_main, \"ConfirmationKeys\")\r\n   K_shared = KDF(nil, K_main, \"SharedKey\")\r\n   return K_confirmP, K_confirmV, K_shared\r\n```",
+              "createdAt": "2022-04-27T15:08:39Z",
+              "updatedAt": "2022-04-27T15:08:40Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs447U5A",
+          "commit": {
+            "abbreviatedOid": "b29ab28"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-04-27T15:09:01Z",
+          "updatedAt": "2022-04-27T15:09:01Z",
+          "comments": [
+            {
+              "originalPosition": 52,
+              "body": "```suggestion\r\nProver(Context, idProver, idVerifier, w0):\r\n```",
+              "createdAt": "2022-04-27T15:09:01Z",
+              "updatedAt": "2022-04-27T15:09:01Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs447WQf",
+          "commit": {
+            "abbreviatedOid": "b29ab28"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-04-27T15:12:36Z",
+          "updatedAt": "2022-04-27T15:12:37Z",
+          "comments": [
+            {
+              "originalPosition": 56,
+              "body": "```suggestion\r\n   (Z, V) = ProverFinish(x, Y)\r\n   TT = ComputeTranscript(Context, idProver, idVerifier, M, N, X, Y, Z, V, w0)\r\n   K_confirmP, K_confirmV, K_shared = ComputeKeySchedule(TT)\r\n   expected_confirmV = MAC(K_confirmV, X)\r\n   confirmV = Receive()\r\n   if not_equal_constant_time(expected_confirmV, confirmV):\r\n      raise \"invalid confirmation message\"\r\n   \r\n   confirmP = MAC(K_confirmP, Y)\r\n   Transmit(confirmP)\r\n   \r\n   return K_shared\r\n```",
+              "createdAt": "2022-04-27T15:12:37Z",
+              "updatedAt": "2022-04-27T15:14:13Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs447WtQ",
+          "commit": {
+            "abbreviatedOid": "b29ab28"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-04-27T15:13:46Z",
+          "updatedAt": "2022-04-27T15:13:47Z",
+          "comments": [
+            {
+              "originalPosition": 61,
+              "body": "```suggestion\r\n   Transmit(Y)\r\n   TT = ComputeTranscript(Context, idProver, idVerifier, M, N, X, Y, Z, V, w0)\r\n   K_confirmP, K_confirmV, K_shared = ComputeKeySchedule(TT)\r\n   confirmV = MAC(K_confirmV, X)\r\n   Transmit(confirmV)\r\n   \r\n   expected_confirmP = MAC(K_confirmP, Y)\r\n   confirmP = Receive()\r\n   if not_equal_constant_time(expected_confirmP, confirmP):\r\n      raise \"invalid confirmation message\"\r\n   \r\n   return K_shared\r\n```",
+              "createdAt": "2022-04-27T15:13:46Z",
+              "updatedAt": "2022-04-27T15:14:06Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs447XMY",
+          "commit": {
+            "abbreviatedOid": "b29ab28"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "I left some suggestions that fill out the entire protocol, including transcript computation and confirmation. It's a lot more words, and I'm not sure if it's helpful, but if we're going to given pseudocode it seems useful to be complete?",
+          "createdAt": "2022-04-27T15:14:59Z",
+          "updatedAt": "2022-04-27T15:14:59Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDODroSBs447XV6",
+          "commit": {
+            "abbreviatedOid": "b29ab28"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-04-27T15:15:22Z",
+          "updatedAt": "2022-04-27T15:15:22Z",
+          "comments": [
+            {
+              "originalPosition": 58,
+              "body": "```suggestion\r\nVerifier(Context, idProver, idVerifier, w0):\r\n```",
+              "createdAt": "2022-04-27T15:15:22Z",
+              "updatedAt": "2022-04-27T15:15:22Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 34,
+      "id": "PR_kwDODroSBs422lzk",
+      "title": "fix double negation",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/34",
+      "state": "MERGED",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [
+        "ttaubert"
+      ],
+      "labels": [],
+      "body": "",
+      "createdAt": "2022-04-27T07:41:54Z",
+      "updatedAt": "2022-04-27T14:56:44Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "a6081120a1e2157ec8049fd5a7de1bd3866ade59",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "fix-cannot",
+      "headRefOid": "fd71c529a11b801cf9cf45cc1ab0908df559dd24",
+      "closedAt": "2022-04-27T14:56:44Z",
+      "mergedAt": "2022-04-27T14:56:44Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "f6627079b0a1d2377849a914649e1536baec0e99"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs447P75",
+          "commit": {
+            "abbreviatedOid": "fd71c52"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-04-27T14:56:39Z",
+          "updatedAt": "2022-04-27T14:56:39Z",
           "comments": []
         }
       ]
