@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-04-28T00:29:07.189577+00:00",
+  "timestamp": "2022-05-01T00:27:23.342595+00:00",
   "repo": "chris-wood/draft-bar-cfrg-spake2plus",
   "labels": [
     {
@@ -1930,18 +1930,26 @@
       "labels": [],
       "body": "Alternative to #30, moving the whole pseudocode protocol flow description to the appendix.\r\n\r\nShould we reference this somewhere?\r\n\r\ncc @chris-wood ",
       "createdAt": "2022-04-27T07:30:55Z",
-      "updatedAt": "2022-04-27T15:15:22Z",
+      "updatedAt": "2022-04-28T07:10:39Z",
       "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
       "baseRefName": "master",
-      "baseRefOid": "a6081120a1e2157ec8049fd5a7de1bd3866ade59",
+      "baseRefOid": "f6627079b0a1d2377849a914649e1536baec0e99",
       "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
       "headRefName": "pseudocode-2",
-      "headRefOid": "b29ab2853c6c3549739ea713a68f3fa5daacd05f",
+      "headRefOid": "d62ba993221650b3dbc8c8a9d530dab4a26b51d8",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
-      "comments": [],
+      "comments": [
+        {
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "body": "I was considering too whether to include the whole flow... seems like a good idea! I've cleaned it up a bit, added a few parameters and removed the ones defined by the ciphersuite.",
+          "createdAt": "2022-04-28T07:10:39Z",
+          "updatedAt": "2022-04-28T07:10:39Z"
+        }
+      ],
       "reviews": [
         {
           "id": "PRR_kwDODroSBs447Qcn",
@@ -2092,7 +2100,7 @@
       "labels": [],
       "body": "",
       "createdAt": "2022-04-27T07:41:54Z",
-      "updatedAt": "2022-04-27T14:56:44Z",
+      "updatedAt": "2022-04-28T06:44:33Z",
       "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
       "baseRefName": "master",
       "baseRefOid": "a6081120a1e2157ec8049fd5a7de1bd3866ade59",
