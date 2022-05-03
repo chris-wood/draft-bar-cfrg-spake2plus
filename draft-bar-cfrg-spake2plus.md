@@ -491,6 +491,9 @@ P, p, and h are defined by the chosen ciphersuite.
 
 ## Prover
 
+The Prover's behavior consists of two functions, ProverInit and ProverFinish, which
+are described below.
+
 ~~~
 def ProverInit(w0):
    // Compute prover key share
