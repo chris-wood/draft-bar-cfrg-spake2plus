@@ -483,6 +483,128 @@ Thanks to Ben Kaduk and Watson Ladd, from which this specification originally em
 
 --- back
 
+# Protocol Flow {#flow}
+
+This section describes the flow of the SPAKE2+ protocol, including computations
+and mandatory checks performed by the prover and verifier. The constants M, N,
+P, p, and h are defined by the chosen ciphersuite.
+
+## Prover
+
+The Prover's behavior consists of two functions, ProverInit and ProverFinish, which
+are described below.
+
+~~~
+def ProverInit(w0):
+   // Compute prover key share
+   x <- [0, p-1]
+   X = x*P + w0*M
+   return (x, X)
+
+def ProverFinish(w0, w1, x, Y):
+   if not_in_subgroup(Y):
+      raise "invalid input"
+
+   // Compute shared values
+   Z = h*x*(Y - w0*N)
+   V = h*w1*(Y - w0*N)
+
+   return (Y, Z, V)
+~~~
+
+## Verifier
+
+The Verifier's behavior consists of a single function, VerifierFinish, which
+is described below.
+
+~~~
+def VerifierFinish(w0, L, X):
+   if not_in_subgroup(X):
+      raise "invalid input"
+
+   // Compute verifier key share
+   y <- [0, p-1]
+   Y = y*P + w0*N
+
+   // Compute shared values
+   Z = h*y*(X - w0*M)
+   V = h*y*L
+
+   return (Z, V)
+~~~
+
+## Transcript Computation
+
+Both Prover and Verifier share the same function to compute the protocol
+transcript, ComputeTranscript, which is described below.
+
+~~~
+def ComputeTranscript(Context, idProver, idVerifier, shareP, shareV, Z, V, w0):
+   TT = len(Context) || Context
+     || len(idProver) || idProver
+     || len(idVerifier) || idVerifier
+     || len(M) || M
+     || len(N) || N
+     || len(shareP) || shareP
+     || len(shareV) || shareV
+     || len(Z) || Z
+     || len(V) || V
+     || len(w0) || w0
+~~~
+
+## Key Schedule Computation
+Both Prover and Verifier share the same function to compute
+the key schedule, ComputeKeySchedule, which is described below.
+
+~~~
+def ComputeKeySchedule(TT):
+   K_main = Hash(TT)
+   K_confirmP || K_confirmV = KDF(nil, K_main, "ConfirmationKeys")
+   K_shared = KDF(nil, K_main, "SharedKey")
+   return K_confirmP, K_confirmV, K_shared
+~~~
+
+## Protocol Run
+
+A full SPAKE2+ protocol run initiated by the prover will look as follows,
+where Transmit and Receive are shorthand for sending and receiving
+a message to the peer:
+
+~~~
+Prover(Context, idProver, idVerifier, w0, w1):
+   (x, X) = ProverInit(w0)
+   Transmit(X)
+   Y = Receive()
+   (Z, V) = ProverFinish(w0, w1, x, Y)
+   TT = ComputeTranscript(Context, idProver, idVerifier, X, Y, Z, V, w0)
+   (K_confirmP, K_confirmV, K_shared) = ComputeKeySchedule(TT)
+   expected_confirmV = MAC(K_confirmV, X)
+   confirmV = Receive()
+   if not_equal_constant_time(expected_confirmV, confirmV):
+      raise "invalid confirmation message"
+
+   confirmP = MAC(K_confirmP, Y)
+   Transmit(confirmP)
+
+   return K_shared
+
+Verifier(Context, idProver, idVerifier, w0, L):
+   X = Receive()
+   (Y, Z, V) = VerifierFinish(w0, L, X)
+   Transmit(Y)
+   TT = ComputeTranscript(Context, idProver, idVerifier, X, Y, Z, V, w0)
+   (K_confirmP, K_confirmV, K_shared) = ComputeKeySchedule(TT)
+   confirmV = MAC(K_confirmV, X)
+   Transmit(confirmV)
+
+   expected_confirmP = MAC(K_confirmP, Y)
+   confirmP = Receive()
+   if not_equal_constant_time(expected_confirmP, confirmP):
+      raise "invalid confirmation message"
+
+   return K_shared
+~~~
+
 # Algorithm used for Point Generation {#pointgen}
 
 This section describes the algorithm that was used to generate
