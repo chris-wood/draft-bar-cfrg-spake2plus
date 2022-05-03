@@ -529,6 +529,9 @@ def VerifierFinish(w0, L, X):
 
 ## Transcript Computation
 
+Both Prover and Verifier share the same function to compute the protocol
+transcript, ComputeTranscript, which is described below.
+
 ~~~
 def ComputeTranscript(Context, idProver, idVerifier, shareP, shareV, Z, V, w0):
    TT = len(Context) || Context
