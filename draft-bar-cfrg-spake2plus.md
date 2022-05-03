@@ -511,6 +511,9 @@ def ProverFinish(w0, w1, x, Y):
 
 ## Verifier
 
+The Verifier's behavior consists of a single function, VerifierFinish, which
+is described below.
+
 ~~~
 def VerifierFinish(w0, L, X):
    if not_in_subgroup(X):
