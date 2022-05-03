@@ -16,11 +16,11 @@ This method is simple to implement, compatible with any prime order group and is
 Publication of this document as an RFC in the Independent Submissions Stream does not imply endorsement
 of SPAKE2+ by the IETF or IRTF. 
     " name="description">
-<meta content="xml2rfc 3.12.4" name="generator">
+<meta content="xml2rfc 3.12.5" name="generator">
 <meta content="Internet-Draft" name="keyword">
 <meta content="draft-bar-cfrg-spake2plus-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.12.4
+  xml2rfc 3.12.5
     Python 3.9.7
     appdirs 1.4.4
     ConfigArgParse 1.3
@@ -1020,11 +1020,11 @@ svg [stroke="fill"], svg [fill^="#fff"] {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">spake2plus</td>
-<td class="right">April 2022</td>
+<td class="right">May 2022</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Taubert &amp; Wood</td>
-<td class="center">Expires 29 October 2022</td>
+<td class="center">Expires 4 November 2022</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1037,12 +1037,12 @@ svg [stroke="fill"], svg [fill^="#fff"] {
 <dd class="internet-draft">draft-bar-cfrg-spake2plus-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2022-04-27" class="published">27 April 2022</time>
+<time datetime="2022-05-03" class="published">3 May 2022</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2022-10-29">29 October 2022</time></dd>
+<dd class="expires"><time datetime="2022-11-04">4 November 2022</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1093,7 +1093,7 @@ of SPAKE2+ by the IETF or IRTF.<a href="#section-abstract-2" class="pilcrow">¶<
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 29 October 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 4 November 2022.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1169,13 +1169,33 @@ of SPAKE2+ by the IETF or IRTF.<a href="#section-abstract-2" class="pilcrow">¶<
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
-            <p id="section-toc.1-1.9.1"><a href="#appendix-A" class="xref">Appendix A</a>.  <a href="#name-algorithm-used-for-point-ge" class="xref">Algorithm used for Point Generation</a></p>
+            <p id="section-toc.1-1.9.1"><a href="#appendix-A" class="xref">Appendix A</a>.  <a href="#name-protocol-flow" class="xref">Protocol Flow</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
+                <p id="section-toc.1-1.9.2.1.1"><a href="#appendix-A.1" class="xref">A.1</a>.  <a href="#name-prover" class="xref">Prover</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
+                <p id="section-toc.1-1.9.2.2.1"><a href="#appendix-A.2" class="xref">A.2</a>.  <a href="#name-verifier" class="xref">Verifier</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.3">
+                <p id="section-toc.1-1.9.2.3.1"><a href="#appendix-A.3" class="xref">A.3</a>.  <a href="#name-transcript-computation" class="xref">Transcript Computation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.4">
+                <p id="section-toc.1-1.9.2.4.1"><a href="#appendix-A.4" class="xref">A.4</a>.  <a href="#name-key-schedule-computation" class="xref">Key Schedule Computation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.5">
+                <p id="section-toc.1-1.9.2.5.1"><a href="#appendix-A.5" class="xref">A.5</a>.  <a href="#name-protocol-run" class="xref">Protocol Run</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
-            <p id="section-toc.1-1.10.1"><a href="#appendix-B" class="xref">Appendix B</a>.  <a href="#name-test-vectors" class="xref">Test Vectors</a></p>
+            <p id="section-toc.1-1.10.1"><a href="#appendix-B" class="xref">Appendix B</a>.  <a href="#name-algorithm-used-for-point-ge" class="xref">Algorithm used for Point Generation</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
-            <p id="section-toc.1-1.11.1"><a href="#appendix-C" class="xref"></a><a href="#name-authors-addresses" class="xref">Authors' Addresses</a></p>
+            <p id="section-toc.1-1.11.1"><a href="#appendix-C" class="xref">Appendix C</a>.  <a href="#name-test-vectors" class="xref">Test Vectors</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#appendix-D" class="xref"></a><a href="#name-authors-addresses" class="xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -1323,11 +1343,11 @@ SHOULD derive w0 and w1 from the password before the protocol begins. Both w0 an
 w1 are derived using a function with range [0, p-1], which is modeled as a random
 oracle in <span>[<a href="#SPAKE2P-Analysis" class="xref">SPAKE2P-Analysis</a>]</span>.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
 <p id="section-3.2-2">The registration phase also produces two random elements M and N in the prime-order
-subgroup of G. The algorithm for selecting M and N is defined in <a href="#pointgen" class="xref">Appendix A</a>.
+subgroup of G. The algorithm for selecting M and N is defined in <a href="#pointgen" class="xref">Appendix B</a>.
 Importantly, this algorithm chooses M and N such that their discrete logs are not
 known. Pre-computed values for M and N are listed in <a href="#Ciphersuites" class="xref">Section 4</a> for each
 group. Applications MAY use different M and N values provided they are computed,
-e.g., using different input seeds to the algorithm in <a href="#pointgen" class="xref">Appendix A</a>, as random elements
+e.g., using different input seeds to the algorithm in <a href="#pointgen" class="xref">Appendix B</a>, as random elements
 for which the discrete log is unknown.<a href="#section-3.2-2" class="pilcrow">¶</a></p>
 <p id="section-3.2-3">Applications using this specification MUST define the method used to compute w0 and w1.
 For example, it may be necessary to carry out various forms of normalization of the
@@ -1602,7 +1622,7 @@ identifier.<a href="#section-4-2" class="pilcrow">¶</a></p>
         </tbody>
       </table>
 <p id="section-4-4">The following points represent permissible point generation seeds for the groups listed
-in Table 1, using the algorithm presented in <a href="#pointgen" class="xref">Appendix A</a>. These bytestrings are
+in Table 1, using the algorithm presented in <a href="#pointgen" class="xref">Appendix B</a>. These bytestrings are
 compressed points as in <span>[<a href="#SEC1" class="xref">SEC1</a>]</span> for curves from <span>[<a href="#SEC1" class="xref">SEC1</a>]</span> and <span>[<a href="#RFC8032" class="xref">RFC8032</a>]</span>. Note that
 these values are identical to those used in the companion SPAKE2 specification <span>[<a href="#I-D.irtf-cfrg-spake2" class="xref">I-D.irtf-cfrg-spake2</a>]</span>.<a href="#section-4-4" class="pilcrow">¶</a></p>
 <p id="section-4-5">For P256:<a href="#section-4-5" class="pilcrow">¶</a></p>
@@ -1790,18 +1810,170 @@ confinement attacks.<a href="#section-6-3" class="pilcrow">¶</a></p>
 </dl>
 </section>
 </section>
-<div id="pointgen">
+<div id="flow">
 <section id="appendix-A">
-      <h2 id="name-algorithm-used-for-point-ge">
-<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-algorithm-used-for-point-ge" class="section-name selfRef">Algorithm used for Point Generation</a>
+      <h2 id="name-protocol-flow">
+<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-protocol-flow" class="section-name selfRef">Protocol Flow</a>
       </h2>
-<p id="appendix-A-1">This section describes the algorithm that was used to generate
+<p id="appendix-A-1">This section describes the flow of the SPAKE2+ protocol, including computations
+and mandatory checks performed by the prover and verifier. The constants M, N,
+P, p, and h are defined by the chosen ciphersuite.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<div id="prover">
+<section id="appendix-A.1">
+        <h3 id="name-prover">
+<a href="#appendix-A.1" class="section-number selfRef">A.1. </a><a href="#name-prover" class="section-name selfRef">Prover</a>
+        </h3>
+<p id="appendix-A.1-1">The Prover's behavior consists of two functions, ProverInit and ProverFinish, which
+are described below.<a href="#appendix-A.1-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-A.1-2">
+<pre>
+def ProverInit(w0):
+   // Compute prover key share
+   x &lt;- [0, p-1]
+   X = x*P + w0*M
+   return (x, X)
+
+def ProverFinish(w0, w1, x, Y):
+   if not_in_subgroup(Y):
+      raise "invalid input"
+
+   // Compute shared values
+   Z = h*x*(Y - w0*N)
+   V = h*w1*(Y - w0*N)
+
+   return (Y, Z, V)
+</pre><a href="#appendix-A.1-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="verifier">
+<section id="appendix-A.2">
+        <h3 id="name-verifier">
+<a href="#appendix-A.2" class="section-number selfRef">A.2. </a><a href="#name-verifier" class="section-name selfRef">Verifier</a>
+        </h3>
+<p id="appendix-A.2-1">The Verifier's behavior consists of a single function, VerifierFinish, which
+is described below.<a href="#appendix-A.2-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-A.2-2">
+<pre>
+def VerifierFinish(w0, L, X):
+   if not_in_subgroup(X):
+      raise "invalid input"
+
+   // Compute verifier key share
+   y &lt;- [0, p-1]
+   Y = y*P + w0*N
+
+   // Compute shared values
+   Z = h*y*(X - w0*M)
+   V = h*y*L
+
+   return (Z, V)
+</pre><a href="#appendix-A.2-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="transcript-computation">
+<section id="appendix-A.3">
+        <h3 id="name-transcript-computation">
+<a href="#appendix-A.3" class="section-number selfRef">A.3. </a><a href="#name-transcript-computation" class="section-name selfRef">Transcript Computation</a>
+        </h3>
+<p id="appendix-A.3-1">Both Prover and Verifier share the same function to compute the protocol
+transcript, ComputeTranscript, which is described below.<a href="#appendix-A.3-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-A.3-2">
+<pre>
+def ComputeTranscript(Context, idProver, idVerifier, shareP, shareV, Z, V, w0):
+   TT = len(Context) || Context
+     || len(idProver) || idProver
+     || len(idVerifier) || idVerifier
+     || len(M) || M
+     || len(N) || N
+     || len(shareP) || shareP
+     || len(shareV) || shareV
+     || len(Z) || Z
+     || len(V) || V
+     || len(w0) || w0
+</pre><a href="#appendix-A.3-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="key-schedule-computation">
+<section id="appendix-A.4">
+        <h3 id="name-key-schedule-computation">
+<a href="#appendix-A.4" class="section-number selfRef">A.4. </a><a href="#name-key-schedule-computation" class="section-name selfRef">Key Schedule Computation</a>
+        </h3>
+<p id="appendix-A.4-1">Both Prover and Verifier share the same function to compute
+the key schedule, ComputeKeySchedule, which is described below.<a href="#appendix-A.4-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-A.4-2">
+<pre>
+def ComputeKeySchedule(TT):
+   K_main = Hash(TT)
+   K_confirmP || K_confirmV = KDF(nil, K_main, "ConfirmationKeys")
+   K_shared = KDF(nil, K_main, "SharedKey")
+   return K_confirmP, K_confirmV, K_shared
+</pre><a href="#appendix-A.4-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="protocol-run">
+<section id="appendix-A.5">
+        <h3 id="name-protocol-run">
+<a href="#appendix-A.5" class="section-number selfRef">A.5. </a><a href="#name-protocol-run" class="section-name selfRef">Protocol Run</a>
+        </h3>
+<p id="appendix-A.5-1">A full SPAKE2+ protocol run initiated by the prover will look as follows,
+where Transmit and Receive are shorthand for sending and receiving
+a message to the peer:<a href="#appendix-A.5-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-A.5-2">
+<pre>
+Prover(Context, idProver, idVerifier, w0, w1):
+   (x, X) = ProverInit(w0)
+   Transmit(X)
+   Y = Receive()
+   (Z, V) = ProverFinish(w0, w1, x, Y)
+   TT = ComputeTranscript(Context, idProver, idVerifier, X, Y, Z, V, w0)
+   (K_confirmP, K_confirmV, K_shared) = ComputeKeySchedule(TT)
+   expected_confirmV = MAC(K_confirmV, X)
+   confirmV = Receive()
+   if not_equal_constant_time(expected_confirmV, confirmV):
+      raise "invalid confirmation message"
+
+   confirmP = MAC(K_confirmP, Y)
+   Transmit(confirmP)
+
+   return K_shared
+
+Verifier(Context, idProver, idVerifier, w0, L):
+   X = Receive()
+   (Y, Z, V) = VerifierFinish(w0, L, X)
+   Transmit(Y)
+   TT = ComputeTranscript(Context, idProver, idVerifier, X, Y, Z, V, w0)
+   (K_confirmP, K_confirmV, K_shared) = ComputeKeySchedule(TT)
+   confirmV = MAC(K_confirmV, X)
+   Transmit(confirmV)
+
+   expected_confirmP = MAC(K_confirmP, Y)
+   confirmP = Receive()
+   if not_equal_constant_time(expected_confirmP, confirmP):
+      raise "invalid confirmation message"
+
+   return K_shared
+</pre><a href="#appendix-A.5-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="pointgen">
+<section id="appendix-B">
+      <h2 id="name-algorithm-used-for-point-ge">
+<a href="#appendix-B" class="section-number selfRef">Appendix B. </a><a href="#name-algorithm-used-for-point-ge" class="section-name selfRef">Algorithm used for Point Generation</a>
+      </h2>
+<p id="appendix-B-1">This section describes the algorithm that was used to generate
 the points M and N in the table in <a href="#Ciphersuites" class="xref">Section 4</a>. This algorithm
 produces M and N such that they are indistinguishable from two random
 points in the prime-order subgroup of G, where the discrete log
 of these points is unknown. See <span>[<a href="#SPAKE2P-Analysis" class="xref">SPAKE2P-Analysis</a>]</span> for additional
-details on this requirement.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
-<p id="appendix-A-2">For each curve in the table below, we construct a string
+details on this requirement.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
+<p id="appendix-B-2">For each curve in the table below, we construct a string
 using the curve OID from <span>[<a href="#RFC5480" class="xref">RFC5480</a>]</span> (as an ASCII
 string) or its name,
 combined with the needed constant, for instance "1.3.132.0.35
@@ -1809,8 +1981,8 @@ point generation seed (M)" for P-512.  This string is turned
 into a series of blocks by hashing with SHA256, and hashing that
 output again to generate the next 32 bytes, and so on.  This
 pattern is repeated for each group and value, with the string
-modified appropriately.<a href="#appendix-A-2" class="pilcrow">¶</a></p>
-<p id="appendix-A-3">A byte string of length equal to that of an encoded group
+modified appropriately.<a href="#appendix-B-2" class="pilcrow">¶</a></p>
+<p id="appendix-B-3">A byte string of length equal to that of an encoded group
 element is constructed by concatenating as many blocks as are
 required, starting from the first block, and truncating to the
 desired length.  The byte string is then formatted as required
@@ -1835,12 +2007,12 @@ from the remaining hash blocks. The procedure of constructing a
 byte string of the appropriate length, formatting it as
 required for the curve, and checking if it is a valid point of the correct
 order, is repeated
-until a valid element is found.<a href="#appendix-A-3" class="pilcrow">¶</a></p>
-<p id="appendix-A-4">The following python snippet generates the above points,
+until a valid element is found.<a href="#appendix-B-3" class="pilcrow">¶</a></p>
+<p id="appendix-B-4">The following python snippet generates the above points,
 assuming an elliptic curve implementation following the
 interface of Edwards25519Point.stdbase() and
-Edwards448Point.stdbase() in Appendix A of <span>[<a href="#RFC8032" class="xref">RFC8032</a>]</span>:<a href="#appendix-A-4" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="appendix-A-5">
+Edwards448Point.stdbase() in Appendix A of <span>[<a href="#RFC8032" class="xref">RFC8032</a>]</span>:<a href="#appendix-B-4" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-B-5">
 <pre>
 def iterated_hash(seed, n):
   h = seed
@@ -1871,21 +2043,21 @@ def gen_point(seed, ecname, ec):
         return pointstr, i
     except Exception:
       pass
-</pre><a href="#appendix-A-5" class="pilcrow">¶</a>
+</pre><a href="#appendix-B-5" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
 <div id="testvectors">
-<section id="appendix-B">
+<section id="appendix-C">
       <h2 id="name-test-vectors">
-<a href="#appendix-B" class="section-number selfRef">Appendix B. </a><a href="#name-test-vectors" class="section-name selfRef">Test Vectors</a>
+<a href="#appendix-C" class="section-number selfRef">Appendix C. </a><a href="#name-test-vectors" class="section-name selfRef">Test Vectors</a>
       </h2>
-<p id="appendix-B-1">This section contains various test vectors for SPAKE2+.
+<p id="appendix-C-1">This section contains various test vectors for SPAKE2+.
 (Choice of PBKDF is omitted and values for w0 and w1 are provided directly.)
 All points are encoded using the uncompressed format, i.e., with a 0x04 octet
 prefix, specified in <span>[<a href="#SEC1" class="xref">SEC1</a>]</span>. idProver and idVerifier identity strings
-are provided in the protocol invocation.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="appendix-B-2">
+are provided in the protocol invocation.<a href="#appendix-C-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="appendix-C-2">
 <pre>
 [Context=b'SPAKE2+-P256-SHA256-HKDF-SHA256-HMAC-SHA256 Test Vectors
 ']
@@ -2325,12 +2497,12 @@ CMAC(K_confirmV, shareP) = 0xde076589efcd5d96c2ea6061d96772d9
 K_shared = 0x488a34663d6be5e02590bb8e9ad9ad3e0f580dec41e8b99ed4ae4b7
 34da49287638cac4c9f17fe3c3ae18dda0d6d7f14c17e4640d5a2aaab959efa0cbea
 4e546
-</pre><a href="#appendix-B-2" class="pilcrow">¶</a>
+</pre><a href="#appendix-C-2" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
 <div id="authors-addresses">
-<section id="appendix-C">
+<section id="appendix-D">
       <h2 id="name-authors-addresses">
 <a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
       </h2>
