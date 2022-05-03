@@ -544,6 +544,8 @@ def ComputeTranscript(Context, idProver, idVerifier, shareP, shareV, Z, V, w0):
 ~~~
 
 ## Key Schedule Computation
+Both Prover and Verifier share the same function to compute
+the key schedule, ComputeKeySchedule, which is described below.
 
 ~~~
 def ComputeKeySchedule(TT):
