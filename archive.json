@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-05-01T00:27:23.342595+00:00",
+  "timestamp": "2022-05-05T00:23:21.996428+00:00",
   "repo": "chris-wood/draft-bar-cfrg-spake2plus",
   "labels": [
     {
@@ -1787,7 +1787,7 @@
       "id": "PR_kwDODroSBs40LgPn",
       "title": "better pseudocode to clarify protocol flow",
       "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/30",
-      "state": "OPEN",
+      "state": "CLOSED",
       "author": "ttaubert",
       "authorAssociation": "COLLABORATOR",
       "assignees": [
@@ -1796,14 +1796,14 @@
       "labels": [],
       "body": "Improved pseudocode to clarify the protocol flow, as suggested by Scott Fluhrer.\r\n\r\ncc @chris-wood ",
       "createdAt": "2022-03-09T15:21:01Z",
-      "updatedAt": "2022-04-27T07:31:33Z",
+      "updatedAt": "2022-05-04T11:56:05Z",
       "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
       "baseRefName": "master",
       "baseRefOid": "2b9fedc239e8f00a17fb0501ce5476179427d755",
       "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
       "headRefName": "scott-pseudocode",
       "headRefOid": "66a1e0c271678be580f3acd80614074662ff103f",
-      "closedAt": null,
+      "closedAt": "2022-05-04T11:55:58Z",
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
@@ -1814,6 +1814,13 @@
           "body": "ping @ttaubert: thoughts? :) ",
           "createdAt": "2022-03-22T12:13:52Z",
           "updatedAt": "2022-03-22T12:13:52Z"
+        },
+        {
+          "author": "ttaubert",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Closing, this has been addressed by #33.",
+          "createdAt": "2022-05-04T11:55:58Z",
+          "updatedAt": "2022-05-04T11:55:58Z"
         }
       ],
       "reviews": [
@@ -1921,7 +1928,7 @@
       "id": "PR_kwDODroSBs422i_7",
       "title": "add pseudocode for protocol flow to appendix",
       "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/33",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "ttaubert",
       "authorAssociation": "COLLABORATOR",
       "assignees": [
@@ -1930,17 +1937,19 @@
       "labels": [],
       "body": "Alternative to #30, moving the whole pseudocode protocol flow description to the appendix.\r\n\r\nShould we reference this somewhere?\r\n\r\ncc @chris-wood ",
       "createdAt": "2022-04-27T07:30:55Z",
-      "updatedAt": "2022-04-28T07:10:39Z",
+      "updatedAt": "2022-05-03T14:54:34Z",
       "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
       "baseRefName": "master",
       "baseRefOid": "f6627079b0a1d2377849a914649e1536baec0e99",
       "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
       "headRefName": "pseudocode-2",
-      "headRefOid": "d62ba993221650b3dbc8c8a9d530dab4a26b51d8",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "80ded998dc422ff01307ea5f18e3d25bf4e6a13e",
+      "closedAt": "2022-05-03T14:54:34Z",
+      "mergedAt": "2022-05-03T14:54:34Z",
+      "mergedBy": "chris-wood",
+      "mergeCommit": {
+        "oid": "89c162b4c28e33d9c188f338b7c6c9efa21f0660"
+      },
       "comments": [
         {
           "author": "ttaubert",
@@ -2083,6 +2092,99 @@
               "updatedAt": "2022-04-27T15:15:22Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDODroSBs45PunU",
+          "commit": {
+            "abbreviatedOid": "d62ba99"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-05-03T13:53:55Z",
+          "updatedAt": "2022-05-03T13:53:55Z",
+          "comments": [
+            {
+              "originalPosition": 11,
+              "body": "```suggestion\r\n\r\nThe Prover's behavior consists of two functions, ProverInit and ProverFinish, which\r\nare described below.\r\n\r\n```",
+              "createdAt": "2022-05-03T13:53:55Z",
+              "updatedAt": "2022-05-03T13:53:55Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs45PvhF",
+          "commit": {
+            "abbreviatedOid": "d62ba99"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-05-03T13:56:22Z",
+          "updatedAt": "2022-05-03T13:56:23Z",
+          "comments": [
+            {
+              "originalPosition": 30,
+              "body": "```suggestion\r\n## Verifier\r\n\r\nThe Verifier's behavior consists of a single function, VerifierFinish, which\r\nis described below.\r\n```",
+              "createdAt": "2022-05-03T13:56:22Z",
+              "updatedAt": "2022-05-03T13:56:24Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs45Pvt8",
+          "commit": {
+            "abbreviatedOid": "d62ba99"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-05-03T13:56:53Z",
+          "updatedAt": "2022-05-03T13:56:55Z",
+          "comments": [
+            {
+              "originalPosition": 48,
+              "body": "```suggestion\r\n## Transcript Computation\r\n\r\nBoth Prover and Verifier share the same function to compute the protocol\r\ntranscript, ComputeTranscript, which is described below.\r\n```",
+              "createdAt": "2022-05-03T13:56:53Z",
+              "updatedAt": "2022-05-03T13:56:55Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs45Pv3j",
+          "commit": {
+            "abbreviatedOid": "d62ba99"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2022-05-03T13:57:16Z",
+          "updatedAt": "2022-05-03T13:57:17Z",
+          "comments": [
+            {
+              "originalPosition": 65,
+              "body": "```suggestion\r\nBoth Prover and Verifier share the same function to compute\r\nthe key schedule, ComputeKeySchedule, which is described below.\r\n\r\n```",
+              "createdAt": "2022-05-03T13:57:16Z",
+              "updatedAt": "2022-05-03T13:57:17Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDODroSBs45Pv8G",
+          "commit": {
+            "abbreviatedOid": "d62ba99"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2022-05-03T13:57:28Z",
+          "updatedAt": "2022-05-03T13:57:28Z",
+          "comments": []
         }
       ]
     },
