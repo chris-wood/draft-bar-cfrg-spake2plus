@@ -76,8 +76,8 @@ making this protocol more robust than balanced PAKEs, which don't benefit from P
 
 This augmented property is especially valuable in scenarios where the execution of the protocol is constrained
 and the adversary cannot query the salt of the Password Hashing Function ahead of the attack.
-A constraint may, for example, be physical proximity through a local network or when initiation of the protocol
-requires a first authentication factor.
+For example, a constraint may be when physical proximity through a local network is required or when a
+first authentication factor is required for initiation of the protocol.
 
 This document has content split out from a related document specifying SPAKE2 {{!I-D.irtf-cfrg-spake2}},
 which is a symmetric PAKE protocol, where both parties have knowledge of the password.
@@ -368,7 +368,7 @@ indicates a group, cryptographic hash algorithm, and pair of KDF and MAC functio
 P256-SHA256-HKDF-HMAC-SHA256. This ciphersuite indicates a SPAKE2+ protocol instance over
 P-256 that uses SHA256 along with HKDF {{!RFC5869}} and HMAC {{!RFC2104}}
 for G, Hash, KDF, and MAC functions, respectively. Since the choice of PBKDF,
-its parameters for computing w0 and w1, and distribution of w0 and w1 does not
+its parameters for computing w0 and w1, and the distribution of w0 and w1 do not
 affect interoperability, the PBKDF is not included as part of the ciphersuite.
 
 If no MAC algorithm is used in the key confirmation phase, its respective column
