@@ -1,5 +1,5 @@
 ---
-title: SPAKE2+, an Augmented PAKE
+title: SPAKE2+, an Augmented Password-Authenticated Key Exchange (PAKE) Protocol
 abbrev: spake2plus
 docname: draft-bar-cfrg-spake2plus-latest
 date: {DATE}
@@ -63,7 +63,7 @@ of SPAKE2+ by the IETF or IRTF.
 This document describes SPAKE2+, a Password Authenticated Key Exchange (PAKE) protocol
 run between two parties for deriving a strong shared key with no risk of disclosing the password.
 SPAKE2+ is an augmented PAKE protocol, as only one party makes direct use of the password during the execution of the protocol.
-The other party only needs a record corresponding to the other party's registration at the time of the protocol execution instead of the password.
+The other party only needs a record corresponding to the first party's registration at the time of the protocol execution instead of the password.
 This record can be computed once, during an offline registration phase.
 The party using the password directly would typically be a client, and acts as a prover,
 while the other party would be a server, and acts as verifier.
@@ -72,12 +72,12 @@ The protocol is augmented in the sense that it provides some resilience to the c
 The design of the protocol forces the adversary to recover the password from the record to successfully execute the protocol.
 Hence this protocol can be advantageously combined with a salted Password Hashing Function to increase the cost of the recovery and slow down attacks.
 The record cannot be used directly to successfully run the protocol as a prover,
-making this protocol more robust than balanced PAKEs which don't benefit from Password Hashing Functions to the same extent.
+making this protocol more robust than balanced PAKEs, which don't benefit from Password Hashing Functions to the same extent.
 
 This augmented property is especially valuable in scenarios where the execution of the protocol is constrained
-and the adversary cannot query the salt of the password hash function ahead of the attack.
-Constraints may consist in being in physical proximity through a local network or
-when initiation of the protocol requires a first authentication factor.
+and the adversary cannot query the salt of the Password Hashing Function ahead of the attack.
+For example, a constraint may be when physical proximity through a local network is required or when a
+first authentication factor is required for initiation of the protocol.
 
 This document has content split out from a related document specifying SPAKE2 {{!I-D.irtf-cfrg-spake2}},
 which is a symmetric PAKE protocol, where both parties have knowledge of the password.
@@ -111,7 +111,7 @@ operations in the group additively. We assume there is a representation of
 elements of G as byte strings: common choices would be SEC1
 uncompressed or compressed {{SEC1}} for elliptic curve groups or big
 endian integers of a fixed (per-group) length for prime field DH.
-We fix a generate P of (large) prime-order subgroup of G. P is specified
+We fix a generator P of (large) prime-order subgroup of G. P is specified
 in the document defining the group, and so we do not repeat it here.
 
 || denotes concatenation of strings. We also let len(S) denote the
@@ -119,7 +119,7 @@ length of a string in bytes, represented as an eight-byte little
 endian number. Finally, let nil represent an empty string, i.e.,
 len(nil) = 0.
 
-KDF is a key-derivation function that takes as input a salt, intermediate
+KDF is a key-derivation function that takes as input a salt, input
 keying material (IKM), info string, and derived key length L to derive a
 cryptographic key of length L.
 MAC is a Message Authentication Code algorithm that takes a secret key and
@@ -132,10 +132,10 @@ suitable for use with the protocols contained herein.
 Let there be two parties, a prover and a verifier. Their identities, denoted as
 idProver and idVerifier, may also have digital representations such as Media Access Control addresses
 or other names (hostnames, usernames, etc). The parties may share additional data
-(the context) separate from their identities which they may want to include in
+(the context) separate from their identities, which they may want to include in
 the protocol transcript.
 One example of additional data is a list of supported protocol versions if SPAKE2+ were
-used in a higher-level protocol which negotiates the use of a particular PAKE. Another
+used in a higher-level protocol that negotiates the use of a particular PAKE. Another
 example is the inclusion of the application name. Including those would ensure that
 both parties agree upon the same set of supported protocols and therefore prevent downgrade and
 cross-protocol attacks. Specification of precise context values is out of scope for this document.
@@ -225,7 +225,7 @@ SHOULD be at least 640 bits or 80 bytes.
 Given a PBKDF, password pw, and identities idProver and idVerifier, the RECOMMENDED
 method for computing w0 and w1 is as follows:
 
-~~~
+~~~ pseudocode
 w0s || w1s = PBKDF(len(pw) || pw ||
                    len(idProver) || idProver ||
                    len(idVerifier) || idVerifier)
@@ -234,7 +234,7 @@ w1 = w1s mod p
 ~~~
 
 If an identity is unknown at the time of computing w0s or w1s, its length is given
-as zero and the identity itself is represented as the empty octet string. If both
+as zero and the identity itself is represented as an empty octet string. If both
 idProver and idVerifier are unknown, then their lengths are given as zero and both
 identities will be represented as empty octet strings. idProver and idVerifier are
 included in the transcript TT as part of the protocol flow.
@@ -246,7 +246,7 @@ single shared secret upon completion. To begin, the prover selects x uniformly
 at random from the integers in [0, p-1], computes the public share shareP=X,
 and transmits it to the verifier.
 
-~~~
+~~~ pseudocode
 x <- [0, p-1]
 X = x*P + w0*M
 ~~~
@@ -258,15 +258,15 @@ in [0, p-1], computes the public share shareV=Y and transmits it to the prover.
 Upon receipt of Y, the prover checks the received element for group membership
 and aborts if Y is not in the large prime-order subgroup of G.
 
-~~~
+~~~ pseudocode
 y <- [0, p-1]
 Y = y*P + w0*N
 ~~~
 
-Both participants compute Z and V that are now shared as common values.
+Both participants compute Z and V; Z and V are then shared as common values.
 The prover computes:
 
-~~~
+~~~ pseudocode
 Z = h*x*(Y - w0*N)
 V = h*w1*(Y - w0*N)
 ~~~
@@ -286,7 +286,7 @@ unit element in G.
 It is essential that both Z and V be used in combination with the transcript to
 derive the keying material. The protocol transcript encoding is shown below.
 
-~~~
+~~~ pseudocode
 TT = len(Context) || Context
   || len(idProver) || idProver
   || len(idVerifier) || idVerifier
@@ -307,7 +307,7 @@ chosen ciphersuite and PBKDF parameters like the iteration count or salt.
 The context and its length prefix MAY be omitted.
 
 If an identity is absent, its length is given as zero and the identity itself
-is represented as the empty octet string. If both identities are absent, then
+is represented as an empty octet string. If both identities are absent, then
 their lengths are given as zero and both are represented as empty octet strings.
 In applications where identities are not implicit, idProver and idVerifier SHOULD always be
 non-empty. Otherwise, the protocol risks Unknown Key Share attacks (discussion
@@ -320,8 +320,8 @@ agree upon these shared secrets. After receipt and verification of the verifier'
 confirmation message, the prover MUST respond with its confirmation message.
 The verifier MUST NOT send application data to the prover until it has received
 and verified the confirmation message. Key confirmation verification requires
-recomputation of confirmP or confirmV and checking for equality against that which was
-received.
+recomputation of confirmP or confirmV and checking for equality against the data
+that was received.
 
 ## Key Schedule and Key Confirmation {#keys}
 
@@ -331,7 +331,7 @@ protocol. The length of K_main is equal to the length of the digest output, e.g.
 for Hash() = SHA-256. The confirmation keys K_confirmP and K_confirmV, as well as the shared
 key K_shared are derived from K_main.
 
-~~~
+~~~ pseudocode
 K_main = Hash(TT)
 K_confirmP || K_confirmV = KDF(nil, K_main, "ConfirmationKeys")
 K_shared = KDF(nil, K_main, "SharedKey")
@@ -351,14 +351,15 @@ Both endpoints MUST employ a MAC that produces pseudorandom tags for key confirm
 K_confirmP and K_confirmV are symmetric keys used to compute tags confirmP and
 confirmV over the public key shares received from the other peer earlier.
 
-~~~
+~~~ pseudocode
 confirmP = MAC(K_confirmP, shareV)
 confirmV = MAC(K_confirmV, shareP)
 ~~~
 
 Once key confirmation is complete, applications MAY use K_shared as an authenticated
-shared secret as needed. For example, applications MAY derive one or more AEAD
-keys and nonces from K_shared for subsequent application data encryption.
+shared secret as needed. For example, applications MAY derive one or more keys and nonces
+from K_shared, for use with Authenticated Encryption with Associated Data and subsequent
+application data encryption.
 
 # Ciphersuites {#Ciphersuites}
 
@@ -366,9 +367,9 @@ This section documents SPAKE2+ ciphersuite configurations. A ciphersuite
 indicates a group, cryptographic hash algorithm, and pair of KDF and MAC functions, e.g.,
 P256-SHA256-HKDF-HMAC-SHA256. This ciphersuite indicates a SPAKE2+ protocol instance over
 P-256 that uses SHA256 along with HKDF {{!RFC5869}} and HMAC {{!RFC2104}}
-for G, Hash, KDF, and MAC functions, respectively. Since the choice of PBKDF
-and its parameters for computing w0 and w1 and distributing does not affect
-interoperability, the PBKDF is not included as part of the ciphersuite.
+for G, Hash, KDF, and MAC functions, respectively. Since the choice of PBKDF,
+its parameters for computing w0 and w1, and the distribution of w0 and w1 do not
+affect interoperability, the PBKDF is not included as part of the ciphersuite.
 
 If no MAC algorithm is used in the key confirmation phase, its respective column
 in Table 1 can be ignored and the ciphersuite name will contain no MAC
@@ -391,7 +392,7 @@ in Table 1, using the algorithm presented in {{pointgen}}. These bytestrings are
 compressed points as in {{SEC1}} for curves from {{SEC1}} and {{!RFC8032}}. Note that
 these values are identical to those used in the companion SPAKE2 specification {{I-D.irtf-cfrg-spake2}}.
 
-For P256:
+For P-256:
 
 ~~~
 M =
@@ -403,7 +404,7 @@ N =
 seed: 1.2.840.10045.3.1.7 point generation seed (N)
 ~~~
 
-For P384:
+For P-384:
 
 ~~~
 M =
@@ -417,7 +418,7 @@ N =
 seed: 1.3.132.0.34 point generation seed (N)
 ~~~
 
-For P521:
+For P-521:
 
 ~~~
 M =
@@ -491,10 +492,10 @@ P, p, and h are defined by the chosen ciphersuite.
 
 ## Prover
 
-The Prover's behavior consists of two functions, ProverInit and ProverFinish, which
+The Prover implements two functions, ProverInit and ProverFinish, which
 are described below.
 
-~~~
+~~~ pseudocode
 def ProverInit(w0):
    // Compute prover key share
    x <- [0, p-1]
@@ -514,10 +515,10 @@ def ProverFinish(w0, w1, x, Y):
 
 ## Verifier
 
-The Verifier's behavior consists of a single function, VerifierFinish, which
-is described below.
+The Verifier implements a single function, VerifierFinish, which is
+described below.
 
-~~~
+~~~ pseudocode
 def VerifierFinish(w0, L, X):
    if not_in_subgroup(X):
       raise "invalid input"
@@ -538,8 +539,9 @@ def VerifierFinish(w0, L, X):
 Both Prover and Verifier share the same function to compute the protocol
 transcript, ComputeTranscript, which is described below.
 
-~~~
-def ComputeTranscript(Context, idProver, idVerifier, shareP, shareV, Z, V, w0):
+~~~ pseudocode
+def ComputeTranscript(Context, idProver, idVerifier,
+                      shareP, shareV, Z, V, w0):
    TT = len(Context) || Context
      || len(idProver) || idProver
      || len(idVerifier) || idVerifier
@@ -556,7 +558,7 @@ def ComputeTranscript(Context, idProver, idVerifier, shareP, shareV, Z, V, w0):
 Both Prover and Verifier share the same function to compute
 the key schedule, ComputeKeySchedule, which is described below.
 
-~~~
+~~~ pseudocode
 def ComputeKeySchedule(TT):
    K_main = Hash(TT)
    K_confirmP || K_confirmV = KDF(nil, K_main, "ConfirmationKeys")
@@ -570,13 +572,14 @@ A full SPAKE2+ protocol run initiated by the prover will look as follows,
 where Transmit and Receive are shorthand for sending and receiving
 a message to the peer:
 
-~~~
+~~~ pseudocode
 Prover(Context, idProver, idVerifier, w0, w1):
    (x, X) = ProverInit(w0)
    Transmit(X)
    Y = Receive()
    (Z, V) = ProverFinish(w0, w1, x, Y)
-   TT = ComputeTranscript(Context, idProver, idVerifier, X, Y, Z, V, w0)
+   TT = ComputeTranscript(Context, idProver, idVerifier, X, Y,
+                          Z, V, w0)
    (K_confirmP, K_confirmV, K_shared) = ComputeKeySchedule(TT)
    expected_confirmV = MAC(K_confirmV, X)
    confirmV = Receive()
@@ -592,7 +595,8 @@ Verifier(Context, idProver, idVerifier, w0, L):
    X = Receive()
    (Y, Z, V) = VerifierFinish(w0, L, X)
    Transmit(Y)
-   TT = ComputeTranscript(Context, idProver, idVerifier, X, Y, Z, V, w0)
+   TT = ComputeTranscript(Context, idProver, idVerifier, X, Y,
+                          Z, V, w0)
    (K_confirmP, K_confirmV, K_shared) = ComputeKeySchedule(TT)
    confirmV = MAC(K_confirmV, X)
    Transmit(confirmV)
@@ -614,11 +618,10 @@ points in the prime-order subgroup of G, where the discrete log
 of these points is unknown. See {{SPAKE2P-Analysis}} for additional
 details on this requirement.
 
-For each curve in the table below, we construct a string
-using the curve OID from {{!RFC5480}} (as an ASCII
-string) or its name,
+For each curve in Table 1, we construct a string using the curve OID
+from {{!RFC5480}} (as an ASCII string) or its name,
 combined with the needed constant, for instance "1.3.132.0.35
-point generation seed (M)" for P-512.  This string is turned
+point generation seed (M)" for P-521.  This string is turned
 into a series of blocks by hashing with SHA256, and hashing that
 output again to generate the next 32 bytes, and so on.  This
 pattern is repeated for each group and value, with the string
@@ -656,7 +659,7 @@ assuming an elliptic curve implementation following the
 interface of Edwards25519Point.stdbase() and
 Edwards448Point.stdbase() in Appendix A of {{RFC8032}}:
 
-~~~
+~~~ python
 def iterated_hash(seed, n):
   h = seed
   for i in range(n):
@@ -696,8 +699,7 @@ All points are encoded using the uncompressed format, i.e., with a 0x04 octet
 prefix, specified in {{SEC1}}. idProver and idVerifier identity strings
 are provided in the protocol invocation.
 
-~~~
-
+~~~ test-vectors
 [Context=b'SPAKE2+-P256-SHA256-HKDF-SHA256-HMAC-SHA256 Test Vectors
 ']
 [idProver=b'client']
@@ -751,7 +753,9 @@ HMAC(K_confirmV, shareP) = 0x9747bcc4f8fe9f63defee53ac9b07876d907d55
 047e6ff2def2e7529089d3e68
 K_shared = 0x0c5f8ccd1413423a54f6c1fb26ff01534a87f893779c6e68666d772
 bfd91f3e7
+~~~
 
+~~~ test-vectors
 [Context=b'SPAKE2+-P256-SHA512-HKDF-SHA512-HMAC-SHA512 Test Vectors
 ']
 [idProver=b'client']
@@ -811,7 +815,9 @@ c0a76928faea703c72d383b267511a5cf084cb07147efece94e3cfd91944e7baab85
 K_shared = 0x11887659d9e002f34fa6cc270d33570f001b2a3fc0522b643c07327
 d09a4a9f47aab85813d13c585b53adf5ac9de5707114848f3dc31a4045f69a2cc197
 2b098
+~~~
 
+~~~ test-vectors
 [Context=b'SPAKE2+-P384-SHA256-HKDF-SHA256-HMAC-SHA256 Test Vectors
 ']
 [idProver=b'client']
@@ -876,7 +882,9 @@ HMAC(K_confirmV, shareP) = 0x1581062167d6a3d14493447cd170d408f6fdc58
 e31225438db86214167426a7a
 K_shared = 0x99758e838ae1a856589689fb55b6befe4e2382e6ebbeca1a6232a68
 f9dc04c1a
+~~~
 
+~~~ test-vectors
 [Context=b'SPAKE2+-P384-SHA512-HKDF-SHA512-HMAC-SHA512 Test Vectors
 ']
 [idProver=b'client']
@@ -947,7 +955,9 @@ HMAC(K_confirmV, shareP) = 0x8daa262decb79cceda4421f4f8dacf22ec027c0
 K_shared = 0x31e0075a823b9269af5769d71ef3b2f5001cbfe044584fe8551124a
 217dad078415630bf3eda16b5a38341d418a6d72b3960f818a0926f0de88784b59d6
 a694b
+~~~
 
+~~~ test-vectors
 [Context=b'SPAKE2+-P521-SHA512-HKDF-SHA512-HMAC-SHA512 Test Vectors
 ']
 [idProver=b'client']
@@ -1034,7 +1044,9 @@ afcda64a4c96d4c3d81ad
 K_shared = 0xd1c170e4e55efacb9db8abad286293ebd1dcf24f13973427b9632bb
 c323e42e447afca2aa7f74f2af3fb5f51684ec543db854b7002cde6799c330b032ba
 8820a
+~~~
 
+~~~ test-vectors
 [Context=b'SPAKE2+-P256-SHA256-HKDF-SHA256-CMAC-AES-128 Test Vector
 s']
 [idProver=b'client']
@@ -1084,7 +1096,9 @@ CMAC(K_confirmP, shareV) = 0xd340bc94a03feafd14491e316514ca5f
 CMAC(K_confirmV, shareP) = 0x2b42d0fe76bcf9ccc208d06d60082f96
 K_shared = 0xe832094adfc028bf288e49ab902fc208b7eeff084f259da7613c047
 9869d4fc9
+~~~
 
+~~~ test-vectors
 [Context=b'SPAKE2+-P256-SHA512-HKDF-SHA512-CMAC-AES-128 Test Vector
 s']
 [idProver=b'client']
