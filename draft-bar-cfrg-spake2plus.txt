@@ -5,7 +5,7 @@
 Network Working Group                                         T. Taubert
 Internet-Draft                                                Apple Inc.
 Intended status: Informational                                C. A. Wood
-Expires: 4 November 2022                                      3 May 2022
+Expires: 1 April 2027                                  28 September 2026
 
 
                        SPAKE2+, an Augmented PAKE
@@ -47,11 +47,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 4 November 2022.
+   This Internet-Draft will expire on 1 April 2027.
 
 Copyright Notice
 
-   Copyright (c) 2022 IETF Trust and the persons identified as the
+   Copyright (c) 2026 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -557,10 +557,11 @@ Table of Contents
 8.1.  Normative References
 
    [I-D.irtf-cfrg-spake2]
-              Ladd, W. and B. Kaduk, "SPAKE2, a PAKE", Work in Progress,
-              Internet-Draft, draft-irtf-cfrg-spake2-26, 8 February
-              2022, <https://datatracker.ietf.org/doc/html/draft-irtf-
-              cfrg-spake2-26>.
+              Ladd, W. and B. Kaduk, "SPAKE2, a Password-Authenticated
+              Key Exchange", Work in Progress, Internet-Draft, draft-
+              irtf-cfrg-spake2-26, 8 February 2022,
+              <https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-
+              spake2-26>.
 
    [RFC2104]  Krawczyk, H., Bellare, M., and R. Canetti, "HMAC: Keyed-
               Hashing for Message Authentication", RFC 2104,
