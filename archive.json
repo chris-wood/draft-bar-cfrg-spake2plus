@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2022-05-05T00:23:21.996428+00:00",
+  "timestamp": "2026-09-29T00:30:02.753380+00:00",
   "repo": "chris-wood/draft-bar-cfrg-spake2plus",
   "labels": [
     {
@@ -24,14 +24,14 @@
       "color": "a2eeef"
     },
     {
-      "name": "help wanted",
-      "description": "Extra attention is needed",
-      "color": "008672"
-    },
-    {
       "name": "good first issue",
       "description": "Good for newcomers",
       "color": "7057ff"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
     },
     {
       "name": "invalid",
@@ -504,6 +504,38 @@
           "updatedAt": "2022-04-23T16:42:48Z"
         }
       ]
+    },
+    {
+      "number": 36,
+      "id": "I_kwDODroSBs5wfeba",
+      "title": "Redundant (legacy) paragraph in \u00a74 Ciphersuites section?",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/issues/36",
+      "state": "OPEN",
+      "author": "athoelke",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "The paragraph about optional use of MAC in before the Ciphersuites table (see https://github.com/chris-wood/draft-bar-cfrg-spake2plus/blob/89c162b4c28e33d9c188f338b7c6c9efa21f0660/draft-bar-cfrg-spake2plus.md?plain=1#L373) seems to be a legacy from the earlier drafts, when use of MAC during confirmation was optional.\r\n\r\nIn draft08, the protocol always uses MAC to compute the confirmation values. Should this paragraph be removed?",
+      "createdAt": "2023-09-08T09:28:44Z",
+      "updatedAt": "2023-09-08T09:28:44Z",
+      "closedAt": null,
+      "comments": []
+    },
+    {
+      "number": 37,
+      "id": "I_kwDODroSBs5wffLX",
+      "title": "Minor fixes needed in the Appendix A pseudocode",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/issues/37",
+      "state": "OPEN",
+      "author": "athoelke",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "* `ProverFinish()` is incorrectly returning `Y`\r\n* `VerifierFinish()` needs to also return `Y`\r\n* `ComputeTranscript()` needs to return `TT`",
+      "createdAt": "2023-09-08T09:30:51Z",
+      "updatedAt": "2023-09-08T09:30:51Z",
+      "closedAt": null,
+      "comments": []
     }
   ],
   "pulls": [
@@ -2228,6 +2260,48 @@
           "body": "",
           "createdAt": "2022-04-27T14:56:39Z",
           "updatedAt": "2022-04-27T14:56:39Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 35,
+      "id": "PR_kwDODroSBs5NxQU7",
+      "title": "Address AUTH48 feedback",
+      "url": "https://github.com/chris-wood/draft-bar-cfrg-spake2plus/pull/35",
+      "state": "OPEN",
+      "author": "ttaubert",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [
+        "ttaubert"
+      ],
+      "labels": [],
+      "body": "Addresses all suggestions and questions from the RFC editors.\r\n\r\n> 8) [rfced] FYI, we asked about \"setup protocol\" in RFC-to-be 9382;\r\n> see question # 6 in the mail to the authors of that document\r\n> (https://mailarchive.ietf.org/arch/msg/auth48archive/UhnTFML-8Ns1LXCAaavjZS04-5o/).\r\n> We will check with you before making updates.\r\n>\r\n\r\nI think we should leave this as \"setup protocol\". It describes a phase of the protocol, not an action.\r\n\r\n> 15) [rfced] Table 1:  We do not see \"SHA512\", \"SHA-512\", or \"512\"\r\n> in RFC 5869.  Will these citations in this table be clear to readers?\r\n\r\nIn RFC 5869, the hash function is not fixed, but test vectors for only SHA-1 and SHA-256 are given. I think that readers will be able to construct the correct primitive as intended.\r\n\r\n> We have the same question for SHA256, and SHA512; we do not see them\r\n> listed in RFC 2104.\r\n\r\nSimilarly, the hash function is not fixed in RFC 2104. I don\u2019t expected any misunderstandings here either.\r\n\r\n> 21) [rfced] Please review the \"Inclusive Language\" portion of the\r\n> online Style Guide at <https://www.rfc-editor.org/styleguide/part2/#inclusive_language>,\r\n> and let us know if any changes are needed.\r\n> \r\n> Note that our script did not flag any words in particular, but this\r\n> should still be reviewed as a best practice.\r\n\r\nI reviewed the style guide and also found no issues with the current draft.",
+      "createdAt": "2023-04-06T13:26:50Z",
+      "updatedAt": "2023-04-08T12:56:33Z",
+      "baseRepository": "chris-wood/draft-bar-cfrg-spake2plus",
+      "baseRefName": "master",
+      "baseRefOid": "89c162b4c28e33d9c188f338b7c6c9efa21f0660",
+      "headRepository": "ttaubert/draft-bar-cfrg-spake2plus",
+      "headRefName": "auth48-feedback",
+      "headRefOid": "62b88a5218aa42be1b7cfab093218e6377b72748",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDODroSBs5R8udy",
+          "commit": {
+            "abbreviatedOid": "352ef04"
+          },
+          "author": "chris-wood",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "Looks great!",
+          "createdAt": "2023-04-06T13:30:39Z",
+          "updatedAt": "2023-04-06T13:30:39Z",
           "comments": []
         }
       ]
